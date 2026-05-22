@@ -1,0 +1,39 @@
+[Unit]
+Description=VCISO 자산조사 캠페인 워킹 샘플 (Node + Express)
+Documentation=https://github.com/sungho-seo/asset_campaign
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# 실제 배포 경로에 맞게 수정
+WorkingDirectory=/opt/asset_campaign
+ExecStart=/usr/bin/npm run start
+
+Environment=NODE_ENV=production
+Environment=PORT=8049
+Environment=HOST=0.0.0.0
+
+# 서비스 계정 (사전에 생성: sudo useradd -r -s /sbin/nologin asset-campaign)
+User=asset-campaign
+Group=asset-campaign
+
+Restart=on-failure
+RestartSec=5s
+StartLimitInterval=60s
+StartLimitBurst=5
+
+# 로그는 journalctl로 확인
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=asset-campaign
+
+# 최소 권한
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/opt/asset_campaign
+
+[Install]
+WantedBy=multi-user.target

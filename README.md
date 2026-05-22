@@ -49,7 +49,62 @@ npm run preview:host
 # → http://0.0.0.0:4173
 ```
 
-### 5. 테스트 실행
+### 5. 사내 운영 서버로 띄우기 (2개월 이상 운영 권장)
+
+`npm run dev` 또는 `vite preview`는 개발용입니다.
+운영용은 **Express 서버(`server/index.ts`)**가 빌드된 정적 파일과 `/api/*`를 함께 서빙합니다.
+
+```bash
+# 빌드 + 실행
+npm install
+npm run build
+PORT=8049 npm run start
+# → http://0.0.0.0:8049
+```
+
+**원클릭 배포 (Ubuntu 22.04, systemd 등록)**:
+
+```bash
+sudo bash deploy/install.sh
+# 또는 다른 포트/경로로:
+sudo PORT=8049 INSTALL_DIR=/opt/asset_campaign bash deploy/install.sh
+```
+
+이 스크립트는:
+1. Node 20 LTS 설치 (없는 경우)
+2. `asset-campaign` 서비스 계정 생성
+3. 리포지토리 clone/업데이트 → `/opt/asset_campaign`
+4. `npm ci && npm run build`
+5. systemd 유닛 등록 + 자동 시작
+
+운영 명령어:
+
+```bash
+sudo systemctl status asset-campaign         # 상태
+sudo systemctl restart asset-campaign        # 재시작
+sudo journalctl -u asset-campaign -f         # 실시간 로그
+sudo systemctl stop asset-campaign           # 중지
+```
+
+방화벽이 켜져 있다면:
+```bash
+sudo ufw allow 8049/tcp
+```
+
+서비스 상태 확인:
+```bash
+curl http://localhost:8049/api/health
+# {"ok":true,"assets":21}
+```
+
+운영 특성:
+- **20명 동시 접속** 가능 (Node가 단일 프로세스 비동기 처리)
+- **데이터는 모든 사용자가 공유** (서버 메모리에 store)
+- **재시작 시** `public/sample-assets.csv`에서 다시 부팅
+- **재부팅 후** systemd가 자동 시작 (`Restart=on-failure`)
+- 데이터를 영구 보존하려면 향후 SQLite 도입 검토
+
+### 6. 테스트 실행
 
 ```bash
 npm test           # 1회 실행
