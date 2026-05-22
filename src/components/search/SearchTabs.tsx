@@ -10,8 +10,8 @@ const TABS: Array<{ value: SearchMode; label: string }> = [
   { value: 'all', label: '통합' },
   { value: 'ip', label: 'IP' },
   { value: 'hostname', label: '자산명' },
-  { value: 'owner', label: '내가 담당자' },
-  { value: 'email', label: '내 이메일' },
+  { value: 'owner', label: '담당자' },
+  { value: 'email', label: '이메일' },
 ];
 
 export function SearchTabs({ value, onChange }: SearchTabsProps) {

@@ -12,6 +12,7 @@ type SearchBoxProps = {
   onChange: (v: string) => void;
   onSubmit: () => void;
   onClear: () => void;
+  onFocusInput?: () => void;
 };
 
 const PLACEHOLDER: Record<SearchMode, string> = {
@@ -28,6 +29,7 @@ export function SearchBox({
   onChange,
   onSubmit,
   onClear,
+  onFocusInput,
 }: SearchBoxProps) {
   const ref = useRef<HTMLInputElement>(null);
 
@@ -63,6 +65,8 @@ export function SearchBox({
           placeholder={PLACEHOLDER[mode]}
           value={value}
           onChange={(e) => handleChange(e.target.value)}
+          onFocus={() => onFocusInput?.()}
+          onClick={() => onFocusInput?.()}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault();

@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { Info } from 'lucide-react';
 import { Shell } from '../components/layout/Shell';
 import { Panel } from '../components/layout/Panel';
-import { Banner } from '../components/feedback/Banner';
 import { Button } from '../components/common/Button';
 import { SearchTabs } from '../components/search/SearchTabs';
 import { SearchBox } from '../components/search/SearchBox';
@@ -31,6 +30,7 @@ type DrawerState =
 export default function EmployeePage() {
   const [mode, setMode] = useState<SearchMode>('all');
   const [query, setQuery] = useState('');
+  const [isDefaultQuery, setIsDefaultQuery] = useState(false);
   const [searched, setSearched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<Asset[]>([]);
@@ -49,15 +49,36 @@ export default function EmployeePage() {
 
   const { show } = useToast();
 
-  // 탭 변경 시 자동 채움 (담당자 / 이메일)
+  // 탭 변경 시 자동 채움 (담당자 / 이메일). 첫 클릭 시 지우기 위해 isDefaultQuery 플래그 사용.
   useEffect(() => {
-    if (mode === 'owner') setQuery(MOCK_USER.name);
-    else if (mode === 'email') setQuery(MOCK_USER.email);
-    else if (mode === 'ip' || mode === 'hostname' || mode === 'all') setQuery('');
+    if (mode === 'owner') {
+      setQuery(MOCK_USER.name);
+      setIsDefaultQuery(true);
+    } else if (mode === 'email') {
+      setQuery(MOCK_USER.email);
+      setIsDefaultQuery(true);
+    } else {
+      setQuery('');
+      setIsDefaultQuery(false);
+    }
     setSearched(false);
     setItems([]);
     setTotal(0);
   }, [mode]);
+
+  // 사용자 입력이 시작되면 default 상태 해제
+  const handleQueryChange = (v: string) => {
+    setQuery(v);
+    if (isDefaultQuery) setIsDefaultQuery(false);
+  };
+
+  // 입력창에 포커스/클릭 시, 아직 default 자동 채움 상태이면 즉시 지움
+  const handleQueryFocus = () => {
+    if (isDefaultQuery) {
+      setQuery('');
+      setIsDefaultQuery(false);
+    }
+  };
 
   const runSearch = async () => {
     setLoading(true);
@@ -66,6 +87,9 @@ export default function EmployeePage() {
     setItems(r.items);
     setTotal(r.total);
     setLoading(false);
+    if (r.total === 0) {
+      show('검색 결과가 없습니다. 새 자산을 등록해 주세요.', 'info');
+    }
   };
 
   const openEdit = (asset: Asset) => {
@@ -176,22 +200,20 @@ export default function EmployeePage() {
         </p>
       </div>
 
-      <Banner tone="brand" className="mb-5">
-        검색 결과가 없다면 신규 등록을 진행해 주세요.
-      </Banner>
-
       <Panel title="자산 검색" subtitle="5가지 모드로 빠르게 찾기" padded={false}>
         <SearchTabs value={mode} onChange={setMode} />
         <div className="px-5 py-4">
           <SearchBox
             mode={mode}
             value={query}
-            onChange={setQuery}
+            onChange={handleQueryChange}
             onSubmit={runSearch}
+            onFocusInput={handleQueryFocus}
             onClear={() => {
               setSearched(false);
               setItems([]);
               setTotal(0);
+              setIsDefaultQuery(false);
             }}
           />
         </div>

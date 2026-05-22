@@ -16,8 +16,8 @@ import { Input } from '../common/Input';
 import { ToggleGroup } from '../common/ToggleGroup';
 import { Button } from '../common/Button';
 import { Field } from './Field';
-import { Select } from './Select';
 import { IPList } from './IPList';
+import { SelectWithCustom } from './SelectWithCustom';
 import { ValidationBanner, type ValidationError } from './ValidationBanner';
 import { ASSET_TYPE_OPTIONS, OS_OPTIONS } from '../../lib/mock';
 import { cn } from '../../lib/cn';
@@ -270,15 +270,15 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
         <div className="grid grid-cols-2 gap-3">
           <div ref={setRef('assetType')}>
             <Field id="assetType" label="자산 유형" error={errors.assetType} hint="(예: 온프레미스, 클라우드)">
-              <Select
+              <SelectWithCustom
                 id="assetType"
                 value={values.assetType}
                 emptyFlag={flag('assetType', values.assetType)}
                 error={!!errors.assetType}
                 placeholder="선택하세요"
                 options={ASSET_TYPE_OPTIONS}
-                onChange={(e) => {
-                  setField('assetType', e.target.value);
+                onChange={(v) => {
+                  setField('assetType', v);
                   markTouched('assetType');
                 }}
               />
@@ -338,6 +338,18 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
                 markTouched('ips');
               }}
             />
+            <div className="mt-2 rounded-md border border-line bg-bg-soft/50 px-3 py-2 text-[11.5px] leading-relaxed text-text-2">
+              <div>
+                <span className="font-medium text-text">대상</span>
+                <span className="text-text-3"> · </span>
+                리눅스 서버 내 VM, Docker 컨테이너 기반의 Web/WAS/DBMS 등
+              </div>
+              <div className="mt-1">
+                <span className="font-medium text-text">요청사항</span>
+                <span className="text-text-3"> · </span>
+                하나의 서버에 여러 개의 IP가 할당되어 있는 경우, 누락 없이 모든 IP를 입력해 주세요.
+              </div>
+            </div>
           </Field>
         </div>
 
@@ -366,15 +378,15 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
         <div className="grid grid-cols-2 gap-3">
           <div ref={setRef('os')}>
             <Field id="os" label="운영체제" required error={errors.os}>
-              <Select
+              <SelectWithCustom
                 id="os"
                 value={values.os}
                 emptyFlag={flag('os', values.os)}
                 error={!!errors.os}
                 placeholder="선택하세요"
                 options={OS_OPTIONS}
-                onChange={(e) => {
-                  setField('os', e.target.value);
+                onChange={(v) => {
+                  setField('os', v);
                   markTouched('os');
                 }}
               />
@@ -419,58 +431,60 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
       </section>
 
       {/* 보안 옵션 */}
-      <section className="space-y-4">
+      <section className="space-y-3">
         <h3 className="text-[12.5px] font-medium text-text-2">보안 옵션</h3>
-        <div ref={setRef('internet')}>
-          <Field label="외부 접속 여부" error={errors.internet}>
-            <ToggleGroup<'yes' | 'no'>
-              name="internet"
-              value={values.internet}
-              error={!!errors.internet}
-              onChange={(v) => {
-                setField('internet', v);
-                markTouched('internet');
-              }}
-              options={[
-                { value: 'yes', label: '예' },
-                { value: 'no', label: '아니오' },
-              ]}
-            />
-          </Field>
-        </div>
-        <div ref={setRef('antivirus')}>
-          <Field label="백신 설치 여부" error={errors.antivirus}>
-            <ToggleGroup<'yes' | 'no'>
-              name="antivirus"
-              value={values.antivirus}
-              error={!!errors.antivirus}
-              onChange={(v) => {
-                setField('antivirus', v);
-                markTouched('antivirus');
-              }}
-              options={[
-                { value: 'yes', label: '예' },
-                { value: 'no', label: '아니오' },
-              ]}
-            />
-          </Field>
-        </div>
-        <div ref={setRef('edr')}>
-          <Field label="EDR 설치 여부" error={errors.edr}>
-            <ToggleGroup<'yes' | 'no'>
-              name="edr"
-              value={values.edr}
-              error={!!errors.edr}
-              onChange={(v) => {
-                setField('edr', v);
-                markTouched('edr');
-              }}
-              options={[
-                { value: 'yes', label: '예' },
-                { value: 'no', label: '아니오' },
-              ]}
-            />
-          </Field>
+        <div className="grid grid-cols-3 gap-3">
+          <div ref={setRef('internet')}>
+            <Field label="외부 접속 여부" error={errors.internet}>
+              <ToggleGroup<'yes' | 'no'>
+                name="internet"
+                value={values.internet}
+                error={!!errors.internet}
+                onChange={(v) => {
+                  setField('internet', v);
+                  markTouched('internet');
+                }}
+                options={[
+                  { value: 'yes', label: '예' },
+                  { value: 'no', label: '아니오' },
+                ]}
+              />
+            </Field>
+          </div>
+          <div ref={setRef('antivirus')}>
+            <Field label="백신 설치 여부" error={errors.antivirus}>
+              <ToggleGroup<'yes' | 'no'>
+                name="antivirus"
+                value={values.antivirus}
+                error={!!errors.antivirus}
+                onChange={(v) => {
+                  setField('antivirus', v);
+                  markTouched('antivirus');
+                }}
+                options={[
+                  { value: 'yes', label: '예' },
+                  { value: 'no', label: '아니오' },
+                ]}
+              />
+            </Field>
+          </div>
+          <div ref={setRef('edr')}>
+            <Field label="EDR 설치 여부" error={errors.edr}>
+              <ToggleGroup<'yes' | 'no'>
+                name="edr"
+                value={values.edr}
+                error={!!errors.edr}
+                onChange={(v) => {
+                  setField('edr', v);
+                  markTouched('edr');
+                }}
+                options={[
+                  { value: 'yes', label: '예' },
+                  { value: 'no', label: '아니오' },
+                ]}
+              />
+            </Field>
+          </div>
         </div>
       </section>
     </div>

@@ -9,18 +9,19 @@ export const MOCK_USER: Owner = {
 export const ASSET_TYPE_OPTIONS = ['온프레미스', '클라우드', '하이브리드'];
 
 export const OS_OPTIONS = [
-  'Windows 11',
-  'Windows 10',
-  'Windows Server 2022',
-  'Windows Server 2019',
-  'macOS Sonoma',
-  'macOS Ventura',
-  'Ubuntu 22.04',
-  'Ubuntu 20.04',
-  'RHEL 9',
-  'RHEL 8',
-  'CentOS 7',
-  '기타',
+  'AIX',
+  'HP-UX',
+  'Linux',
+  'RHEL',
+  'RHEV',
+  'Rocky',
+  'SunOS',
+  'SUSE',
+  'Ubuntu',
+  'Unix',
+  'Windows',
+  'Windows Server',
+  'Xen',
 ];
 
 export const MOCK_ASSETS: Asset[] = [
