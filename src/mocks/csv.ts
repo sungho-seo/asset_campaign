@@ -1,7 +1,14 @@
-import type { Asset } from '../types/domain';
+import type { Asset, ToggleYesNo } from '../types/domain';
 
 // 단순 CSV 파서: 따옴표 미사용 가정. 우리 샘플 데이터는 콤마/따옴표를 필드 내에 포함하지 않음.
 // 다중 IP는 '|'로 구분.
+
+function parseToggle(v: string): ToggleYesNo | null {
+  const s = v.trim().toLowerCase();
+  if (s === 'yes' || s === 'no') return s as ToggleYesNo;
+  return null;
+}
+
 export function parseAssetsCSV(text: string): Asset[] {
   const lines = text.replace(/\r\n/g, '\n').trim().split('\n');
   if (lines.length < 2) return [];
@@ -25,15 +32,17 @@ export function parseAssetsCSV(text: string): Asset[] {
     const hasOwner = !!r.owner_name && !!r.owner_email;
     rows.push({
       id: r.id,
+      assetType: r.assetType || '',
       hostname: r.hostname,
-      domain: r.domain,
+      purpose: r.purpose || '',
       ips,
+      internet: parseToggle(r.internet || ''),
+      domain: r.domain || '',
       os: r.os,
       osVersion: r.osVersion,
-      location: r.location,
-      internet: (r.internet || 'no') as Asset['internet'],
-      antivirus: (r.antivirus || 'na') as Asset['antivirus'],
-      edr: (r.edr || 'na') as Asset['edr'],
+      location: r.location || '',
+      antivirus: parseToggle(r.antivirus || ''),
+      edr: parseToggle(r.edr || ''),
       owner: hasOwner
         ? {
             name: r.owner_name,

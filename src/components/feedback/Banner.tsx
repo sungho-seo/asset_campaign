@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Info, AlertCircle, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { cn } from '../../lib/cn';
 
-type Tone = 'info' | 'warn' | 'danger' | 'success';
+type Tone = 'info' | 'warn' | 'danger' | 'success' | 'brand';
 
 type BannerProps = {
   tone?: Tone;
@@ -17,6 +17,7 @@ const config: Record<Tone, { Cmp: typeof Info; cls: string }> = {
   warn: { Cmp: AlertTriangle, cls: 'bg-warn-soft/60 border-warn/30 text-text-2' },
   danger: { Cmp: AlertCircle, cls: 'bg-danger-soft/60 border-danger/30 text-text-2' },
   success: { Cmp: CheckCircle2, cls: 'bg-success-soft/60 border-success/30 text-text-2' },
+  brand: { Cmp: Info, cls: 'bg-brand-soft border-brand/30 text-text-2' },
 };
 
 export function Banner({

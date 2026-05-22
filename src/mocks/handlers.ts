@@ -126,13 +126,15 @@ export const handlers = [
     const now = new Date().toISOString();
     const asset: Asset = {
       id: store.nextId(),
+      assetType: body.assetType,
       hostname: body.hostname,
-      domain: body.domain,
+      purpose: body.purpose,
       ips: [...body.ips],
+      internet: body.internet,
+      domain: body.domain,
       os: body.os,
       osVersion: body.osVersion,
       location: body.location,
-      internet: body.internet,
       antivirus: body.antivirus,
       edr: body.edr,
       owner: body.owner,

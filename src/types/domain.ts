@@ -1,5 +1,4 @@
-export type ToggleState = 'installed' | 'not-installed' | 'na';
-export type InternetState = 'yes' | 'no';
+export type ToggleYesNo = 'yes' | 'no';
 
 export type Owner = {
   name: string;
@@ -9,15 +8,17 @@ export type Owner = {
 
 export type Asset = {
   id: string;
-  hostname: string;
-  domain: string;
-  ips: string[];
-  os: string;
-  osVersion: string;
-  location: string;
-  internet: InternetState;
-  antivirus: ToggleState;
-  edr: ToggleState;
+  assetType: string;                  // 자산 유형 (선택, 온프레미스/클라우드 등)
+  hostname: string;                    // 자산명 (필수)
+  purpose: string;                     // 사용목적/서비스명 (선택)
+  ips: string[];                       // IP 주소 (필수, 1+)
+  internet: ToggleYesNo | null;        // 외부 접속 여부 (선택)
+  domain: string;                      // 도메인명 (선택)
+  os: string;                          // 운영체제 (필수)
+  osVersion: string;                   // 운영체제 버전 (필수)
+  location: string;                    // 자산 위치 (선택, 사이트/건물 층/호수)
+  antivirus: ToggleYesNo | null;       // 백신 설치 여부 (선택)
+  edr: ToggleYesNo | null;             // EDR 설치 여부 (선택)
   owner: Owner | null;
   qualysDetectedAt: string;
   updatedAt: string | null;

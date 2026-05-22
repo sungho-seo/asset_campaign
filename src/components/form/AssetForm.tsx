@@ -19,7 +19,7 @@ import { Field } from './Field';
 import { Select } from './Select';
 import { IPList } from './IPList';
 import { ValidationBanner, type ValidationError } from './ValidationBanner';
-import { LOCATION_OPTIONS, OS_OPTIONS } from '../../lib/mock';
+import { ASSET_TYPE_OPTIONS, OS_OPTIONS } from '../../lib/mock';
 import { cn } from '../../lib/cn';
 
 export type AssetFormHandle = {
@@ -38,13 +38,15 @@ const FIELD_KEYS = [
   'owner.name',
   'owner.email',
   'owner.dept',
+  'assetType',
   'hostname',
-  'domain',
+  'purpose',
   'ips',
+  'internet',
+  'domain',
   'os',
   'osVersion',
   'location',
-  'internet',
   'antivirus',
   'edr',
 ] as const;
@@ -54,43 +56,49 @@ type FieldKey = (typeof FIELD_KEYS)[number];
 const FIELD_LABEL: Record<FieldKey, string> = {
   'owner.name': '담당자 이름',
   'owner.email': '담당자 이메일',
-  'owner.dept': '담당자 부서',
-  hostname: '자산명',
-  domain: '도메인',
+  'owner.dept': '소속 조직 / 부서',
+  assetType: '자산 유형',
+  hostname: '자산명 (Hostname)',
+  purpose: '사용목적 / 서비스명',
   ips: 'IP 주소',
+  internet: '외부 접속 여부',
+  domain: '도메인명',
   os: '운영체제',
-  osVersion: 'OS 버전',
-  location: '사업장',
-  internet: '인터넷 접속',
-  antivirus: '백신',
-  edr: 'EDR',
+  osVersion: '운영체제 버전',
+  location: '자산 위치',
+  antivirus: '백신 설치 여부',
+  edr: 'EDR 설치 여부',
 };
 
-export function emptyValues(): AssetFormValues {
+export function emptyValues(currentUser: Owner): AssetFormValues {
   return {
-    owner: { name: '', email: '', dept: '' },
+    owner: { ...currentUser },
+    assetType: '',
     hostname: '',
-    domain: '',
+    purpose: '',
     ips: [''],
+    internet: null,
+    domain: '',
     os: '',
     osVersion: '',
     location: '',
-    internet: '' as AssetFormValues['internet'],
-    antivirus: '' as AssetFormValues['antivirus'],
-    edr: '' as AssetFormValues['edr'],
+    antivirus: null,
+    edr: null,
   };
 }
 
-export function valuesFromAsset(asset: Asset): AssetFormValues {
+export function valuesFromAsset(asset: Asset, currentUser: Owner): AssetFormValues {
   return {
-    owner: asset.owner ?? { name: '', email: '', dept: '' },
+    owner: asset.owner ?? { ...currentUser },
+    assetType: asset.assetType,
     hostname: asset.hostname,
-    domain: asset.domain,
+    purpose: asset.purpose,
     ips: asset.ips.length ? [...asset.ips] : [''],
+    internet: asset.internet,
+    domain: asset.domain,
     os: asset.os,
     osVersion: asset.osVersion,
     location: asset.location,
-    internet: asset.internet,
     antivirus: asset.antivirus,
     edr: asset.edr,
   };
@@ -178,9 +186,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
 
   return (
     <div className={cn('space-y-5', className)}>
-      {validationErrors.length > 0 && (
-        <ValidationBanner errors={validationErrors} />
-      )}
+      {validationErrors.length > 0 && <ValidationBanner errors={validationErrors} />}
 
       {/* 담당자 블록 */}
       <section className="rounded-lg border border-line bg-bg-soft/40">
@@ -188,6 +194,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
           <div className="flex items-center gap-1.5">
             <UserCircle2 className="h-3.5 w-3.5 text-text-3" />
             <h3 className="text-[12.5px] font-medium text-text">담당자</h3>
+            <span className="text-[11px] text-text-3">SSO 정보 자동 입력 (수정 가능)</span>
           </div>
           <Button
             size="sm"
@@ -211,7 +218,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
         </div>
         <div className="grid grid-cols-3 gap-3 p-4">
           <div ref={setRef('owner.name')}>
-            <Field id="owner.name" label="이름" required error={errors['owner.name']}>
+            <Field id="owner.name" label="담당자 이름" required error={errors['owner.name']}>
               <Input
                 id="owner.name"
                 value={values.owner.name}
@@ -225,7 +232,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
             </Field>
           </div>
           <div ref={setRef('owner.email')}>
-            <Field id="owner.email" label="이메일" required error={errors['owner.email']}>
+            <Field id="owner.email" label="담당자 이메일" required error={errors['owner.email']}>
               <Input
                 id="owner.email"
                 type="email"
@@ -240,7 +247,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
             </Field>
           </div>
           <div ref={setRef('owner.dept')}>
-            <Field id="owner.dept" label="부서" required error={errors['owner.dept']}>
+            <Field id="owner.dept" label="소속 조직 / 부서" required error={errors['owner.dept']}>
               <Input
                 id="owner.dept"
                 value={values.owner.dept}
@@ -256,12 +263,29 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
         </div>
       </section>
 
-      {/* 자산 기본 정보 */}
+      {/* 자산 정보 */}
       <section className="space-y-4">
         <h3 className="text-[12.5px] font-medium text-text-2">자산 정보</h3>
+
         <div className="grid grid-cols-2 gap-3">
+          <div ref={setRef('assetType')}>
+            <Field id="assetType" label="자산 유형" error={errors.assetType} hint="(예: 온프레미스, 클라우드)">
+              <Select
+                id="assetType"
+                value={values.assetType}
+                emptyFlag={flag('assetType', values.assetType)}
+                error={!!errors.assetType}
+                placeholder="선택하세요"
+                options={ASSET_TYPE_OPTIONS}
+                onChange={(e) => {
+                  setField('assetType', e.target.value);
+                  markTouched('assetType');
+                }}
+              />
+            </Field>
+          </div>
           <div ref={setRef('hostname')}>
-            <Field id="hostname" label="자산명 (Host Name)" required error={errors.hostname}>
+            <Field id="hostname" label="자산명 (Hostname)" required error={errors.hostname}>
               <Input
                 id="hostname"
                 variant="mono"
@@ -275,22 +299,26 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
               />
             </Field>
           </div>
-          <div ref={setRef('domain')}>
-            <Field id="domain" label="도메인" required error={errors.domain}>
-              <Input
-                id="domain"
-                variant="mono"
-                placeholder="lge.com"
-                value={values.domain}
-                emptyFlag={flag('domain', values.domain)}
-                error={!!errors.domain}
-                onChange={(e) => {
-                  setField('domain', e.target.value);
-                  markTouched('domain');
-                }}
-              />
-            </Field>
-          </div>
+        </div>
+
+        <div ref={setRef('purpose')}>
+          <Field
+            id="purpose"
+            label="사용목적 / 서비스명"
+            hint="(예: 근태입력시스템)"
+            error={errors.purpose}
+          >
+            <Input
+              id="purpose"
+              value={values.purpose}
+              emptyFlag={flag('purpose', values.purpose)}
+              error={!!errors.purpose}
+              onChange={(e) => {
+                setField('purpose', e.target.value);
+                markTouched('purpose');
+              }}
+            />
+          </Field>
         </div>
 
         <div ref={setRef('ips')}>
@@ -298,7 +326,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
             id="ips-0"
             label="IP 주소"
             required
-            hint="(복수 등록 가능)"
+            hint="(복수 등록 가능 / IPv4)"
             error={errors.ips}
           >
             <IPList
@@ -308,6 +336,28 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
               onChange={(v) => {
                 setField('ips', v);
                 markTouched('ips');
+              }}
+            />
+          </Field>
+        </div>
+
+        <div ref={setRef('domain')}>
+          <Field
+            id="domain"
+            label="도메인명"
+            hint="(예: lge.com)"
+            error={errors.domain}
+          >
+            <Input
+              id="domain"
+              variant="mono"
+              placeholder="lge.com"
+              value={values.domain}
+              emptyFlag={flag('domain', values.domain)}
+              error={!!errors.domain}
+              onChange={(e) => {
+                setField('domain', e.target.value);
+                markTouched('domain');
               }}
             />
           </Field>
@@ -331,7 +381,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
             </Field>
           </div>
           <div ref={setRef('osVersion')}>
-            <Field id="osVersion" label="OS 버전" required error={errors.osVersion}>
+            <Field id="osVersion" label="운영체제 버전" required error={errors.osVersion}>
               <Input
                 id="osVersion"
                 variant="mono"
@@ -348,14 +398,17 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
         </div>
 
         <div ref={setRef('location')}>
-          <Field id="location" label="사업장 / 서버 위치" required error={errors.location}>
-            <Select
+          <Field
+            id="location"
+            label="자산 위치"
+            hint="(예: 서울 마곡 LG사이언스파크 R&D본관 5층 521호)"
+            error={errors.location}
+          >
+            <Input
               id="location"
               value={values.location}
               emptyFlag={flag('location', values.location)}
               error={!!errors.location}
-              placeholder="선택하세요"
-              options={LOCATION_OPTIONS}
               onChange={(e) => {
                 setField('location', e.target.value);
                 markTouched('location');
@@ -369,10 +422,10 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
       <section className="space-y-4">
         <h3 className="text-[12.5px] font-medium text-text-2">보안 옵션</h3>
         <div ref={setRef('internet')}>
-          <Field label="인터넷 접속 (외부)" required error={errors.internet}>
+          <Field label="외부 접속 여부" error={errors.internet}>
             <ToggleGroup<'yes' | 'no'>
               name="internet"
-              value={values.internet || null}
+              value={values.internet}
               error={!!errors.internet}
               onChange={(v) => {
                 setField('internet', v);
@@ -386,37 +439,35 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
           </Field>
         </div>
         <div ref={setRef('antivirus')}>
-          <Field label="백신 설치" required error={errors.antivirus}>
-            <ToggleGroup<'installed' | 'not-installed' | 'na'>
+          <Field label="백신 설치 여부" error={errors.antivirus}>
+            <ToggleGroup<'yes' | 'no'>
               name="antivirus"
-              value={values.antivirus || null}
+              value={values.antivirus}
               error={!!errors.antivirus}
               onChange={(v) => {
                 setField('antivirus', v);
                 markTouched('antivirus');
               }}
               options={[
-                { value: 'installed', label: '설치됨' },
-                { value: 'not-installed', label: '미설치' },
-                { value: 'na', label: '해당없음' },
+                { value: 'yes', label: '예' },
+                { value: 'no', label: '아니오' },
               ]}
             />
           </Field>
         </div>
         <div ref={setRef('edr')}>
-          <Field label="EDR 설치" required error={errors.edr}>
-            <ToggleGroup<'installed' | 'not-installed' | 'na'>
+          <Field label="EDR 설치 여부" error={errors.edr}>
+            <ToggleGroup<'yes' | 'no'>
               name="edr"
-              value={values.edr || null}
+              value={values.edr}
               error={!!errors.edr}
               onChange={(v) => {
                 setField('edr', v);
                 markTouched('edr');
               }}
               options={[
-                { value: 'installed', label: '설치됨' },
-                { value: 'not-installed', label: '미설치' },
-                { value: 'na', label: '해당없음' },
+                { value: 'yes', label: '예' },
+                { value: 'no', label: '아니오' },
               ]}
             />
           </Field>
@@ -426,7 +477,6 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
   );
 });
 
-// Helper for label lookup (used by toast messages, etc.)
 export function fieldLabel(key: FieldKey): string {
   return FIELD_LABEL[key];
 }

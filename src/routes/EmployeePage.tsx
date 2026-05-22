@@ -69,10 +69,10 @@ export default function EmployeePage() {
   };
 
   const openEdit = (asset: Asset) => {
-    setDrawer({ kind: 'edit', asset, initial: valuesFromAsset(asset) });
+    setDrawer({ kind: 'edit', asset, initial: valuesFromAsset(asset, MOCK_USER) });
   };
   const openNew = () => {
-    setDrawer({ kind: 'new', initial: emptyValues() });
+    setDrawer({ kind: 'new', initial: emptyValues(MOCK_USER) });
   };
   const closeDrawer = () => {
     setDrawer({ kind: 'closed' });
@@ -96,13 +96,15 @@ export default function EmployeePage() {
     try {
       const result = await updateAsset(asset.id, {
         owner: values.owner,
+        assetType: values.assetType,
         hostname: values.hostname,
-        domain: values.domain,
+        purpose: values.purpose,
         ips: values.ips,
+        internet: values.internet,
+        domain: values.domain,
         os: values.os,
         osVersion: values.osVersion,
         location: values.location,
-        internet: values.internet,
         antivirus: values.antivirus,
         edr: values.edr,
         forceOverwrite,
@@ -124,13 +126,15 @@ export default function EmployeePage() {
     setSaving(true);
     try {
       const result = await createAsset({
+        assetType: values.assetType,
         hostname: values.hostname,
-        domain: values.domain,
+        purpose: values.purpose,
         ips: values.ips,
+        internet: values.internet,
+        domain: values.domain,
         os: values.os,
         osVersion: values.osVersion,
         location: values.location,
-        internet: values.internet,
         antivirus: values.antivirus,
         edr: values.edr,
         owner: values.owner,
@@ -172,9 +176,8 @@ export default function EmployeePage() {
         </p>
       </div>
 
-      <Banner tone="info" className="mb-5">
-        Qualys로 식별된 전체 자산 <strong>12,847건</strong> 중 약 90%가 담당자 미지정
-        상태입니다. 검색 결과가 없다면 신규 등록을 진행해 주세요.
+      <Banner tone="brand" className="mb-5">
+        검색 결과가 없다면 신규 등록을 진행해 주세요.
       </Banner>
 
       <Panel title="자산 검색" subtitle="5가지 모드로 빠르게 찾기" padded={false}>
@@ -219,7 +222,8 @@ export default function EmployeePage() {
                 자산 편집
               </div>
               <h2 className="text-base font-semibold tracking-tightish">
-                {drawer.asset.hostname}.{drawer.asset.domain}
+                {drawer.asset.hostname}
+                {drawer.asset.domain && `.${drawer.asset.domain}`}
               </h2>
               <div className="mt-0.5 text-[12.5px] text-text-3">
                 {drawer.asset.id}
@@ -282,7 +286,7 @@ export default function EmployeePage() {
         }}
         onAdoptServer={() => {
           if (!conflict) return;
-          formRef.current?.setValues(valuesFromAsset(conflict.asset));
+          formRef.current?.setValues(valuesFromAsset(conflict.asset, MOCK_USER));
           setConflict(null);
           show('상대 입력을 가져왔습니다', 'info');
         }}
@@ -296,7 +300,7 @@ export default function EmployeePage() {
           if (!ipDup) return;
           const asset = ipDup.existing;
           setIpDup(null);
-          setDrawer({ kind: 'edit', asset, initial: valuesFromAsset(asset) });
+          setDrawer({ kind: 'edit', asset, initial: valuesFromAsset(asset, MOCK_USER) });
         }}
         onOverwrite={async () => {
           if (!ipDup || drawer.kind !== 'new') return;

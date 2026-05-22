@@ -21,7 +21,7 @@ describe('isValidIPv4', () => {
     ['10.20.30.40.50', false],
     ['256.0.0.0', false],
     ['10.20.30.999', false],
-    ['010.0.0.1', false], // 앞자리 0 금지
+    ['010.0.0.1', false],
     ['10.0.0.01', false],
     ['a.b.c.d', false],
     ['', false],
@@ -43,7 +43,7 @@ describe('isValidDomain', () => {
   });
 
   it.each([
-    ['lge', false], // 점 없음
+    ['lge', false],
     ['.lge.com', false],
     ['lge.com.', false],
     ['lge..com', false],
@@ -51,7 +51,7 @@ describe('isValidDomain', () => {
     ['lge com', false],
     ['-lge.com', false],
     ['lge.com-', false],
-    ['lge.c', false], // TLD 1글자
+    ['lge.c', false],
     ['', false],
   ])('rejects %s', (v, expected) => {
     expect(isValidDomain(v)).toBe(expected);
@@ -71,7 +71,7 @@ describe('isValidEmail', () => {
     ['no-at-sign', false],
     ['user@', false],
     ['@domain.com', false],
-    ['user@domain', false], // TLD 부분 없음
+    ['user@domain', false],
     ['user @domain.com', false],
     ['', false],
   ])('rejects %s', (v, expected) => {
@@ -81,55 +81,85 @@ describe('isValidEmail', () => {
 
 describe('assetFormSchema', () => {
   const valid = {
-    owner: { name: '김상우', email: 'sangwoo.kim@lge.com', dept: '보안솔루션실' },
+    owner: { name: '박지훈', email: 'jihoon.park@lge.com', dept: '보안운영실' },
+    assetType: '온프레미스',
     hostname: 'dev-server-01',
-    domain: 'lge.com',
+    purpose: '개발 서버',
     ips: ['10.20.30.40'],
+    internet: 'no' as const,
+    domain: 'lge.com',
     os: 'Ubuntu 22.04',
     osVersion: '22.04.3 LTS',
-    location: '서울 마곡 LG사이언스파크',
-    internet: 'no' as const,
-    antivirus: 'installed' as const,
-    edr: 'installed' as const,
+    location: '서울 마곡 LG사이언스파크 R&D본관 5층 521호',
+    antivirus: 'yes' as const,
+    edr: 'yes' as const,
   };
 
   it('통과 - 정상 입력', () => {
     expect(assetFormSchema.safeParse(valid).success).toBe(true);
   });
 
+  it('통과 - 선택 필드는 빈 값/null 허용', () => {
+    const r = assetFormSchema.safeParse({
+      ...valid,
+      assetType: '',
+      purpose: '',
+      internet: null,
+      domain: '',
+      location: '',
+      antivirus: null,
+      edr: null,
+    });
+    expect(r.success).toBe(true);
+  });
+
   it('실패 - 자산명 공백 포함', () => {
-    const r = assetFormSchema.safeParse({ ...valid, hostname: 'dev server' });
-    expect(r.success).toBe(false);
+    expect(assetFormSchema.safeParse({ ...valid, hostname: 'dev server' }).success).toBe(
+      false
+    );
+  });
+
+  it('실패 - 자산명 비어있음', () => {
+    expect(assetFormSchema.safeParse({ ...valid, hostname: '' }).success).toBe(false);
   });
 
   it('실패 - IP 없음', () => {
-    const r = assetFormSchema.safeParse({ ...valid, ips: [] });
-    expect(r.success).toBe(false);
+    expect(assetFormSchema.safeParse({ ...valid, ips: [] }).success).toBe(false);
   });
 
   it('실패 - IP 형식 오류', () => {
-    const r = assetFormSchema.safeParse({ ...valid, ips: ['10.0.0.999'] });
-    expect(r.success).toBe(false);
+    expect(assetFormSchema.safeParse({ ...valid, ips: ['10.0.0.999'] }).success).toBe(
+      false
+    );
   });
 
-  it('실패 - 도메인 형식 오류', () => {
-    const r = assetFormSchema.safeParse({ ...valid, domain: 'lge' });
-    expect(r.success).toBe(false);
+  it('실패 - 도메인 형식 오류 (값이 있을 때만)', () => {
+    expect(assetFormSchema.safeParse({ ...valid, domain: 'lge' }).success).toBe(false);
   });
 
   it('실패 - 이메일 형식 오류', () => {
-    const r = assetFormSchema.safeParse({
-      ...valid,
-      owner: { ...valid.owner, email: 'not-an-email' },
-    });
-    expect(r.success).toBe(false);
+    expect(
+      assetFormSchema.safeParse({
+        ...valid,
+        owner: { ...valid.owner, email: 'not-an-email' },
+      }).success
+    ).toBe(false);
   });
 
-  it('실패 - 토글 미선택', () => {
-    const r = assetFormSchema.safeParse({
-      ...valid,
-      internet: '' as 'yes',
-    });
-    expect(r.success).toBe(false);
+  it('실패 - 운영체제 미선택', () => {
+    expect(assetFormSchema.safeParse({ ...valid, os: '' }).success).toBe(false);
+  });
+
+  it('실패 - 운영체제 버전 비어있음', () => {
+    expect(assetFormSchema.safeParse({ ...valid, osVersion: '' }).success).toBe(false);
+  });
+
+  it('실패 - 소속 조직/부서 비어있음', () => {
+    expect(
+      assetFormSchema.safeParse({
+        ...valid,
+        owner: { ...valid.owner, dept: '' },
+      }).success
+    ).toBe(false);
   });
 });

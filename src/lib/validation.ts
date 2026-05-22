@@ -28,25 +28,35 @@ export function isValidEmail(v: string): boolean {
 export const ownerSchema = z.object({
   name: z.string().min(1, '담당자 이름 필수'),
   email: z.string().refine(isValidEmail, '담당자 이메일 형식 확인'),
-  dept: z.string().min(1, '담당자 부서 필수'),
+  dept: z.string().min(1, '소속 조직/부서 필수'),
 });
+
+const toggleYesNoNullable = z.union([z.literal('yes'), z.literal('no'), z.null()]);
 
 export const assetFormSchema = z.object({
   owner: ownerSchema,
+
+  // 자산 정보
+  assetType: z.string(),
   hostname: z
     .string()
     .min(1, '자산명 필수')
     .refine((v) => !/\s/.test(v), '자산명 형식 확인 (공백)'),
-  domain: z.string().refine(isValidDomain, '도메인 형식 확인 (예: lge.com)'),
+  purpose: z.string(),
   ips: z
     .array(z.string().refine(isValidIPv4, 'IP 형식 확인'))
     .min(1, 'IP 주소 최소 1개 입력'),
+  domain: z
+    .string()
+    .refine((v) => !v || isValidDomain(v), '도메인 형식 확인 (예: lge.com)'),
   os: z.string().min(1, '운영체제 선택'),
-  osVersion: z.string().min(1, 'OS 버전 필수'),
-  location: z.string().min(1, '사업장 선택'),
-  internet: z.enum(['yes', 'no'], { message: '인터넷 접속 선택' }),
-  antivirus: z.enum(['installed', 'not-installed', 'na'], { message: '백신 선택' }),
-  edr: z.enum(['installed', 'not-installed', 'na'], { message: 'EDR 선택' }),
+  osVersion: z.string().min(1, '운영체제 버전 필수'),
+  location: z.string(),
+
+  // 보안 옵션 (모두 선택)
+  internet: toggleYesNoNullable,
+  antivirus: toggleYesNoNullable,
+  edr: toggleYesNoNullable,
 });
 
 export type AssetFormValues = z.infer<typeof assetFormSchema>;

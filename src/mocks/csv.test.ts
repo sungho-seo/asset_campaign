@@ -1,20 +1,26 @@
 import { describe, it, expect } from 'vitest';
 import { parseAssetsCSV } from './csv';
 
-const CSV = `id,hostname,domain,ips,os,osVersion,location,internet,antivirus,edr,owner_name,owner_email,owner_dept,qualysDetectedAt,updatedAt,updatedBy
-ASSET-001,host-1,lge.com,10.0.0.1,Ubuntu 22.04,22.04,서울,no,installed,installed,,,,2026-04-01T00:00:00Z,,
-ASSET-002,host-2,lge.com,10.0.0.2|10.0.0.3,RHEL 9,9.2,평택,yes,installed,not-installed,김상우,sangwoo.kim@lge.com,보안솔루션실,2026-04-02T00:00:00Z,2026-05-01T10:00:00Z,김상우
+const CSV = `id,assetType,hostname,purpose,ips,internet,domain,os,osVersion,location,owner_name,owner_email,owner_dept,antivirus,edr,qualysDetectedAt,updatedAt,updatedBy
+ASSET-001,온프레미스,host-1,개발 서버,10.0.0.1,no,lge.com,Ubuntu 22.04,22.04,서울 마곡 R&D본관 5층 501호,,,,yes,yes,2026-04-01T00:00:00Z,,
+ASSET-002,클라우드,host-2,스테이징,10.0.0.2|10.0.0.3,yes,lge.com,RHEL 9,9.2,평택 디지털파크 B동 3층 301호,박지훈,jihoon.park@lge.com,보안운영실,yes,no,2026-04-02T00:00:00Z,2026-05-01T10:00:00Z,박지훈
 `;
 
 describe('parseAssetsCSV', () => {
-  it('헤더 + 2행을 정확히 파싱한다', () => {
-    const r = parseAssetsCSV(CSV);
-    expect(r).toHaveLength(2);
+  it('헤더 + 2행을 정확히 파싱', () => {
+    expect(parseAssetsCSV(CSV)).toHaveLength(2);
+  });
+
+  it('새 필드(assetType, purpose) 매핑', () => {
+    const [a, b] = parseAssetsCSV(CSV);
+    expect(a.assetType).toBe('온프레미스');
+    expect(a.purpose).toBe('개발 서버');
+    expect(b.assetType).toBe('클라우드');
+    expect(b.purpose).toBe('스테이징');
   });
 
   it('담당자가 비어있으면 owner는 null', () => {
     const [a] = parseAssetsCSV(CSV);
-    expect(a.id).toBe('ASSET-001');
     expect(a.owner).toBeNull();
     expect(a.updatedAt).toBeNull();
   });
@@ -27,19 +33,40 @@ describe('parseAssetsCSV', () => {
   it('담당자가 있으면 owner 객체 구성', () => {
     const [, b] = parseAssetsCSV(CSV);
     expect(b.owner).toEqual({
-      name: '김상우',
-      email: 'sangwoo.kim@lge.com',
-      dept: '보안솔루션실',
+      name: '박지훈',
+      email: 'jihoon.park@lge.com',
+      dept: '보안운영실',
     });
   });
 
+  it('antivirus/edr 토글이 yes/no로 파싱', () => {
+    const [a, b] = parseAssetsCSV(CSV);
+    expect(a.antivirus).toBe('yes');
+    expect(a.edr).toBe('yes');
+    expect(b.antivirus).toBe('yes');
+    expect(b.edr).toBe('no');
+  });
+
+  it('internet 토글이 yes/no로 파싱', () => {
+    const [a, b] = parseAssetsCSV(CSV);
+    expect(a.internet).toBe('no');
+    expect(b.internet).toBe('yes');
+  });
+
+  it('알 수 없는 토글 값은 null', () => {
+    const csv = `id,assetType,hostname,purpose,ips,internet,domain,os,osVersion,location,owner_name,owner_email,owner_dept,antivirus,edr,qualysDetectedAt,updatedAt,updatedBy
+ASSET-X,,h,p,10.0.0.1,maybe,lge.com,Ubuntu,22,loc,,,,unknown,,2026-04-01T00:00:00Z,,`;
+    const [r] = parseAssetsCSV(csv);
+    expect(r.internet).toBeNull();
+    expect(r.antivirus).toBeNull();
+    expect(r.edr).toBeNull();
+  });
+
   it('빈 줄은 무시', () => {
-    const withBlank = CSV + '\n\n';
-    expect(parseAssetsCSV(withBlank)).toHaveLength(2);
+    expect(parseAssetsCSV(CSV + '\n\n')).toHaveLength(2);
   });
 
   it('헤더만 있는 경우 빈 배열', () => {
-    const r = parseAssetsCSV('id,hostname\n');
-    expect(r).toEqual([]);
+    expect(parseAssetsCSV('id,hostname\n')).toEqual([]);
   });
 });

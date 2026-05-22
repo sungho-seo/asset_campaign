@@ -95,7 +95,11 @@ export function ResultsList({
                   <div className="font-mono text-[12.5px] font-medium text-text">
                     {a.hostname}
                   </div>
-                  <div className="font-mono text-[11px] text-text-3">{a.domain}</div>
+                  <div className="text-[11px] text-text-3">
+                    {a.purpose || (
+                      <span className="font-mono text-text-4">—</span>
+                    )}
+                  </div>
                 </td>
                 <td className="px-4 py-3 align-top">
                   <div className="flex flex-col gap-0.5">
