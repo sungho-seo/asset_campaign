@@ -28,19 +28,25 @@ if ! id "$SERVICE_USER" >/dev/null 2>&1; then
 fi
 
 echo "[3/6] 코드 배치 ($INSTALL_DIR)"
+PREBUILT_DETECTED=0
 if [[ -n "${LOCAL_SOURCE:-}" ]]; then
-  # 사내망에서 root 계정의 git 인증서 신뢰가 안 되는 경우,
-  # 사용자가 미리 clone한 경로(LOCAL_SOURCE)에서 복사
   if [[ ! -d "$LOCAL_SOURCE" ]]; then
     echo "LOCAL_SOURCE 경로가 없습니다: $LOCAL_SOURCE" >&2
     exit 1
   fi
   mkdir -p "$INSTALL_DIR"
-  # node_modules는 service user가 npm ci로 다시 깔 것이므로 제외
-  rsync -a --delete \
-    --exclude=node_modules --exclude=dist --exclude=.git/hooks/ \
-    "$LOCAL_SOURCE"/ "$INSTALL_DIR"/
-  echo "  → $LOCAL_SOURCE 에서 복사 완료"
+  # LOCAL_SOURCE에 dist/와 node_modules/가 있으면 그대로 가져와서 빌드/설치 단계 생략
+  # (사내 SSL inspection 환경에서 root/서비스 계정의 npm registry 접근을 피함)
+  if [[ -d "$LOCAL_SOURCE/dist" && -d "$LOCAL_SOURCE/node_modules" ]]; then
+    PREBUILT_DETECTED=1
+    echo "  → 사전 빌드 결과(dist + node_modules) 포함하여 복사"
+    rsync -a --delete --exclude=.git/hooks/ "$LOCAL_SOURCE"/ "$INSTALL_DIR"/
+  else
+    echo "  → 소스만 복사 (node_modules/dist 제외)"
+    rsync -a --delete \
+      --exclude=node_modules --exclude=dist --exclude=.git/hooks/ \
+      "$LOCAL_SOURCE"/ "$INSTALL_DIR"/
+  fi
 elif [[ -d "$INSTALL_DIR/.git" ]]; then
   cd "$INSTALL_DIR"
   git fetch origin "$BRANCH"
@@ -52,7 +58,11 @@ fi
 chown -R "$SERVICE_USER":"$SERVICE_USER" "$INSTALL_DIR"
 
 echo "[4/6] 의존성 설치 + 빌드"
-sudo -u "$SERVICE_USER" -H bash -c "cd $INSTALL_DIR && npm ci && npm run build"
+if [[ "$PREBUILT_DETECTED" -eq 1 ]]; then
+  echo "  → 사전 빌드 결과 사용 → 스킵"
+else
+  sudo -u "$SERVICE_USER" -H bash -c "cd $INSTALL_DIR && npm ci && npm run build"
+fi
 
 echo "[5/6] systemd 유닛 등록"
 SERVICE_SRC="$INSTALL_DIR/deploy/asset-campaign.service"
