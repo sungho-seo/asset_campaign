@@ -1,0 +1,22 @@
+id,hostname,domain,ips,os,osVersion,location,internet,antivirus,edr,owner_name,owner_email,owner_dept,qualysDetectedAt,updatedAt,updatedBy
+ASSET-008291,dev-server-01,lge.com,10.20.30.40,Ubuntu 22.04,22.04.3 LTS,서울 마곡 LG사이언스파크,no,installed,installed,,,,2026-04-12T09:33:00Z,,
+ASSET-008292,dev-db-primary,lge.com,10.20.30.42|10.20.30.43,RHEL 9,9.2,서울 마곡 LG사이언스파크,no,installed,installed,박지훈,jihoon.park@lge.com,보안운영실,2026-04-10T12:18:00Z,2026-05-20T13:11:00Z,박지훈
+ASSET-008301,app-stage-04,lge.com,10.42.5.18,Ubuntu 20.04,20.04.6,평택 디지털파크,yes,installed,not-installed,정유진,yujin.jung@lge.com,클라우드플랫폼팀,2026-04-08T15:01:00Z,2026-05-21T11:47:00Z,정유진
+ASSET-008312,jenkins-master,lge.com,172.16.8.91,Ubuntu 22.04,22.04.4,서울 마곡 LG사이언스파크,no,installed,installed,,,,2026-04-15T08:22:00Z,,
+ASSET-008325,rd-bench-22,lge.com,10.55.12.7,Windows 11,23H2,대전 R&D센터,yes,installed,installed,이수민,sumin.lee@lge.com,단말연구소,2026-04-11T10:05:00Z,2026-05-19T15:34:00Z,이수민
+ASSET-008341,qa-runner-01,lge.com,10.88.4.130,Windows Server 2022,21H2,구미 사업장,no,installed,installed,,,,2026-04-09T11:48:00Z,,
+ASSET-008412,mac-jhpark,lge.com,10.20.40.18,macOS Sonoma,14.4.1,서울 여의도 LG트윈타워,yes,installed,installed,박지훈,jihoon.park@lge.com,보안운영실,2026-04-05T09:00:00Z,2026-05-18T17:02:00Z,박지훈
+ASSET-008498,test-bench-08,lge.com,10.20.30.55,Ubuntu 20.04,20.04.5,평택 디지털파크,no,not-installed,not-installed,,,,2026-04-13T14:22:00Z,,
+ASSET-008512,build-cache-02,lge.com,10.20.31.12,Ubuntu 22.04,22.04.3,서울 마곡 LG사이언스파크,no,installed,installed,한도윤,doyoon.han@lge.com,플랫폼인프라팀,2026-04-14T16:40:00Z,2026-05-20T09:55:00Z,한도윤
+ASSET-008534,airflow-prod,lge.com,10.42.8.21,RHEL 8,8.9,평택 디지털파크,no,installed,installed,정유진,yujin.jung@lge.com,클라우드플랫폼팀,2026-04-16T08:12:00Z,2026-05-18T11:14:00Z,정유진
+ASSET-008599,monitoring-01,lge.com,10.42.8.22,RHEL 9,9.2,평택 디지털파크,no,installed,installed,,,,2026-04-17T10:00:00Z,,
+ASSET-008601,db-shard-a01,lge.com,10.30.10.5,Windows Server 2019,1809,구미 사업장,no,installed,installed,김상우,sangwoo.kim@lge.com,보안솔루션실,2026-04-18T15:30:00Z,2026-05-21T16:20:00Z,김상우
+ASSET-008612,db-shard-a02,lge.com,10.30.10.6,Windows Server 2019,1809,구미 사업장,no,installed,installed,김상우,sangwoo.kim@lge.com,보안솔루션실,2026-04-18T15:30:00Z,2026-05-21T16:22:00Z,김상우
+ASSET-008701,mac-kykim,lge.com,10.20.40.42,macOS Ventura,13.6.4,서울 마곡 LG사이언스파크,yes,installed,installed,,,,2026-04-19T11:11:00Z,,
+ASSET-008725,vpn-gateway-02,lge.com,10.0.0.5,Ubuntu 22.04,22.04.3,서울 마곡 LG사이언스파크,yes,installed,installed,한도윤,doyoon.han@lge.com,플랫폼인프라팀,2026-04-20T09:00:00Z,2026-05-15T14:22:00Z,한도윤
+ASSET-008798,sandbox-22,lge.com,10.99.4.22,Ubuntu 20.04,20.04.4,대전 R&D센터,yes,not-installed,not-installed,,,,2026-04-21T17:33:00Z,,
+ASSET-008812,office-desktop-3211,lge.com,10.10.5.211,Windows 11,23H2,서울 여의도 LG트윈타워,yes,installed,installed,,,,2026-04-22T08:08:00Z,,
+ASSET-008834,office-desktop-3215,lge.com,10.10.5.215,Windows 11,23H2,서울 여의도 LG트윈타워,yes,installed,installed,이수민,sumin.lee@lge.com,단말연구소,2026-04-22T08:09:00Z,2026-05-17T10:11:00Z,이수민
+ASSET-008902,redis-cache-01,lge.com,10.42.9.11,RHEL 9,9.3,평택 디지털파크,no,installed,installed,정유진,yujin.jung@lge.com,클라우드플랫폼팀,2026-04-23T14:18:00Z,2026-05-22T08:45:00Z,정유진
+ASSET-008912,redis-cache-02,lge.com,10.42.9.12,RHEL 9,9.3,평택 디지털파크,no,installed,installed,,,,2026-04-23T14:18:00Z,,
+ASSET-008998,kafka-broker-01,lge.com,10.42.10.21,Ubuntu 22.04,22.04.4,평택 디지털파크,no,installed,installed,한도윤,doyoon.han@lge.com,플랫폼인프라팀,2026-04-24T11:42:00Z,2026-05-18T16:33:00Z,한도윤

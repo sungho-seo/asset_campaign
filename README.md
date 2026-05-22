@@ -82,25 +82,41 @@ src/
 └── index.css                   # Tailwind base + Geist/JetBrains Mono import
 ```
 
+## Mock 백엔드 (MSW + CSV)
+
+부팅 시 `public/sample-assets.csv`에서 자산을 읽어 메모리 store에 적재하고,
+MSW(Mock Service Worker)가 `/api/*` 요청을 가로채 응답합니다.
+컴포넌트는 모두 `src/lib/api.ts`의 fetch 함수만 호출합니다.
+
+지원되는 엔드포인트 (HANDOFF.md §8 준수):
+
+| 메서드 | 경로 | 동작 |
+|---|---|---|
+| GET | /api/me | 현재 사용자(SSO 시뮬레이션) |
+| GET | /api/assets/search?mode=&q=&page=&pageSize= | 검색 |
+| GET | /api/assets/:id | 자산 상세 |
+| GET | /api/assets/check-ip?ip=&excludeId= | IP 중복 체크 |
+| PUT | /api/assets/:id | 수정 (ifMatchUpdatedAt로 낙관락) |
+| POST | /api/assets | 신규 등록 (IP 중복 시 409) |
+
+수정/신규 등록 결과는 메모리 store에 반영되며, 페이지 새로고침 시
+다시 CSV에서 초기화됩니다.
+
 ## 백엔드 전환 가이드 (개발팀용)
 
-현재 모든 데이터 호출은 `src/lib/assetStore.ts`의 함수에 격리되어 있습니다.
-실제 백엔드로 전환할 때는 이 모듈만 fetch 호출로 교체하면 됩니다.
+실 백엔드 전환 시 두 가지만 바꾸면 됩니다:
 
-```ts
-// 현재
-export async function searchAssets(mode, q, page, pageSize) {
-  // in-memory filter
-}
+1. `src/main.tsx`에서 MSW 부팅 블록 제거
+   ```ts
+   // 삭제
+   const { startMockWorker } = await import('./mocks/browser');
+   await startMockWorker();
+   ```
+2. `src/lib/api.ts`의 `API_BASE`를 실 엔드포인트로 변경
+   (또는 Vite proxy로 `/api`를 백엔드 서버에 매핑)
 
-// 백엔드 연동 시
-export async function searchAssets(mode, q, page, pageSize) {
-  const r = await fetch(`/api/assets/search?mode=${mode}&q=${q}&page=${page}`);
-  return r.json();
-}
-```
-
-API 명세는 `HANDOFF.md` §8 참고.
+API 응답 형태는 `src/types/domain.ts`에 정의되어 있으며, 백엔드 응답이
+같은 스키마이면 추가 변경 불필요.
 
 ## 디자인 토큰
 

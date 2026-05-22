@@ -18,12 +18,7 @@ import { ConflictModal } from '../components/form/ConflictModal';
 import { IPDupModal } from '../components/form/IPDupModal';
 import { useToast } from '../components/feedback/Toast';
 import type { Asset, SearchMode } from '../types/domain';
-import {
-  createAsset,
-  searchAssets,
-  updateAsset,
-  type ConflictError,
-} from '../lib/assetStore';
+import { createAsset, searchAssets, updateAsset } from '../lib/api';
 import { MOCK_USER } from '../lib/mock';
 import type { AssetFormValues } from '../lib/validation';
 import { formatDateTime } from '../lib/format';
@@ -99,30 +94,22 @@ export default function EmployeePage() {
   ) => {
     setSaving(true);
     try {
-      const result = await updateAsset(
-        asset.id,
-        {
-          owner: values.owner,
-          hostname: values.hostname,
-          domain: values.domain,
-          ips: values.ips,
-          os: values.os,
-          osVersion: values.osVersion,
-          location: values.location,
-          internet: values.internet,
-          antivirus: values.antivirus,
-          edr: values.edr,
-        },
-        {
-          forceOverwrite,
-          ifMatchUpdatedAt: forceOverwrite ? undefined : asset.updatedAt,
-        }
-      );
-      if ((result as ConflictError).type === 'conflict') {
-        setConflict({
-          asset: (result as ConflictError).serverAsset,
-          pending: values,
-        });
+      const result = await updateAsset(asset.id, {
+        owner: values.owner,
+        hostname: values.hostname,
+        domain: values.domain,
+        ips: values.ips,
+        os: values.os,
+        osVersion: values.osVersion,
+        location: values.location,
+        internet: values.internet,
+        antivirus: values.antivirus,
+        edr: values.edr,
+        forceOverwrite,
+        ifMatchUpdatedAt: forceOverwrite ? undefined : asset.updatedAt,
+      });
+      if (result.type === 'conflict') {
+        setConflict({ asset: result.serverAsset, pending: values });
         return;
       }
       await refreshAfterSave();
@@ -136,21 +123,19 @@ export default function EmployeePage() {
   const persistNew = async (values: AssetFormValues, forceOverwrite = false) => {
     setSaving(true);
     try {
-      const result = await createAsset(
-        {
-          hostname: values.hostname,
-          domain: values.domain,
-          ips: values.ips,
-          os: values.os,
-          osVersion: values.osVersion,
-          location: values.location,
-          internet: values.internet,
-          antivirus: values.antivirus,
-          edr: values.edr,
-          owner: values.owner,
-        },
-        { forceOverwrite }
-      );
+      const result = await createAsset({
+        hostname: values.hostname,
+        domain: values.domain,
+        ips: values.ips,
+        os: values.os,
+        osVersion: values.osVersion,
+        location: values.location,
+        internet: values.internet,
+        antivirus: values.antivirus,
+        edr: values.edr,
+        owner: values.owner,
+        forceOverwrite,
+      });
       if (result.type === 'ip-conflict') {
         setIpDup({ existing: result.existing, pending: values });
         return;
