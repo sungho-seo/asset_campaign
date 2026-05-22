@@ -28,7 +28,20 @@ if ! id "$SERVICE_USER" >/dev/null 2>&1; then
 fi
 
 echo "[3/6] 코드 배치 ($INSTALL_DIR)"
-if [[ -d "$INSTALL_DIR/.git" ]]; then
+if [[ -n "${LOCAL_SOURCE:-}" ]]; then
+  # 사내망에서 root 계정의 git 인증서 신뢰가 안 되는 경우,
+  # 사용자가 미리 clone한 경로(LOCAL_SOURCE)에서 복사
+  if [[ ! -d "$LOCAL_SOURCE" ]]; then
+    echo "LOCAL_SOURCE 경로가 없습니다: $LOCAL_SOURCE" >&2
+    exit 1
+  fi
+  mkdir -p "$INSTALL_DIR"
+  # node_modules는 service user가 npm ci로 다시 깔 것이므로 제외
+  rsync -a --delete \
+    --exclude=node_modules --exclude=dist --exclude=.git/hooks/ \
+    "$LOCAL_SOURCE"/ "$INSTALL_DIR"/
+  echo "  → $LOCAL_SOURCE 에서 복사 완료"
+elif [[ -d "$INSTALL_DIR/.git" ]]; then
   cd "$INSTALL_DIR"
   git fetch origin "$BRANCH"
   git checkout "$BRANCH"
