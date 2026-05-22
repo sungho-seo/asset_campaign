@@ -25,8 +25,8 @@ import { formatDateTime } from '../lib/format';
 
 type DrawerState =
   | { kind: 'closed' }
-  | { kind: 'edit'; asset: Asset; initial: AssetFormValues }
-  | { kind: 'new'; initial: AssetFormValues };
+  | { kind: 'edit'; asset: Asset; initial: AssetFormValues; ownerAutoFilled: boolean }
+  | { kind: 'new'; initial: AssetFormValues; ownerAutoFilled: boolean };
 
 // 한 번에 불러올 자산 개수. 실 운영 환경(10만+)에서는 20~50 권장.
 // 현재 샘플 데이터(21건)에서 무한 스크롤 동작을 확인할 수 있도록 12로 설정.
@@ -149,10 +149,20 @@ export default function EmployeePage() {
   }, []);
 
   const openEdit = (asset: Asset) => {
-    setDrawer({ kind: 'edit', asset, initial: valuesFromAsset(asset, MOCK_USER) });
+    setDrawer({
+      kind: 'edit',
+      asset,
+      initial: valuesFromAsset(asset, MOCK_USER),
+      // 자산이 담당자 미지정이라 MOCK_USER로 fallback된 경우만 auto-filled
+      ownerAutoFilled: asset.owner === null,
+    });
   };
   const openNew = () => {
-    setDrawer({ kind: 'new', initial: emptyValues(MOCK_USER) });
+    setDrawer({
+      kind: 'new',
+      initial: emptyValues(MOCK_USER),
+      ownerAutoFilled: true,
+    });
   };
   const closeDrawer = () => {
     setDrawer({ kind: 'closed' });
@@ -351,6 +361,7 @@ export default function EmployeePage() {
               mode={drawer.kind === 'new' ? 'new' : 'edit'}
               initial={drawer.initial}
               currentUser={MOCK_USER}
+              ownerAutoFilled={drawer.ownerAutoFilled}
             />
           </div>
         )}
@@ -381,7 +392,12 @@ export default function EmployeePage() {
           if (!ipDup) return;
           const asset = ipDup.existing;
           setIpDup(null);
-          setDrawer({ kind: 'edit', asset, initial: valuesFromAsset(asset, MOCK_USER) });
+          setDrawer({
+            kind: 'edit',
+            asset,
+            initial: valuesFromAsset(asset, MOCK_USER),
+            ownerAutoFilled: asset.owner === null,
+          });
         }}
         onOverwrite={async () => {
           if (!ipDup || drawer.kind !== 'new') return;

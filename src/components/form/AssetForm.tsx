@@ -33,6 +33,7 @@ type AssetFormProps = {
   mode: 'edit' | 'new';
   initial: AssetFormValues;
   currentUser: Owner;
+  ownerAutoFilled?: boolean;
   className?: string;
 };
 
@@ -133,12 +134,36 @@ export function valuesFromAsset(asset: Asset, currentUser: Owner): AssetFormValu
 }
 
 export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function AssetForm(
-  { mode, initial, currentUser, className },
+  { mode, initial, currentUser, ownerAutoFilled = false, className },
   ref
 ) {
   const [values, setValues] = useState<AssetFormValues>(initial);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [errors, setErrors] = useState<Partial<Record<FieldKey, string>>>({});
+  // 담당자 자동 채움 상태 — true이면 첫 클릭 시 owner 3필드를 한꺼번에 비움
+  const [ownerIsAutoFilled, setOwnerIsAutoFilled] = useState(ownerAutoFilled);
+
+  const handleNameFocus = () => {
+    if (ownerIsAutoFilled) {
+      setValues((s) => ({ ...s, owner: { name: '', email: '', dept: '' } }));
+      setTouched((t) => ({
+        ...t,
+        'owner.name': true,
+        'owner.email': true,
+        'owner.dept': true,
+      }));
+      setErrors((e) => {
+        const {
+          'owner.name': _a,
+          'owner.email': _b,
+          'owner.dept': _c,
+          ...rest
+        } = e;
+        return rest;
+      });
+      setOwnerIsAutoFilled(false);
+    }
+  };
   const fieldRefs = useRef<Partial<Record<FieldKey, HTMLElement | null>>>({});
 
   // 담당자 이름 검색 (디렉토리에서 동명이인 찾기)
@@ -177,6 +202,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
       } = e;
       return rest;
     });
+    setOwnerIsAutoFilled(false);
     setDirOpen(false);
   };
 
@@ -186,7 +212,8 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
     setErrors({});
     setDirOpen(false);
     setDirResults([]);
-  }, [initial]);
+    setOwnerIsAutoFilled(ownerAutoFilled);
+  }, [initial, ownerAutoFilled]);
 
   useImperativeHandle(ref, () => ({
     validateAndGet: () => {
@@ -285,6 +312,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
                   } = e;
                   return rest;
                 });
+                setOwnerIsAutoFilled(false);
               }}
             >
               내 정보로 채우기
@@ -310,9 +338,12 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
                 value={values.owner.name}
                 emptyFlag={flag('owner.name', values.owner.name)}
                 error={!!errors['owner.name']}
+                onFocus={handleNameFocus}
+                onClick={handleNameFocus}
                 onChange={(e) => {
                   setOwnerField('name', e.target.value);
                   markTouched('owner.name');
+                  setOwnerIsAutoFilled(false);
                   if (dirOpen) setDirOpen(false);
                 }}
                 onKeyDown={(e) => {
