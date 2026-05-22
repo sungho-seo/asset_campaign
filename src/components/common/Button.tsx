@@ -13,7 +13,7 @@ const variantClass: Record<Variant, string> = {
   default:
     'bg-white border border-line-2 text-text-2 hover:bg-bg-soft hover:border-text-3 hover:text-text',
   primary:
-    'bg-accent border border-accent text-white hover:bg-text-2 hover:border-text-2',
+    'bg-brand border border-brand text-white hover:bg-brand-2 hover:border-brand-2',
   ghost:
     'bg-transparent border border-transparent text-text-2 hover:bg-bg-soft hover:text-text',
   danger:

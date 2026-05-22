@@ -20,7 +20,7 @@ function NavLinks() {
       end={to === '/'}
       className={({ isActive }) =>
         `rounded px-2.5 py-1 font-mono text-[11px] transition-colors ${
-          isActive ? 'bg-accent text-white' : 'text-text-3 hover:text-text'
+          isActive ? 'bg-brand text-white' : 'text-text-3 hover:text-text'
         }`
       }
     >

@@ -16,6 +16,12 @@ export default {
           4: '#a8a29e',
         },
         accent: '#000000',
+        brand: {
+          DEFAULT: '#A50034',
+          2: '#C8003F',
+          dark: '#7A0026',
+          soft: '#FCE4EC',
+        },
         focus: {
           DEFAULT: '#3b82f6',
           soft: '#dbeafe',

@@ -47,7 +47,7 @@ export function KPICard({
         <>
           <div className="mt-3.5 h-1.5 overflow-hidden rounded-full bg-bg-soft">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-accent to-text-2 transition-[width] duration-500"
+              className="h-full rounded-full bg-gradient-to-r from-brand to-brand-dark transition-[width] duration-500"
               style={{ width: `${progressFill}%` }}
             />
           </div>
