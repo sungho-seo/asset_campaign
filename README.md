@@ -97,6 +97,27 @@ curl http://localhost:8049/api/health
 # {"ok":true,"assets":21}
 ```
 
+**업데이트 (코드 변경 후 재배포)** — `deploy/update.sh` 한 줄로 끝:
+
+```bash
+cd ~/work.campaign/asset_campaign
+./deploy/update.sh
+```
+
+스크립트가 자동으로 처리하는 것:
+1. `git pull` (package-lock.json 충돌 자동 해소)
+2. `npm install` + `npm run build`
+3. 빌드 결과 sanity check (청크 개수 확인)
+4. `sudo deploy/install.sh`로 `/opt/asset_campaign`에 rsync + systemctl restart
+5. `is-active` + `/api/health` 헬스체크
+
+옵션:
+```bash
+PORT=9000 ./deploy/update.sh              # 다른 포트로 배포
+BRANCH=main ./deploy/update.sh            # 다른 브랜치
+SKIP_PULL=1 ./deploy/update.sh            # 이미 받아둔 코드로 재배포
+```
+
 운영 특성:
 - **20명 동시 접속** 가능 (Node가 단일 프로세스 비동기 처리)
 - **데이터는 모든 사용자가 공유** (서버 메모리에 store)
