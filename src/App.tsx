@@ -1,18 +1,25 @@
-import { BrowserRouter, Routes, Route, Link, NavLink } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { TopBar } from './components/layout/TopBar';
+import { Pill } from './components/common/Pill';
+import { UserChip } from './components/common/UserChip';
+import { ToastProvider } from './components/feedback/Toast';
 import EmployeePage from './routes/EmployeePage';
 import DashboardPage from './routes/DashboardPage';
+import ComponentsDemo from './routes/ComponentsDemo';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false } },
 });
 
-function TempNav() {
+function NavLinks() {
   const link = (to: string, label: string) => (
     <NavLink
+      key={to}
       to={to}
+      end={to === '/'}
       className={({ isActive }) =>
-        `px-3 py-1.5 rounded text-xs font-mono ${
+        `rounded px-2.5 py-1 font-mono text-[11px] transition-colors ${
           isActive ? 'bg-accent text-white' : 'text-text-3 hover:text-text'
         }`
       }
@@ -21,36 +28,35 @@ function TempNav() {
     </NavLink>
   );
   return (
-    <header className="sticky top-0 z-20 border-b border-line bg-bg/85 backdrop-blur">
-      <div className="mx-auto flex max-w-[1280px] items-center justify-between px-8 py-3.5">
-        <Link to="/" className="flex items-center gap-3">
-          <div className="grid h-7 w-7 place-items-center rounded-md bg-accent font-mono text-[13px] font-semibold tracking-tighter2 text-white">
-            V
-          </div>
-          <div className="text-sm font-semibold tracking-tightish">
-            VCISO 자산조사
-            <span className="ml-1.5 font-normal text-text-3">/ 캠페인 2026</span>
-          </div>
-        </Link>
-        <nav className="flex gap-1">
-          {link('/', '임직원')}
-          {link('/dashboard', '대시보드')}
-        </nav>
-      </div>
-    </header>
+    <nav className="flex items-center gap-1">
+      {link('/', '임직원')}
+      {link('/dashboard', '대시보드')}
+      {link('/demo', 'DS')}
+    </nav>
   );
 }
 
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <TempNav />
-        <Routes>
-          <Route path="/" element={<EmployeePage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-        </Routes>
-      </BrowserRouter>
+      <ToastProvider>
+        <BrowserRouter>
+          <TopBar
+            right={
+              <>
+                <NavLinks />
+                <Pill dot="success">캠페인 진행중 · D+7</Pill>
+                <UserChip name="박지훈" meta="보안운영실" />
+              </>
+            }
+          />
+          <Routes>
+            <Route path="/" element={<EmployeePage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/demo" element={<ComponentsDemo />} />
+          </Routes>
+        </BrowserRouter>
+      </ToastProvider>
     </QueryClientProvider>
   );
 }
