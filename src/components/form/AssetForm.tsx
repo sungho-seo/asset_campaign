@@ -6,7 +6,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { UserCircle2 } from 'lucide-react';
+import { ServerCog, ShieldCheck, UserCircle2, type LucideIcon } from 'lucide-react';
 import type { Asset, Owner } from '../../types/domain';
 import {
   assetFormSchema,
@@ -69,6 +69,32 @@ const FIELD_LABEL: Record<FieldKey, string> = {
   antivirus: '백신 설치 여부',
   edr: 'EDR 설치 여부',
 };
+
+type SectionHeaderProps = {
+  icon: LucideIcon;
+  title: string;
+  subtitle?: string;
+  right?: React.ReactNode;
+};
+
+function SectionHeader({ icon: Icon, title, subtitle, right }: SectionHeaderProps) {
+  return (
+    <div className="flex items-center justify-between gap-3 border-b border-line bg-gradient-to-r from-brand-soft/45 via-bg-soft/30 to-white px-4 py-2.5">
+      <div className="flex min-w-0 items-center gap-2">
+        <span className="grid h-6 w-6 flex-shrink-0 place-items-center rounded-md bg-brand-soft text-brand">
+          <Icon className="h-3.5 w-3.5" />
+        </span>
+        <h3 className="text-[12.5px] font-semibold tracking-tightish text-text">
+          {title}
+        </h3>
+        {subtitle && (
+          <span className="truncate text-[11px] text-text-3">{subtitle}</span>
+        )}
+      </div>
+      {right && <div className="flex-shrink-0">{right}</div>}
+    </div>
+  );
+}
 
 export function emptyValues(currentUser: Owner): AssetFormValues {
   return {
@@ -189,33 +215,39 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
       {validationErrors.length > 0 && <ValidationBanner errors={validationErrors} />}
 
       {/* 담당자 블록 */}
-      <section className="rounded-lg border border-line bg-bg-soft/40">
-        <div className="flex items-center justify-between border-b border-line px-4 py-2.5">
-          <div className="flex items-center gap-1.5">
-            <UserCircle2 className="h-3.5 w-3.5 text-text-3" />
-            <h3 className="text-[12.5px] font-medium text-text">담당자</h3>
-            <span className="text-[11px] text-text-3">SSO 정보 자동 입력 (수정 가능)</span>
-          </div>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => {
-              setValues((s) => ({ ...s, owner: { ...currentUser } }));
-              setTouched((t) => ({
-                ...t,
-                'owner.name': true,
-                'owner.email': true,
-                'owner.dept': true,
-              }));
-              setErrors((e) => {
-                const { 'owner.name': _a, 'owner.email': _b, 'owner.dept': _c, ...rest } = e;
-                return rest;
-              });
-            }}
-          >
-            내 정보로 채우기
-          </Button>
-        </div>
+      <section className="relative overflow-hidden rounded-lg border border-line bg-white">
+        <span aria-hidden className="absolute inset-y-0 left-0 w-[3px] bg-brand" />
+        <SectionHeader
+          icon={UserCircle2}
+          title="담당자"
+          subtitle="SSO 정보 자동 입력 (수정 가능)"
+          right={
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => {
+                setValues((s) => ({ ...s, owner: { ...currentUser } }));
+                setTouched((t) => ({
+                  ...t,
+                  'owner.name': true,
+                  'owner.email': true,
+                  'owner.dept': true,
+                }));
+                setErrors((e) => {
+                  const {
+                    'owner.name': _a,
+                    'owner.email': _b,
+                    'owner.dept': _c,
+                    ...rest
+                  } = e;
+                  return rest;
+                });
+              }}
+            >
+              내 정보로 채우기
+            </Button>
+          }
+        />
         <div className="grid grid-cols-3 gap-3 p-4">
           <div ref={setRef('owner.name')}>
             <Field id="owner.name" label="담당자 이름" required error={errors['owner.name']}>
@@ -264,8 +296,10 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
       </section>
 
       {/* 자산 정보 */}
-      <section className="space-y-4">
-        <h3 className="text-[12.5px] font-medium text-text-2">자산 정보</h3>
+      <section className="relative overflow-hidden rounded-lg border border-line bg-white">
+        <span aria-hidden className="absolute inset-y-0 left-0 w-[3px] bg-brand" />
+        <SectionHeader icon={ServerCog} title="자산 정보" />
+        <div className="space-y-4 p-4">
 
         <div className="grid grid-cols-2 gap-3">
           <div ref={setRef('assetType')}>
@@ -428,12 +462,14 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
             />
           </Field>
         </div>
+        </div>
       </section>
 
       {/* 보안 옵션 */}
-      <section className="space-y-3">
-        <h3 className="text-[12.5px] font-medium text-text-2">보안 옵션</h3>
-        <div className="grid grid-cols-3 gap-3">
+      <section className="relative overflow-hidden rounded-lg border border-line bg-white">
+        <span aria-hidden className="absolute inset-y-0 left-0 w-[3px] bg-brand" />
+        <SectionHeader icon={ShieldCheck} title="보안 옵션" />
+        <div className="grid grid-cols-3 gap-3 p-4">
           <div ref={setRef('internet')}>
             <Field label="외부 접속 여부" error={errors.internet}>
               <ToggleGroup<'yes' | 'no'>

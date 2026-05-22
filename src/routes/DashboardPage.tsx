@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Shell } from '../components/layout/Shell';
 import { Panel } from '../components/layout/Panel';
+import { PageHeader } from '../components/layout/PageHeader';
 import { Button } from '../components/common/Button';
 import { Input } from '../components/common/Input';
 import { KPICard } from '../components/kpi/KPICard';
@@ -40,21 +41,16 @@ export default function DashboardPage() {
 
   return (
     <Shell>
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-6">
-        <div>
-          <div className="mb-1 font-mono text-[11px] uppercase tracking-wider text-text-3">
-            DASHBOARD
-          </div>
-          <h1 className="text-2xl font-semibold tracking-tighter2">캠페인 진행 현황</h1>
-          <p className="mt-1 text-[13px] text-text-3">
-            전체 자산 {MOCK_KPI.totalAssets.toLocaleString()}건 기준 · 마지막 업데이트 14:42
-            (5분 주기)
-          </p>
-        </div>
-        <Button>
-          <Download className="h-3 w-3" /> CSV 내보내기
-        </Button>
-      </div>
+      <PageHeader
+        eyebrow="DASHBOARD"
+        title="캠페인 진행 현황"
+        subtitle={`전체 자산 ${MOCK_KPI.totalAssets.toLocaleString()}건 기준 · 마지막 업데이트 14:42 (5분 주기)`}
+        right={
+          <Button>
+            <Download className="h-3 w-3" /> CSV 내보내기
+          </Button>
+        }
+      />
 
       <div className="mb-5 grid grid-cols-4 gap-3">
         <KPICard

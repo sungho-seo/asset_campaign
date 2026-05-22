@@ -62,7 +62,8 @@ export function SideDrawer({
           open ? 'translate-x-0' : 'translate-x-full'
         )}
       >
-        <div className="flex flex-shrink-0 items-start justify-between gap-4 border-b border-line px-6 py-4">
+        <div className="relative flex flex-shrink-0 items-start justify-between gap-4 border-b border-line bg-gradient-to-r from-brand-soft/55 via-white to-white px-6 py-4">
+          <span aria-hidden className="absolute inset-y-0 left-0 w-1 bg-brand" />
           <div className="min-w-0 flex-1">{header}</div>
           <button
             type="button"

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Info } from 'lucide-react';
 import { Shell } from '../components/layout/Shell';
 import { Panel } from '../components/layout/Panel';
+import { PageHeader } from '../components/layout/PageHeader';
 import { Button } from '../components/common/Button';
 import { SearchTabs } from '../components/search/SearchTabs';
 import { SearchBox } from '../components/search/SearchBox';
@@ -188,17 +189,11 @@ export default function EmployeePage() {
 
   return (
     <Shell>
-      <div className="mb-5">
-        <div className="mb-1 font-mono text-[11px] uppercase tracking-wider text-text-3">
-          ASSET CAMPAIGN
-        </div>
-        <h1 className="text-2xl font-semibold tracking-tighter2">
-          IT 자산 정보를 확인해 주세요
-        </h1>
-        <p className="mt-1 text-sm text-text-3">
-          본인이 사용 중이거나 관리하는 IT 자산을 검색해 정보를 업데이트해 주세요.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="ASSET CAMPAIGN"
+        title="IT 자산 정보를 확인해 주세요"
+        subtitle="본인이 사용 중이거나 관리하는 IT 자산을 검색해 정보를 업데이트해 주세요."
+      />
 
       <Panel title="자산 검색" subtitle="5가지 모드로 빠르게 찾기" padded={false}>
         <SearchTabs value={mode} onChange={setMode} />
