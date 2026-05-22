@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Info } from 'lucide-react';
+import { Home as HomeIcon, Info } from 'lucide-react';
 import { Shell } from '../components/layout/Shell';
 import { Panel } from '../components/layout/Panel';
 import { PageHeader } from '../components/layout/PageHeader';
@@ -28,14 +28,25 @@ type DrawerState =
   | { kind: 'edit'; asset: Asset; initial: AssetFormValues }
   | { kind: 'new'; initial: AssetFormValues };
 
+// 한 번에 불러올 자산 개수. 실 운영 환경(10만+)에서는 20~50 권장.
+// 현재 샘플 데이터(21건)에서 무한 스크롤 동작을 확인할 수 있도록 12로 설정.
+const PAGE_SIZE = 12;
+
 export default function EmployeePage() {
   const [mode, setMode] = useState<SearchMode>('all');
   const [query, setQuery] = useState('');
   const [isDefaultQuery, setIsDefaultQuery] = useState(false);
   const [searched, setSearched] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [items, setItems] = useState<Asset[]>([]);
   const [total, setTotal] = useState(0);
+  const [nextPage, setNextPage] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  // 마지막으로 "확정 검색"에 사용된 mode/query — 페이지 추가 호출 시 동일 조건 유지
+  const lastSearchRef = useRef<{ mode: SearchMode; q: string } | null>(null);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const [showHomeBtn, setShowHomeBtn] = useState(false);
 
   const [drawer, setDrawer] = useState<DrawerState>({ kind: 'closed' });
   const [saving, setSaving] = useState(false);
@@ -65,6 +76,9 @@ export default function EmployeePage() {
     setSearched(false);
     setItems([]);
     setTotal(0);
+    setHasMore(false);
+    setNextPage(0);
+    lastSearchRef.current = null;
   }, [mode]);
 
   // 사용자 입력이 시작되면 default 상태 해제
@@ -84,14 +98,55 @@ export default function EmployeePage() {
   const runSearch = async () => {
     setLoading(true);
     setSearched(true);
-    const r = await searchAssets(mode, query);
+    setItems([]);
+    lastSearchRef.current = { mode, q: query };
+    const r = await searchAssets(mode, query, 0, PAGE_SIZE);
     setItems(r.items);
     setTotal(r.total);
+    setHasMore(r.hasMore);
+    setNextPage(1);
     setLoading(false);
     if (r.total === 0) {
       show('검색 결과가 없습니다. 새 자산을 등록해 주세요.', 'info');
     }
   };
+
+  const loadMore = async () => {
+    if (!hasMore || loadingMore || loading || !lastSearchRef.current) return;
+    setLoadingMore(true);
+    const { mode: m, q } = lastSearchRef.current;
+    const r = await searchAssets(m, q, nextPage, PAGE_SIZE);
+    setItems((prev) => [...prev, ...r.items]);
+    setHasMore(r.hasMore);
+    setNextPage((p) => p + 1);
+    setLoadingMore(false);
+  };
+
+  // 무한 스크롤: 결과 영역 끝에 다다르면 다음 페이지 로드
+  useEffect(() => {
+    if (!sentinelRef.current || !hasMore) return;
+    const el = sentinelRef.current;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          void loadMore();
+        }
+      },
+      { rootMargin: '300px 0px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+    // hasMore가 false→true로 바뀔 때 또는 sentinel 재마운트 시 다시 attach
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasMore, items.length]);
+
+  // 우측 하단 Home(맨 위로) 버튼: 일정 스크롤 이상에서만 표시
+  useEffect(() => {
+    const onScroll = () => setShowHomeBtn(window.scrollY > 320);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const openEdit = (asset: Asset) => {
     setDrawer({ kind: 'edit', asset, initial: valuesFromAsset(asset, MOCK_USER) });
@@ -106,10 +161,13 @@ export default function EmployeePage() {
   };
 
   const refreshAfterSave = async () => {
-    if (!searched) return;
-    const r = await searchAssets(mode, query);
+    if (!searched || !lastSearchRef.current) return;
+    const { mode: m, q } = lastSearchRef.current;
+    const r = await searchAssets(m, q, 0, PAGE_SIZE);
     setItems(r.items);
     setTotal(r.total);
+    setHasMore(r.hasMore);
+    setNextPage(1);
   };
 
   const persistEdit = async (
@@ -208,7 +266,10 @@ export default function EmployeePage() {
               setSearched(false);
               setItems([]);
               setTotal(0);
+              setHasMore(false);
+              setNextPage(0);
               setIsDefaultQuery(false);
+              lastSearchRef.current = null;
             }}
           />
         </div>
@@ -224,6 +285,9 @@ export default function EmployeePage() {
           currentUserName={MOCK_USER.name}
           onSelect={openEdit}
           onNew={openNew}
+          loadingMore={loadingMore}
+          hasMore={hasMore}
+          sentinelRef={sentinelRef}
         />
       </div>
 
@@ -326,6 +390,17 @@ export default function EmployeePage() {
           await persistNew(pending, true);
         }}
       />
+
+      <button
+        type="button"
+        aria-label="맨 위로"
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        className={`fixed bottom-6 right-6 z-30 grid h-12 w-12 place-items-center rounded-full bg-brand text-white shadow-lg transition-all duration-200 hover:bg-brand-2 hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 ${
+          showHomeBtn ? 'opacity-100 translate-y-0' : 'pointer-events-none opacity-0 translate-y-3'
+        }`}
+      >
+        <HomeIcon className="h-5 w-5" />
+      </button>
     </Shell>
   );
 }

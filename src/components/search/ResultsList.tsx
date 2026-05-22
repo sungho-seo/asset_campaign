@@ -1,4 +1,5 @@
-import { Plus, Search as SearchIcon } from 'lucide-react';
+import type { Ref } from 'react';
+import { Loader2, Plus, Search as SearchIcon } from 'lucide-react';
 import type { Asset } from '../../types/domain';
 import { Badge } from '../common/Badge';
 import { Button } from '../common/Button';
@@ -13,6 +14,9 @@ type ResultsListProps = {
   currentUserName: string;
   onSelect: (asset: Asset) => void;
   onNew: () => void;
+  loadingMore?: boolean;
+  hasMore?: boolean;
+  sentinelRef?: Ref<HTMLDivElement>;
 };
 
 export function ResultsList({
@@ -24,6 +28,9 @@ export function ResultsList({
   currentUserName,
   onSelect,
   onNew,
+  loadingMore = false,
+  hasMore = false,
+  sentinelRef,
 }: ResultsListProps) {
   if (!searched) {
     return (
@@ -150,6 +157,31 @@ export function ResultsList({
           })}
         </tbody>
       </table>
+      {hasMore && (
+        <div
+          ref={sentinelRef}
+          className="flex items-center justify-center gap-2 border-t border-line bg-bg-soft/30 py-4 text-[12px] text-text-3"
+        >
+          {loadingMore ? (
+            <>
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              <span>다음 자산을 불러오는 중…</span>
+            </>
+          ) : (
+            <span className="text-text-4">아래로 스크롤하면 더 불러옵니다</span>
+          )}
+        </div>
+      )}
+      {!hasMore && items.length > 0 && total > items.length && (
+        <div className="border-t border-line bg-bg-soft/30 py-3 text-center font-mono text-[11px] text-text-4">
+          {items.length.toLocaleString()} / {total.toLocaleString()}건 표시 완료
+        </div>
+      )}
+      {!hasMore && items.length > 0 && total === items.length && total > 20 && (
+        <div className="border-t border-line bg-bg-soft/30 py-3 text-center font-mono text-[11px] text-text-4">
+          전체 {total.toLocaleString()}건 표시 완료
+        </div>
+      )}
     </div>
   );
 }

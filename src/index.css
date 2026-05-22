@@ -13,14 +13,17 @@
   body {
     margin: 0;
     min-height: 100vh;
-    /* 상단 중앙에 매우 옅은 브랜드 핑크 글로우 → 자연스럽게 페이드 아웃 */
+    /* 상단 중앙에 brand-soft(#FCE4EC) 핑크 글로우 — 넓고 자연스럽게 페이드 */
     background-image: radial-gradient(
-      ellipse 1400px 700px at 50% -250px,
-      rgba(165, 0, 52, 0.06) 0%,
-      rgba(252, 228, 236, 0.35) 30%,
-      transparent 70%
+      ellipse 2200px 1400px at 50% -50px,
+      rgba(252, 228, 236, 0.92) 0%,
+      rgba(252, 228, 236, 0.55) 28%,
+      rgba(252, 228, 236, 0.22) 60%,
+      rgba(252, 228, 236, 0.08) 80%,
+      transparent 100%
     );
     background-attachment: fixed;
+    background-repeat: no-repeat;
   }
   *,
   *::before,
