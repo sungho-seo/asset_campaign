@@ -29,6 +29,11 @@ export async function getMe(): Promise<Owner> {
   return json(await fetch(`${API_BASE}/me`));
 }
 
+export async function searchDirectory(name: string): Promise<Owner[]> {
+  const params = new URLSearchParams({ name });
+  return json(await fetch(`${API_BASE}/directory/search?${params}`));
+}
+
 export async function searchAssets(
   mode: SearchMode,
   q: string,

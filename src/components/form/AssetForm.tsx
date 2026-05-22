@@ -18,8 +18,10 @@ import { Button } from '../common/Button';
 import { Field } from './Field';
 import { IPList } from './IPList';
 import { SelectWithCustom } from './SelectWithCustom';
+import { DirectoryDropdown } from './DirectoryDropdown';
 import { ValidationBanner, type ValidationError } from './ValidationBanner';
 import { ASSET_TYPE_OPTIONS, OS_OPTIONS } from '../../lib/mock';
+import { searchDirectory } from '../../lib/api';
 import { cn } from '../../lib/cn';
 
 export type AssetFormHandle = {
@@ -139,10 +141,51 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
   const [errors, setErrors] = useState<Partial<Record<FieldKey, string>>>({});
   const fieldRefs = useRef<Partial<Record<FieldKey, HTMLElement | null>>>({});
 
+  // 담당자 이름 검색 (디렉토리에서 동명이인 찾기)
+  const nameAnchorRef = useRef<HTMLDivElement | null>(null);
+  const [dirOpen, setDirOpen] = useState(false);
+  const [dirLoading, setDirLoading] = useState(false);
+  const [dirResults, setDirResults] = useState<Owner[]>([]);
+
+  const handleNameEnter = async () => {
+    const name = values.owner.name.trim();
+    if (!name) return;
+    setDirOpen(true);
+    setDirLoading(true);
+    try {
+      const r = await searchDirectory(name);
+      setDirResults(r);
+    } finally {
+      setDirLoading(false);
+    }
+  };
+
+  const pickDirectoryPerson = (p: Owner) => {
+    setValues((s) => ({ ...s, owner: { ...p } }));
+    setTouched((t) => ({
+      ...t,
+      'owner.name': true,
+      'owner.email': true,
+      'owner.dept': true,
+    }));
+    setErrors((e) => {
+      const {
+        'owner.name': _a,
+        'owner.email': _b,
+        'owner.dept': _c,
+        ...rest
+      } = e;
+      return rest;
+    });
+    setDirOpen(false);
+  };
+
   useEffect(() => {
     setValues(initial);
     setTouched({});
     setErrors({});
+    setDirOpen(false);
+    setDirResults([]);
   }, [initial]);
 
   useImperativeHandle(ref, () => ({
@@ -249,8 +292,19 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
           }
         />
         <div className="grid grid-cols-3 gap-3 p-4">
-          <div ref={setRef('owner.name')}>
-            <Field id="owner.name" label="담당자 이름" required error={errors['owner.name']}>
+          <div
+            ref={(el) => {
+              setRef('owner.name')(el);
+              nameAnchorRef.current = el;
+            }}
+          >
+            <Field
+              id="owner.name"
+              label="담당자 이름"
+              required
+              hint="(Enter로 디렉토리 검색)"
+              error={errors['owner.name']}
+            >
               <Input
                 id="owner.name"
                 value={values.owner.name}
@@ -259,9 +313,28 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
                 onChange={(e) => {
                   setOwnerField('name', e.target.value);
                   markTouched('owner.name');
+                  if (dirOpen) setDirOpen(false);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    void handleNameEnter();
+                  } else if (e.key === 'Escape' && dirOpen) {
+                    e.stopPropagation();
+                    setDirOpen(false);
+                  }
                 }}
               />
             </Field>
+            {dirOpen && (
+              <DirectoryDropdown
+                anchorRef={nameAnchorRef}
+                results={dirResults}
+                loading={dirLoading}
+                onPick={pickDirectoryPerson}
+                onClose={() => setDirOpen(false)}
+              />
+            )}
           </div>
           <div ref={setRef('owner.email')}>
             <Field id="owner.email" label="담당자 이메일" required error={errors['owner.email']}>

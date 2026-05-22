@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import express, { type Request, type Response } from 'express';
 import type { Asset, SearchMode, SearchResult } from '../src/types/domain';
 import { parseAssetsCSV } from '../src/mocks/csv';
-import { MOCK_USER } from '../src/lib/mock';
+import { MOCK_DIRECTORY, MOCK_USER } from '../src/lib/mock';
 import * as store from './store';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -70,6 +70,18 @@ app.get('/api/health', (_req: Request, res: Response) => {
 
 app.get('/api/me', (_req, res) => {
   res.json(MOCK_USER);
+});
+
+app.get('/api/directory/search', (req, res) => {
+  const name = String(req.query.name ?? '').trim();
+  if (!name) {
+    res.json([]);
+    return;
+  }
+  const matches = MOCK_DIRECTORY.filter(
+    (p) => p.name === name || p.name.includes(name)
+  );
+  res.json(matches);
 });
 
 app.get('/api/assets/search', (req, res) => {

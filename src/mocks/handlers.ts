@@ -1,6 +1,6 @@
 import { http, HttpResponse, delay } from 'msw';
-import type { Asset, SearchMode, SearchResult } from '../types/domain';
-import { MOCK_USER } from '../lib/mock';
+import type { Asset, Owner, SearchMode, SearchResult } from '../types/domain';
+import { MOCK_DIRECTORY, MOCK_USER } from '../lib/mock';
 import * as store from './store';
 
 function matches(a: Asset, mode: SearchMode, q: string): boolean {
@@ -34,6 +34,19 @@ export const handlers = [
   http.get('/api/me', async () => {
     await delay(60);
     return HttpResponse.json(MOCK_USER);
+  }),
+
+  http.get('/api/directory/search', async ({ request }) => {
+    await delay(120);
+    const url = new URL(request.url);
+    const name = (url.searchParams.get('name') || '').trim();
+    if (!name) {
+      return HttpResponse.json([] as Owner[]);
+    }
+    const matches = MOCK_DIRECTORY.filter(
+      (p) => p.name === name || p.name.includes(name)
+    );
+    return HttpResponse.json(matches);
   }),
 
   http.get('/api/assets/search', async ({ request }) => {
