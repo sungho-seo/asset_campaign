@@ -32,7 +32,9 @@ export function DirectoryDropdown({
     width: 0,
   });
 
-  // anchor 위치 추적 — 사이드 드로어 내부 스크롤도 잡기 위해 capture 단계 사용
+  // anchor 위치/사이즈 추적 — 사이드 드로어 슬라이드 애니메이션 중에 측정되면
+  // 사이즈가 0일 수 있으므로 ResizeObserver로 사이즈 변경에 따라 재측정.
+  // scroll은 드로어 내부 스크롤도 잡기 위해 capture 단계 사용.
   useLayoutEffect(() => {
     const anchor = anchorRef.current;
     if (!anchor) return;
@@ -45,9 +47,12 @@ export function DirectoryDropdown({
       });
     };
     update();
+    const ro = new ResizeObserver(update);
+    ro.observe(anchor);
     window.addEventListener('resize', update);
     window.addEventListener('scroll', update, true);
     return () => {
+      ro.disconnect();
       window.removeEventListener('resize', update);
       window.removeEventListener('scroll', update, true);
     };
