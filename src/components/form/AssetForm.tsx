@@ -196,26 +196,52 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
   };
   const fieldRefs = useRef<Partial<Record<FieldKey, HTMLElement | null>>>({});
 
-  // 담당자 이름 검색 (디렉토리에서 동명이인 찾기)
+  // 담당자 이름 검색 (디렉토리에서 동명이인 찾기) — 타이핑 중 자동 검색
   const nameAnchorRef = useRef<HTMLDivElement | null>(null);
   const [dirOpen, setDirOpen] = useState(false);
   const [dirLoading, setDirLoading] = useState(false);
   const [dirResults, setDirResults] = useState<Owner[]>([]);
+  const dirDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const dirRequestSeq = useRef(0); // race condition 방지용 일련번호
 
-  const handleNameEnter = async () => {
-    const name = values.owner.name.trim();
-    if (!name) return;
+  useEffect(() => {
+    return () => {
+      if (dirDebounceRef.current) clearTimeout(dirDebounceRef.current);
+    };
+  }, []);
+
+  const runDirectorySearch = async (name: string) => {
+    const trimmed = name.trim();
+    if (!trimmed) {
+      setDirOpen(false);
+      setDirResults([]);
+      setDirLoading(false);
+      return;
+    }
+    const seq = ++dirRequestSeq.current;
     setDirOpen(true);
     setDirLoading(true);
     try {
-      const r = await searchDirectory(name);
+      const r = await searchDirectory(trimmed);
+      // 늦게 도착한 응답은 무시 (사용자가 그 사이 더 타이핑)
+      if (seq !== dirRequestSeq.current) return;
       setDirResults(r);
     } finally {
-      setDirLoading(false);
+      if (seq === dirRequestSeq.current) setDirLoading(false);
     }
   };
 
+  const scheduleDirectorySearch = (name: string) => {
+    if (dirDebounceRef.current) clearTimeout(dirDebounceRef.current);
+    dirDebounceRef.current = setTimeout(() => {
+      void runDirectorySearch(name);
+    }, 200);
+  };
+
   const pickDirectoryPerson = (p: Owner) => {
+    // 진행 중인 디바운스/응답 무효화
+    if (dirDebounceRef.current) clearTimeout(dirDebounceRef.current);
+    dirRequestSeq.current++;
     setValues((s) => ({ ...s, owner: { ...p } }));
     setTouched((t) => ({
       ...t,
@@ -366,26 +392,30 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
               id="owner.name"
               label="담당자 이름"
               required
-              hint="(Enter로 디렉토리 검색)"
+              hint="(타이핑하면 동명이인 자동 검색)"
               error={errors['owner.name']}
             >
               <Input
                 id="owner.name"
+                autoComplete="off"
                 value={values.owner.name}
                 emptyFlag={flag('owner.name', values.owner.name)}
                 error={!!errors['owner.name']}
                 onFocus={handleNameFocus}
                 onClick={handleNameFocus}
                 onChange={(e) => {
-                  setOwnerField('name', e.target.value);
+                  const next = e.target.value;
+                  setOwnerField('name', next);
                   markTouched('owner.name');
                   setOwnerIsAutoFilled(false);
-                  if (dirOpen) setDirOpen(false);
+                  scheduleDirectorySearch(next);
                 }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
+                    // 폼 submit 방지 + 즉시 검색 (debounce 무시)
                     e.preventDefault();
-                    void handleNameEnter();
+                    if (dirDebounceRef.current) clearTimeout(dirDebounceRef.current);
+                    void runDirectorySearch(values.owner.name);
                   } else if (e.key === 'Escape' && dirOpen) {
                     e.stopPropagation();
                     setDirOpen(false);
