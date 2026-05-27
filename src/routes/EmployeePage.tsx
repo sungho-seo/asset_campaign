@@ -153,8 +153,10 @@ export default function EmployeePage() {
       kind: 'edit',
       asset,
       initial: valuesFromAsset(asset, MOCK_USER),
-      // 자산이 담당자 미지정이라 MOCK_USER로 fallback된 경우만 auto-filled
-      ownerAutoFilled: asset.owner === null,
+      // 담당자가 자산 자체에서 왔든(타인 자산), MOCK_USER로 fallback됐든(미지정 자산),
+      // 사이드패널 진입 시점의 담당자는 모두 "사전 설정"된 상태로 간주.
+      // 사용자가 이름 칸을 처음 클릭하면 3필드를 비워 재지정할 수 있게 함.
+      ownerAutoFilled: true,
     });
   };
   const openNew = () => {
@@ -396,7 +398,7 @@ export default function EmployeePage() {
             kind: 'edit',
             asset,
             initial: valuesFromAsset(asset, MOCK_USER),
-            ownerAutoFilled: asset.owner === null,
+            ownerAutoFilled: true,
           });
         }}
         onOverwrite={async () => {

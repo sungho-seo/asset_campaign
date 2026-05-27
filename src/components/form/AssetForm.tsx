@@ -398,7 +398,6 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
               id="owner.name"
               label="담당자 이름"
               required
-              hint="(타이핑하면 동명이인 자동 검색)"
               error={errors['owner.name']}
             >
               <Input
