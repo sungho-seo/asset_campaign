@@ -32,27 +32,39 @@ export function DirectoryDropdown({
     width: 0,
   });
 
-  // anchor 위치/사이즈 추적 — 사이드 드로어 슬라이드 애니메이션 중에 측정되면
-  // 사이즈가 0일 수 있으므로 ResizeObserver로 사이즈 변경에 따라 재측정.
-  // scroll은 드로어 내부 스크롤도 잡기 위해 capture 단계 사용.
+  // anchor 위치/사이즈 추적.
+  // mount 시점에 anchor가 null이거나 사이즈가 0일 수 있으므로 (사이드 드로어 transition 등)
+  // requestAnimationFrame으로 anchor가 valid해질 때까지 재시도 + 이후 ResizeObserver로 추적.
   useLayoutEffect(() => {
-    const anchor = anchorRef.current;
-    if (!anchor) return;
+    let rafId = 0;
+    let ro: ResizeObserver | null = null;
+
     const update = () => {
+      const anchor = anchorRef.current;
+      if (!anchor) return;
       const rect = anchor.getBoundingClientRect();
+      // anchor가 아직 layout되지 않았으면 다음 프레임에 재시도
+      if (rect.width === 0 && rect.height === 0) {
+        rafId = requestAnimationFrame(update);
+        return;
+      }
       setPos({
         top: rect.bottom + 4,
         left: rect.left,
         width: Math.max(rect.width, 440),
       });
+      // 최초 valid 측정 시점에 ResizeObserver attach
+      if (!ro) {
+        ro = new ResizeObserver(update);
+        ro.observe(anchor);
+      }
     };
     update();
-    const ro = new ResizeObserver(update);
-    ro.observe(anchor);
     window.addEventListener('resize', update);
     window.addEventListener('scroll', update, true);
     return () => {
-      ro.disconnect();
+      if (rafId) cancelAnimationFrame(rafId);
+      ro?.disconnect();
       window.removeEventListener('resize', update);
       window.removeEventListener('scroll', update, true);
     };

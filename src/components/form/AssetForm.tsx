@@ -1,5 +1,6 @@
 import {
   forwardRef,
+  useCallback,
   useEffect,
   useImperativeHandle,
   useMemo,
@@ -338,6 +339,16 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
   const flag = (key: FieldKey, v: unknown) =>
     mode === 'new' && !touched[key] && isEmpty(v);
 
+  // 담당자 이름 anchor 전용 stable ref callback.
+  // 인라인 ref `(el) => {...}` 는 매 렌더마다 새 함수 reference라
+  // React가 매 렌더마다 cleanup(null)→setup(el) 사이클을 돌게 됨.
+  // 그 사이에 자식 컴포넌트의 useLayoutEffect가 실행되면 anchor가 일시적으로 null이라 측정 실패.
+  // useCallback으로 reference를 고정해서 ref 사이클 자체를 제거.
+  const setNameAnchorRef = useCallback((el: HTMLDivElement | null) => {
+    fieldRefs.current['owner.name'] = el;
+    nameAnchorRef.current = el;
+  }, []);
+
   const setRef = (key: FieldKey) => (el: HTMLDivElement | null) => {
     fieldRefs.current[key] = el;
   };
@@ -382,12 +393,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
           }
         />
         <div className="grid grid-cols-3 gap-3 p-4">
-          <div
-            ref={(el) => {
-              setRef('owner.name')(el);
-              nameAnchorRef.current = el;
-            }}
-          >
+          <div ref={setNameAnchorRef}>
             <Field
               id="owner.name"
               label="담당자 이름"
