@@ -136,14 +136,24 @@ app.put('/api/assets/:id', (req, res) => {
     res.status(409).json({ error: 'conflict', serverAsset: current });
     return;
   }
-  const updated = store.replaceById(id, (curr) => ({
-    ...curr,
-    ...body,
-    ips: body.ips ? [...body.ips] : curr.ips,
-    owner: body.owner ?? curr.owner,
-    updatedAt: new Date().toISOString(),
-    updatedBy: body.owner?.name ?? MOCK_USER.name,
-  }));
+  const updated = store.replaceById(id, (curr) => {
+    const nextAssetType = body.assetType ?? curr.assetType;
+    const nextCloud =
+      nextAssetType === '클라우드'
+        ? body.cloud !== undefined
+          ? body.cloud
+          : curr.cloud
+        : null;
+    return {
+      ...curr,
+      ...body,
+      ips: body.ips ? [...body.ips] : curr.ips,
+      owner: body.owner ?? curr.owner,
+      cloud: nextCloud,
+      updatedAt: new Date().toISOString(),
+      updatedBy: body.owner?.name ?? MOCK_USER.name,
+    };
+  });
   res.json(updated);
 });
 
@@ -172,8 +182,8 @@ app.post('/api/assets', (req, res) => {
     os: body.os,
     osVersion: body.osVersion,
     location: body.location,
-    antivirus: body.antivirus,
-    edr: body.edr,
+    security: body.security,
+    cloud: body.assetType === '클라우드' ? body.cloud : null,
     owner: body.owner,
     qualysDetectedAt: now,
     updatedAt: now,

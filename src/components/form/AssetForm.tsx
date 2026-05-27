@@ -6,10 +6,22 @@ import {
   useRef,
   useState,
 } from 'react';
-import { ServerCog, ShieldCheck, UserCircle2, type LucideIcon } from 'lucide-react';
+import {
+  Cloud,
+  ServerCog,
+  ShieldCheck,
+  UserCircle2,
+  type LucideIcon,
+} from 'lucide-react';
 import type { Asset, Owner } from '../../types/domain';
 import {
+  DATA_CLASS_VALUES,
+  ENVIRONMENT_VALUES,
+  SECURITY_VALUES,
+} from '../../types/domain';
+import {
   assetFormSchema,
+  emptyCloud,
   type AssetFormValues,
 } from '../../lib/validation';
 import { Input } from '../common/Input';
@@ -17,10 +29,11 @@ import { ToggleGroup } from '../common/ToggleGroup';
 import { Button } from '../common/Button';
 import { Field } from './Field';
 import { IPList } from './IPList';
+import { Select } from './Select';
 import { SelectWithCustom } from './SelectWithCustom';
 import { DirectoryDropdown } from './DirectoryDropdown';
 import { ValidationBanner, type ValidationError } from './ValidationBanner';
-import { ASSET_TYPE_OPTIONS, OS_OPTIONS } from '../../lib/mock';
+import { ASSET_TYPE_OPTIONS, CSP_OPTIONS, OS_OPTIONS } from '../../lib/mock';
 import { searchDirectory } from '../../lib/api';
 import { cn } from '../../lib/cn';
 
@@ -50,8 +63,11 @@ const FIELD_KEYS = [
   'os',
   'osVersion',
   'location',
-  'antivirus',
-  'edr',
+  'security',
+  'cloud.csp',
+  'cloud.accountId',
+  'cloud.environment',
+  'cloud.dataClass',
 ] as const;
 
 type FieldKey = (typeof FIELD_KEYS)[number];
@@ -69,9 +85,23 @@ const FIELD_LABEL: Record<FieldKey, string> = {
   os: '운영체제',
   osVersion: '운영체제 버전',
   location: '자산 위치',
-  antivirus: '백신 설치 여부',
-  edr: 'EDR 설치 여부',
+  security: '보안 솔루션',
+  'cloud.csp': '클라우드 제공자 (CSP)',
+  'cloud.accountId': '계정 ID',
+  'cloud.environment': '환경',
+  'cloud.dataClass': '취급 데이터 등급',
 };
+
+// CSP별 계정 ID placeholder
+const CSP_ACCOUNT_ID_PLACEHOLDER: Record<string, string> = {
+  AWS: 'Account ID (예: 123456789012)',
+  Azure: 'Subscription ID',
+  GCP: 'Project ID',
+  NCP: 'Account/Project ID',
+};
+function accountIdPlaceholder(csp: string): string {
+  return CSP_ACCOUNT_ID_PLACEHOLDER[csp] ?? '계정 식별자';
+}
 
 type SectionHeaderProps = {
   icon: LucideIcon;
@@ -111,8 +141,8 @@ export function emptyValues(currentUser: Owner): AssetFormValues {
     os: '',
     osVersion: '',
     location: '',
-    antivirus: null,
-    edr: null,
+    security: '',
+    cloud: emptyCloud(),
   };
 }
 
@@ -128,8 +158,8 @@ export function valuesFromAsset(asset: Asset, currentUser: Owner): AssetFormValu
     os: asset.os,
     osVersion: asset.osVersion,
     location: asset.location,
-    antivirus: asset.antivirus,
-    edr: asset.edr,
+    security: asset.security,
+    cloud: asset.cloud ? { ...asset.cloud } : emptyCloud(),
   };
 }
 
@@ -271,6 +301,12 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
   const setOwnerField = (key: keyof Owner, v: string) => {
     setValues((s) => ({ ...s, owner: { ...s.owner, [key]: v } }));
   };
+
+  const setCloudField = (key: keyof AssetFormValues['cloud'], v: string) => {
+    setValues((s) => ({ ...s, cloud: { ...s.cloud, [key]: v } }));
+  };
+
+  const showCloud = values.assetType === '클라우드';
 
   const isEmpty = (v: unknown) => v === '' || v === null || v === undefined;
   const flag = (key: FieldKey, v: unknown) =>
@@ -569,11 +605,120 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
         </div>
       </section>
 
+      {/* 클라우드 추가 항목 — assetType === '클라우드' 일 때만 노출 */}
+      <div
+        className={cn(
+          'grid transition-[grid-template-rows,opacity] duration-300 ease-out',
+          showCloud ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+        )}
+        aria-hidden={!showCloud}
+      >
+        <div className="overflow-hidden">
+          <section className="relative overflow-hidden rounded-lg border border-line bg-white">
+            <span aria-hidden className="absolute inset-y-0 left-0 w-[3px] bg-brand" />
+            <SectionHeader
+              icon={Cloud}
+              title="클라우드 추가 정보"
+              subtitle="자산 유형이 클라우드일 때 필수"
+            />
+            <div className="space-y-4 p-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div ref={setRef('cloud.csp')}>
+                  <Field
+                    id="cloud.csp"
+                    label="클라우드 제공자 (CSP)"
+                    required={showCloud}
+                    error={errors['cloud.csp']}
+                  >
+                    <SelectWithCustom
+                      id="cloud.csp"
+                      value={values.cloud.csp}
+                      emptyFlag={flag('cloud.csp', values.cloud.csp)}
+                      error={!!errors['cloud.csp']}
+                      placeholder="선택하세요"
+                      options={CSP_OPTIONS}
+                      onChange={(v) => {
+                        setCloudField('csp', v);
+                        markTouched('cloud.csp');
+                      }}
+                    />
+                  </Field>
+                </div>
+                <div ref={setRef('cloud.accountId')}>
+                  <Field
+                    id="cloud.accountId"
+                    label="계정 ID"
+                    required={showCloud}
+                    error={errors['cloud.accountId']}
+                  >
+                    <Input
+                      id="cloud.accountId"
+                      variant="mono"
+                      placeholder={accountIdPlaceholder(values.cloud.csp)}
+                      value={values.cloud.accountId}
+                      emptyFlag={flag('cloud.accountId', values.cloud.accountId)}
+                      error={!!errors['cloud.accountId']}
+                      onChange={(e) => {
+                        setCloudField('accountId', e.target.value);
+                        markTouched('cloud.accountId');
+                      }}
+                    />
+                  </Field>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div ref={setRef('cloud.environment')}>
+                  <Field
+                    id="cloud.environment"
+                    label="환경"
+                    required={showCloud}
+                    error={errors['cloud.environment']}
+                  >
+                    <Select
+                      id="cloud.environment"
+                      value={values.cloud.environment}
+                      emptyFlag={flag('cloud.environment', values.cloud.environment)}
+                      error={!!errors['cloud.environment']}
+                      placeholder="선택하세요"
+                      options={ENVIRONMENT_VALUES as readonly string[] as string[]}
+                      onChange={(e) => {
+                        setCloudField('environment', e.target.value);
+                        markTouched('cloud.environment');
+                      }}
+                    />
+                  </Field>
+                </div>
+                <div ref={setRef('cloud.dataClass')}>
+                  <Field
+                    id="cloud.dataClass"
+                    label="취급 데이터 등급"
+                    error={errors['cloud.dataClass']}
+                  >
+                    <Select
+                      id="cloud.dataClass"
+                      value={values.cloud.dataClass}
+                      emptyFlag={flag('cloud.dataClass', values.cloud.dataClass)}
+                      error={!!errors['cloud.dataClass']}
+                      placeholder="선택하세요"
+                      options={DATA_CLASS_VALUES as readonly string[] as string[]}
+                      onChange={(e) => {
+                        setCloudField('dataClass', e.target.value);
+                        markTouched('cloud.dataClass');
+                      }}
+                    />
+                  </Field>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
       {/* 보안 옵션 */}
       <section className="relative overflow-hidden rounded-lg border border-line bg-white">
         <span aria-hidden className="absolute inset-y-0 left-0 w-[3px] bg-brand" />
         <SectionHeader icon={ShieldCheck} title="보안 옵션" />
-        <div className="grid grid-cols-3 gap-3 p-4">
+        <div className="grid grid-cols-2 gap-3 p-4">
           <div ref={setRef('internet')}>
             <Field label="외부 접속 여부" error={errors.internet}>
               <ToggleGroup<'yes' | 'no'>
@@ -591,37 +736,24 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
               />
             </Field>
           </div>
-          <div ref={setRef('antivirus')}>
-            <Field label="백신 설치 여부" error={errors.antivirus}>
-              <ToggleGroup<'yes' | 'no'>
-                name="antivirus"
-                value={values.antivirus}
-                error={!!errors.antivirus}
-                onChange={(v) => {
-                  setField('antivirus', v);
-                  markTouched('antivirus');
+          <div ref={setRef('security')}>
+            <Field
+              id="security"
+              label="보안 솔루션"
+              hint="(설치된 보안 솔루션 종류)"
+              error={errors.security}
+            >
+              <Select
+                id="security"
+                value={values.security}
+                emptyFlag={flag('security', values.security)}
+                error={!!errors.security}
+                placeholder="선택하세요"
+                options={SECURITY_VALUES as readonly string[] as string[]}
+                onChange={(e) => {
+                  setField('security', e.target.value as AssetFormValues['security']);
+                  markTouched('security');
                 }}
-                options={[
-                  { value: 'yes', label: '예' },
-                  { value: 'no', label: '아니오' },
-                ]}
-              />
-            </Field>
-          </div>
-          <div ref={setRef('edr')}>
-            <Field label="EDR 설치 여부" error={errors.edr}>
-              <ToggleGroup<'yes' | 'no'>
-                name="edr"
-                value={values.edr}
-                error={!!errors.edr}
-                onChange={(v) => {
-                  setField('edr', v);
-                  markTouched('edr');
-                }}
-                options={[
-                  { value: 'yes', label: '예' },
-                  { value: 'no', label: '아니오' },
-                ]}
               />
             </Field>
           </div>

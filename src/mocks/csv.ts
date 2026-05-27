@@ -1,4 +1,5 @@
-import type { Asset, ToggleYesNo } from '../types/domain';
+import type { Asset, CloudInfo, SecurityValue, ToggleYesNo } from '../types/domain';
+import { SECURITY_VALUES } from '../types/domain';
 
 // 단순 CSV 파서: 따옴표 미사용 가정. 우리 샘플 데이터는 콤마/따옴표를 필드 내에 포함하지 않음.
 // 다중 IP는 '|'로 구분.
@@ -7,6 +8,25 @@ function parseToggle(v: string): ToggleYesNo | null {
   const s = v.trim().toLowerCase();
   if (s === 'yes' || s === 'no') return s as ToggleYesNo;
   return null;
+}
+
+function parseSecurity(v: string): SecurityValue | '' {
+  const s = v.trim();
+  return (SECURITY_VALUES as readonly string[]).includes(s) ? (s as SecurityValue) : '';
+}
+
+function parseCloud(r: Record<string, string>): CloudInfo | null {
+  const csp = (r.csp || '').trim();
+  const accountId = (r.cloud_accountId || '').trim();
+  const environment = (r.environment || '').trim();
+  const dataClass = (r.dataClass || '').trim();
+  if (!csp && !accountId && !environment && !dataClass) return null;
+  return {
+    csp,
+    accountId,
+    environment: environment as CloudInfo['environment'],
+    dataClass: dataClass as CloudInfo['dataClass'],
+  };
 }
 
 export function parseAssetsCSV(text: string): Asset[] {
@@ -41,8 +61,8 @@ export function parseAssetsCSV(text: string): Asset[] {
       os: r.os,
       osVersion: r.osVersion,
       location: r.location || '',
-      antivirus: parseToggle(r.antivirus || ''),
-      edr: parseToggle(r.edr || ''),
+      security: parseSecurity(r.security || ''),
+      cloud: parseCloud(r),
       owner: hasOwner
         ? {
             name: r.owner_name,

@@ -28,12 +28,13 @@ export const DATA_CLASS_VALUES = [
 export type DataClass = (typeof DATA_CLASS_VALUES)[number];
 
 // 클라우드 자산 한정 정보. assetType === '클라우드' 일 때만 의미를 가짐.
-// csp는 '직접입력' 선택 시 자유 텍스트가 들어갈 수 있으므로 string으로 둠.
+// 런타임 검증은 assetFormSchema가 담당하며, 여기서는 폼 값과 정합되도록 string으로 둠.
+// 허용 값은 ENVIRONMENT_VALUES / DATA_CLASS_VALUES 상수 참조.
 export type CloudInfo = {
-  csp: string;                         // AWS / Azure / GCP / NCP / (직접입력 자유 텍스트)
+  csp: string;                         // AWS / Azure / GCP / NCP / 직접입력 자유 텍스트
   accountId: string;                   // CSP별 고유 식별자
-  environment: Environment | '';       // 미입력 상태는 ''
-  dataClass: DataClass | '';           // 선택, 미입력 상태는 ''
+  environment: string;                 // Environment | '' — UI에서만 좁힘
+  dataClass: string;                   // DataClass | '' — UI에서만 좁힘
 };
 
 export type Asset = {
@@ -47,7 +48,7 @@ export type Asset = {
   os: string;                          // 운영체제 (필수)
   osVersion: string;                   // 운영체제 버전 (필수)
   location: string;                    // 자산 위치 (선택)
-  security: SecurityValue | '';        // 보안 솔루션 (선택, 미입력은 '')
+  security: string;                    // 보안 솔루션 (EPP/EDR/CWPP/없음/'')
   cloud: CloudInfo | null;             // 클라우드 자산 한정 (assetType !== '클라우드'면 null)
   owner: Owner | null;
   qualysDetectedAt: string;

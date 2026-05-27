@@ -91,8 +91,8 @@ describe('assetFormSchema', () => {
     os: 'Ubuntu 22.04',
     osVersion: '22.04.3 LTS',
     location: '서울 마곡 LG사이언스파크 R&D본관 5층 521호',
-    antivirus: 'yes' as const,
-    edr: 'yes' as const,
+    security: 'EPP' as const,
+    cloud: { csp: '', accountId: '', environment: '', dataClass: '' },
   };
 
   it('통과 - 정상 입력', () => {
@@ -107,10 +107,75 @@ describe('assetFormSchema', () => {
       internet: null,
       domain: '',
       location: '',
-      antivirus: null,
-      edr: null,
+      security: '',
     });
     expect(r.success).toBe(true);
+  });
+
+  describe('클라우드 자산 — 추가 항목 검증', () => {
+    const cloudBase = {
+      ...valid,
+      assetType: '클라우드',
+      cloud: {
+        csp: 'AWS',
+        accountId: '123456789012',
+        environment: 'Production' as const,
+        dataClass: '내부용' as const,
+      },
+    };
+
+    it('통과 - 클라우드 필수 항목 채움', () => {
+      expect(assetFormSchema.safeParse(cloudBase).success).toBe(true);
+    });
+
+    it('실패 - 클라우드인데 CSP 비어있음', () => {
+      const r = assetFormSchema.safeParse({
+        ...cloudBase,
+        cloud: { ...cloudBase.cloud, csp: '' },
+      });
+      expect(r.success).toBe(false);
+    });
+
+    it('실패 - 클라우드인데 계정 ID 비어있음', () => {
+      const r = assetFormSchema.safeParse({
+        ...cloudBase,
+        cloud: { ...cloudBase.cloud, accountId: '' },
+      });
+      expect(r.success).toBe(false);
+    });
+
+    it('실패 - 클라우드인데 환경 미선택', () => {
+      const r = assetFormSchema.safeParse({
+        ...cloudBase,
+        cloud: { ...cloudBase.cloud, environment: '' },
+      });
+      expect(r.success).toBe(false);
+    });
+
+    it('통과 - 클라우드인데 dataClass 비어있음 (선택)', () => {
+      const r = assetFormSchema.safeParse({
+        ...cloudBase,
+        cloud: { ...cloudBase.cloud, dataClass: '' },
+      });
+      expect(r.success).toBe(true);
+    });
+
+    it('통과 - 온프레미스이면 cloud 필드 값은 무시되어 통과', () => {
+      const r = assetFormSchema.safeParse({
+        ...valid,
+        assetType: '온프레미스',
+        cloud: { csp: '', accountId: '', environment: '', dataClass: '' },
+      });
+      expect(r.success).toBe(true);
+    });
+
+    it('통과 - CSP 직접입력 (자유 텍스트)', () => {
+      const r = assetFormSchema.safeParse({
+        ...cloudBase,
+        cloud: { ...cloudBase.cloud, csp: 'OracleCloud' },
+      });
+      expect(r.success).toBe(true);
+    });
   });
 
   it('실패 - 자산명 공백 포함', () => {

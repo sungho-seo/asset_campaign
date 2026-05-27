@@ -44,7 +44,13 @@ export const MOCK_DIRECTORY: Owner[] = [
   { name: '문지은', email: 'jieun.moon@lge.com', dept: 'IT지원팀' },
 ];
 
-export const ASSET_TYPE_OPTIONS = ['온프레미스', '클라우드', '하이브리드'];
+// PRD v5 §5.1 — 자산 유형 [온프레미스 / 클라우드 / 직접입력].
+// SelectWithCustom이 '직접입력' 옵션을 자동으로 추가하므로 여기서는 2개만 노출.
+export const ASSET_TYPE_OPTIONS = ['온프레미스', '클라우드'];
+
+// PRD v5 §5.2 — 클라우드 제공자.
+// '직접입력'은 SelectWithCustom이 자동 추가.
+export const CSP_OPTIONS = ['AWS', 'Azure', 'GCP', 'NCP'];
 
 export const OS_OPTIONS = [
   'AIX',
@@ -74,8 +80,8 @@ export const MOCK_ASSETS: Asset[] = [
     os: 'Ubuntu 22.04',
     osVersion: '22.04.3 LTS',
     location: '서울 마곡 LG사이언스파크 R&D본관 5층 521호',
-    antivirus: 'yes',
-    edr: 'yes',
+    security: 'EPP',
+    cloud: null,
     owner: null,
     qualysDetectedAt: '2026-04-12T09:33:00Z',
     updatedAt: null,

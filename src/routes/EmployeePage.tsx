@@ -198,8 +198,8 @@ export default function EmployeePage() {
         os: values.os,
         osVersion: values.osVersion,
         location: values.location,
-        antivirus: values.antivirus,
-        edr: values.edr,
+        security: values.security,
+        cloud: values.assetType === '클라우드' ? values.cloud : null,
         forceOverwrite,
         ifMatchUpdatedAt: forceOverwrite ? undefined : asset.updatedAt,
       });
@@ -228,8 +228,8 @@ export default function EmployeePage() {
         os: values.os,
         osVersion: values.osVersion,
         location: values.location,
-        antivirus: values.antivirus,
-        edr: values.edr,
+        security: values.security,
+        cloud: values.assetType === '클라우드' ? values.cloud : null,
         owner: values.owner,
         forceOverwrite,
       });
