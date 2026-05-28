@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { Asset } from '../../types/domain';
 import { Modal } from '../feedback/Modal';
 import { Button } from '../common/Button';
@@ -18,21 +19,22 @@ export function ConflictModal({
   onOverwrite,
   onAdoptServer,
 }: ConflictModalProps) {
+  const { t } = useTranslation();
   return (
     <Modal
       open={open}
       onClose={onClose}
       icon="warn"
-      title="동시 수정이 감지되었습니다"
-      description="다른 사용자가 같은 자산을 먼저 저장했습니다. 어떻게 할까요?"
+      title={t('modal.conflict.title')}
+      description={t('modal.conflict.body')}
       actions={
         <>
-          <Button onClick={onClose}>취소</Button>
+          <Button onClick={onClose}>{t('form.actions.cancel')}</Button>
           <Button variant="ghost" onClick={onAdoptServer}>
-            상대 입력 가져오기
+            {t('modal.conflict.adoptServer')}
           </Button>
           <Button variant="danger" onClick={onOverwrite}>
-            내 입력으로 덮어쓰기
+            {t('modal.conflict.overwriteMine')}
           </Button>
         </>
       }
@@ -40,7 +42,7 @@ export function ConflictModal({
       {serverAsset && (
         <div className="rounded-md border border-line bg-bg-soft/60 px-3 py-2.5 text-[12.5px]">
           <div className="font-mono text-[11px] uppercase tracking-wider text-text-3">
-            최근 저장
+            {t('modal.conflict.recentSave')}
           </div>
           <div className="mt-0.5 text-text">
             <span className="font-medium">{serverAsset.updatedBy ?? '—'}</span>

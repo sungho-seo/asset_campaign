@@ -1,4 +1,5 @@
 import type { Ref } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Loader2, Plus, Search as SearchIcon } from 'lucide-react';
 import type { Asset } from '../../types/domain';
 import { Badge } from '../common/Badge';
@@ -32,12 +33,14 @@ export function ResultsList({
   hasMore = false,
   sentinelRef,
 }: ResultsListProps) {
+  const { t } = useTranslation();
+
   if (!searched) {
     return (
       <div className="grid place-items-center gap-2 rounded-lg border border-dashed border-line bg-white py-16 text-center">
         <SearchIcon className="h-6 w-6 text-text-4" />
         <div className="text-[13px] text-text-3">
-          검색어를 입력하고 Enter 또는 검색 버튼을 눌러주세요.
+          {t('employee.emptyState.noQuery')}
         </div>
       </div>
     );
@@ -46,7 +49,7 @@ export function ResultsList({
   if (loading) {
     return (
       <div className="rounded-lg border border-line bg-white py-16 text-center text-[13px] text-text-3">
-        검색 중…
+        {t('common.searching')}
       </div>
     );
   }
@@ -56,13 +59,15 @@ export function ResultsList({
       <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-line bg-white py-12 text-center">
         <SearchIcon className="h-7 w-7 text-text-4" />
         <div>
-          <div className="text-sm font-medium text-text">검색 결과가 없습니다.</div>
+          <div className="text-sm font-medium text-text">
+            {t('employee.emptyState.noResults')}
+          </div>
           <div className="mt-1 text-[12.5px] text-text-3">
-            “{query}” 에 해당하는 자산을 찾을 수 없습니다. 새로 등록할까요?
+            {t('employee.emptyState.noResultsHint', { query })}
           </div>
         </div>
         <Button variant="primary" size="sm" onClick={onNew}>
-          <Plus className="h-3 w-3" /> 신규 자산 등록
+          <Plus className="h-3 w-3" /> {t('employee.registerNew')}
         </Button>
       </div>
     );
@@ -72,21 +77,21 @@ export function ResultsList({
     <div className="overflow-hidden rounded-lg border border-line bg-white">
       <div className="flex items-center justify-between border-b border-line bg-bg-soft/50 px-4 py-2.5">
         <div className="font-mono text-[11px] uppercase tracking-wider text-text-3">
-          검색 결과 {total.toLocaleString()}건
+          {t('employee.totals.searchResults', { count: total })}
         </div>
         <Button variant="ghost" size="sm" onClick={onNew}>
-          <Plus className="h-3 w-3" /> 신규 등록
+          <Plus className="h-3 w-3" /> {t('employee.resultsTable.newAssetShort')}
         </Button>
       </div>
       <table className="w-full text-[12.5px]">
         <thead>
           <tr className="border-b border-line text-left font-mono text-[10.5px] uppercase tracking-wider text-text-3">
-            <th className="px-4 py-2.5 font-medium">자산명 / 도메인</th>
-            <th className="px-4 py-2.5 font-medium">IP</th>
-            <th className="px-4 py-2.5 font-medium">담당자</th>
-            <th className="px-4 py-2.5 font-medium">위치 / OS</th>
-            <th className="px-4 py-2.5 font-medium">상태</th>
-            <th className="px-4 py-2.5 font-medium">최근 수정</th>
+            <th className="px-4 py-2.5 font-medium">{t('employee.columns.hostname')}</th>
+            <th className="px-4 py-2.5 font-medium">{t('employee.columns.ip')}</th>
+            <th className="px-4 py-2.5 font-medium">{t('employee.columns.owner')}</th>
+            <th className="px-4 py-2.5 font-medium">{t('employee.columns.locationOs')}</th>
+            <th className="px-4 py-2.5 font-medium">{t('employee.columns.status')}</th>
+            <th className="px-4 py-2.5 font-medium">{t('employee.columns.updatedAt')}</th>
           </tr>
         </thead>
         <tbody>
@@ -133,11 +138,11 @@ export function ResultsList({
                 </td>
                 <td className="px-4 py-3 align-top">
                   {mine ? (
-                    <Badge variant="mine">내 자산</Badge>
+                    <Badge variant="mine">{t('employee.status.mine')}</Badge>
                   ) : a.owner ? (
-                    <Badge variant="assigned">담당자 있음</Badge>
+                    <Badge variant="assigned">{t('employee.status.assigned')}</Badge>
                   ) : (
-                    <Badge variant="unassigned">미지정</Badge>
+                    <Badge variant="unassigned">{t('employee.status.unassigned')}</Badge>
                   )}
                 </td>
                 <td className="px-4 py-3 align-top">
@@ -149,7 +154,9 @@ export function ResultsList({
                       <div className="text-[11px] text-text-3">{a.updatedBy}</div>
                     </>
                   ) : (
-                    <span className="font-mono text-[11px] text-text-4">한 번도 없음</span>
+                    <span className="font-mono text-[11px] text-text-4">
+                      {t('employee.status.neverUpdated')}
+                    </span>
                   )}
                 </td>
               </tr>
@@ -165,21 +172,21 @@ export function ResultsList({
           {loadingMore ? (
             <>
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              <span>다음 자산을 불러오는 중…</span>
+              <span>{t('employee.totals.loadingMore')}</span>
             </>
           ) : (
-            <span className="text-text-4">아래로 스크롤하면 더 불러옵니다</span>
+            <span className="text-text-4">{t('employee.totals.scrollHint')}</span>
           )}
         </div>
       )}
       {!hasMore && items.length > 0 && total > items.length && (
         <div className="border-t border-line bg-bg-soft/30 py-3 text-center font-mono text-[11px] text-text-4">
-          {items.length.toLocaleString()} / {total.toLocaleString()}건 표시 완료
+          {t('employee.totals.partial', { shown: items.length.toLocaleString(), total: total.toLocaleString() })}
         </div>
       )}
       {!hasMore && items.length > 0 && total === items.length && total > 20 && (
         <div className="border-t border-line bg-bg-soft/30 py-3 text-center font-mono text-[11px] text-text-4">
-          전체 {total.toLocaleString()}건 표시 완료
+          {t('employee.totals.complete', { total: total.toLocaleString() })}
         </div>
       )}
     </div>

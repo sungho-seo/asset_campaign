@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Select } from './Select';
 import { Input } from '../common/Input';
 
@@ -24,11 +25,14 @@ export function SelectWithCustom({
   value,
   onChange,
   options,
-  placeholder = '선택하세요',
+  placeholder,
   error,
   emptyFlag,
-  customInputPlaceholder = '직접 입력하세요',
+  customInputPlaceholder,
 }: SelectWithCustomProps) {
+  const { t } = useTranslation();
+  const resolvedPlaceholder = placeholder ?? t('form.selectPlaceholder');
+  const resolvedCustomPlaceholder = customInputPlaceholder ?? t('form.customInput');
   // 명시적으로 직접입력을 선택한 경우 / 또는 값이 옵션에 없으면 직접입력 모드
   const [explicitCustom, setExplicitCustom] = useState(false);
   const isCustom = explicitCustom || isCustomValue(value, options);
@@ -50,10 +54,10 @@ export function SelectWithCustom({
         value={selectValue}
         error={error}
         emptyFlag={emptyFlag}
-        placeholder={placeholder}
+        placeholder={resolvedPlaceholder}
         options={[
           ...options.map((o) => ({ value: o, label: o })),
-          { value: CUSTOM_KEY, label: '직접입력' },
+          { value: CUSTOM_KEY, label: t('form.customOption') },
         ]}
         onChange={(e) => {
           const v = e.target.value;
@@ -69,7 +73,7 @@ export function SelectWithCustom({
       {isCustom && (
         <Input
           ref={customInputRef}
-          placeholder={customInputPlaceholder}
+          placeholder={resolvedCustomPlaceholder}
           value={value}
           error={error}
           onChange={(e) => onChange(e.target.value)}

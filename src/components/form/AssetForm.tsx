@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Cloud,
   ServerCog,
@@ -73,35 +74,36 @@ const FIELD_KEYS = [
 
 type FieldKey = (typeof FIELD_KEYS)[number];
 
-const FIELD_LABEL: Record<FieldKey, string> = {
-  'owner.name': '담당자 이름',
-  'owner.email': '담당자 이메일',
-  'owner.dept': '소속 조직 / 부서',
-  assetType: '자산 유형',
-  hostname: '자산명 (Hostname)',
-  purpose: '사용목적 / 서비스명',
-  ips: 'IP 주소',
-  internet: '외부 접속 여부',
-  domain: '도메인명',
-  os: '운영체제',
-  osVersion: '운영체제 버전',
-  location: '자산 위치',
-  security: '보안 솔루션',
-  'cloud.csp': '클라우드 제공자 (CSP)',
-  'cloud.accountId': '계정 ID',
-  'cloud.environment': '환경',
-  'cloud.dataClass': '취급 데이터 등급',
+// FieldKey → i18n 라벨 키 매핑
+const FIELD_LABEL_KEY: Record<FieldKey, string> = {
+  'owner.name': 'form.fields.ownerName',
+  'owner.email': 'form.fields.ownerEmail',
+  'owner.dept': 'form.fields.ownerDept',
+  assetType: 'form.fields.assetType',
+  hostname: 'form.fields.hostname',
+  purpose: 'form.fields.purpose',
+  ips: 'form.fields.ips',
+  internet: 'form.fields.internet',
+  domain: 'form.fields.domain',
+  os: 'form.fields.os',
+  osVersion: 'form.fields.osVersion',
+  location: 'form.fields.location',
+  security: 'form.fields.security',
+  'cloud.csp': 'form.fields.cspProvider',
+  'cloud.accountId': 'form.fields.accountId',
+  'cloud.environment': 'form.fields.environment',
+  'cloud.dataClass': 'form.fields.dataClass',
 };
 
-// CSP별 계정 ID placeholder
+// CSP별 계정 ID placeholder — CSP 이름 자체는 키가 아니라 그대로 표시 (Amazon/Azure 등 고유명사)
 const CSP_ACCOUNT_ID_PLACEHOLDER: Record<string, string> = {
-  AWS: 'Account ID (예: 123456789012)',
+  AWS: 'Account ID (e.g. 123456789012)',
   Azure: 'Subscription ID',
   GCP: 'Project ID',
   NCP: 'Account/Project ID',
 };
-function accountIdPlaceholder(csp: string): string {
-  return CSP_ACCOUNT_ID_PLACEHOLDER[csp] ?? '계정 식별자';
+function accountIdPlaceholder(csp: string, fallback: string): string {
+  return CSP_ACCOUNT_ID_PLACEHOLDER[csp] ?? fallback;
 }
 
 type SectionHeaderProps = {
@@ -168,6 +170,10 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
   { mode, initial, currentUser, ownerAutoFilled = false, className },
   ref
 ) {
+  const { t } = useTranslation();
+  // errors map은 i18n 키만 저장. 출력 시 t()로 번역해 언어 토글에 즉시 반응하도록.
+  const tr = (k: string | undefined) => (k ? t(k) : undefined);
+
   const [values, setValues] = useState<AssetFormValues>(initial);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [errors, setErrors] = useState<Partial<Record<FieldKey, string>>>({});
@@ -302,7 +308,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
   const validationErrors: ValidationError[] = useMemo(() => {
     return (Object.keys(errors) as FieldKey[]).map((key) => ({
       key,
-      label: errors[key]!,
+      label: t(errors[key]!),
       onClick: () => {
         const el = fieldRefs.current[key];
         if (!el) return;
@@ -362,8 +368,8 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
         <span aria-hidden className="absolute inset-y-0 left-0 w-[3px] bg-brand" />
         <SectionHeader
           icon={UserCircle2}
-          title="담당자"
-          subtitle="SSO 정보 자동 입력 (수정 가능)"
+          title={t('form.sections.owner')}
+          subtitle={t('form.sections.ownerHint')}
           right={
             <Button
               size="sm"
@@ -388,7 +394,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
                 setOwnerIsAutoFilled(false);
               }}
             >
-              내 정보로 채우기
+              {t('form.fillMyInfo')}
             </Button>
           }
         />
@@ -396,9 +402,9 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
           <div ref={setNameAnchorRef}>
             <Field
               id="owner.name"
-              label="담당자 이름"
+              label={t(FIELD_LABEL_KEY['owner.name'])}
               required
-              error={errors['owner.name']}
+              error={tr(errors['owner.name'])}
             >
               <Input
                 id="owner.name"
@@ -439,7 +445,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
             )}
           </div>
           <div ref={setRef('owner.email')}>
-            <Field id="owner.email" label="담당자 이메일" required error={errors['owner.email']}>
+            <Field id="owner.email" label={t(FIELD_LABEL_KEY['owner.email'])} required error={tr(errors['owner.email'])}>
               <Input
                 id="owner.email"
                 type="email"
@@ -454,7 +460,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
             </Field>
           </div>
           <div ref={setRef('owner.dept')}>
-            <Field id="owner.dept" label="소속 조직 / 부서" required error={errors['owner.dept']}>
+            <Field id="owner.dept" label={t(FIELD_LABEL_KEY['owner.dept'])} required error={tr(errors['owner.dept'])}>
               <Input
                 id="owner.dept"
                 value={values.owner.dept}
@@ -473,18 +479,18 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
       {/* 자산 정보 */}
       <section className="relative overflow-hidden rounded-lg border border-line bg-white">
         <span aria-hidden className="absolute inset-y-0 left-0 w-[3px] bg-brand" />
-        <SectionHeader icon={ServerCog} title="자산 정보" />
+        <SectionHeader icon={ServerCog} title={t('form.sections.asset')} />
         <div className="space-y-4 p-4">
 
         <div className="grid grid-cols-2 gap-3">
           <div ref={setRef('assetType')}>
-            <Field id="assetType" label="자산 유형" error={errors.assetType} hint="(예: 온프레미스, 클라우드)">
+            <Field id="assetType" label={t(FIELD_LABEL_KEY.assetType)} error={tr(errors.assetType)} hint={t('form.fields.assetTypeHint')}>
               <SelectWithCustom
                 id="assetType"
                 value={values.assetType}
                 emptyFlag={flag('assetType', values.assetType)}
                 error={!!errors.assetType}
-                placeholder="선택하세요"
+                placeholder={t('form.selectPlaceholder')}
                 options={ASSET_TYPE_OPTIONS}
                 onChange={(v) => {
                   setField('assetType', v);
@@ -494,7 +500,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
             </Field>
           </div>
           <div ref={setRef('hostname')}>
-            <Field id="hostname" label="자산명 (Hostname)" required error={errors.hostname}>
+            <Field id="hostname" label={t(FIELD_LABEL_KEY.hostname)} required error={tr(errors.hostname)}>
               <Input
                 id="hostname"
                 variant="mono"
@@ -513,9 +519,9 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
         <div ref={setRef('purpose')}>
           <Field
             id="purpose"
-            label="사용목적 / 서비스명"
-            hint="(예: 근태입력시스템)"
-            error={errors.purpose}
+            label={t(FIELD_LABEL_KEY.purpose)}
+            hint={t('form.fields.purposeHint')}
+            error={tr(errors.purpose)}
           >
             <Input
               id="purpose"
@@ -533,10 +539,10 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
         <div ref={setRef('ips')}>
           <Field
             id="ips-0"
-            label="IP 주소"
+            label={t(FIELD_LABEL_KEY.ips)}
             required
-            hint="(복수 등록 가능 / IPv4)"
-            error={errors.ips}
+            hint={t('form.fields.ipsHint')}
+            error={tr(errors.ips)}
           >
             <IPList
               inputId="ips-0"
@@ -549,14 +555,14 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
             />
             <div className="mt-2 rounded-md border border-line bg-bg-soft/50 px-3 py-2 text-[11.5px] leading-relaxed text-text-2">
               <div>
-                <span className="font-medium text-text">대상</span>
+                <span className="font-medium text-text">{t('form.fields.ipDetail.title')}</span>
                 <span className="text-text-3"> · </span>
-                리눅스 서버 내 VM, Docker 컨테이너 기반의 Web/WAS/DBMS 등
+                {t('form.fields.ipDetail.titleValue')}
               </div>
               <div className="mt-1">
-                <span className="font-medium text-text">요청사항</span>
+                <span className="font-medium text-text">{t('form.fields.ipDetail.note')}</span>
                 <span className="text-text-3"> · </span>
-                하나의 서버에 여러 개의 IP가 할당되어 있는 경우, 누락 없이 모든 IP를 입력해 주세요.
+                {t('form.fields.ipDetail.noteValue')}
               </div>
             </div>
           </Field>
@@ -565,9 +571,9 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
         <div ref={setRef('domain')}>
           <Field
             id="domain"
-            label="도메인명"
-            hint="(예: lge.com)"
-            error={errors.domain}
+            label={t(FIELD_LABEL_KEY.domain)}
+            hint={t('form.fields.domainHint')}
+            error={tr(errors.domain)}
           >
             <Input
               id="domain"
@@ -586,13 +592,13 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
 
         <div className="grid grid-cols-2 gap-3">
           <div ref={setRef('os')}>
-            <Field id="os" label="운영체제" required error={errors.os}>
+            <Field id="os" label={t(FIELD_LABEL_KEY.os)} required error={tr(errors.os)}>
               <SelectWithCustom
                 id="os"
                 value={values.os}
                 emptyFlag={flag('os', values.os)}
                 error={!!errors.os}
-                placeholder="선택하세요"
+                placeholder={t('form.selectPlaceholder')}
                 options={OS_OPTIONS}
                 onChange={(v) => {
                   setField('os', v);
@@ -602,7 +608,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
             </Field>
           </div>
           <div ref={setRef('osVersion')}>
-            <Field id="osVersion" label="운영체제 버전" required error={errors.osVersion}>
+            <Field id="osVersion" label={t(FIELD_LABEL_KEY.osVersion)} required error={tr(errors.osVersion)}>
               <Input
                 id="osVersion"
                 variant="mono"
@@ -621,9 +627,9 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
         <div ref={setRef('location')}>
           <Field
             id="location"
-            label="자산 위치"
-            hint="(예: 서울 마곡 LG사이언스파크 R&D본관 5층 521호)"
-            error={errors.location}
+            label={t(FIELD_LABEL_KEY.location)}
+            hint={t('form.fields.locationHint')}
+            error={tr(errors.location)}
           >
             <Input
               id="location"
@@ -653,24 +659,24 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
             <span aria-hidden className="absolute inset-y-0 left-0 w-[3px] bg-brand" />
             <SectionHeader
               icon={Cloud}
-              title="클라우드 추가 정보"
-              subtitle="자산 유형이 클라우드일 때 필수"
+              title={t('form.sections.cloud')}
+              subtitle={t('form.sections.cloudHint')}
             />
             <div className="space-y-4 p-4">
               <div className="grid grid-cols-2 gap-3">
                 <div ref={setRef('cloud.csp')}>
                   <Field
                     id="cloud.csp"
-                    label="클라우드 제공자 (CSP)"
+                    label={t(FIELD_LABEL_KEY['cloud.csp'])}
                     required={showCloud}
-                    error={errors['cloud.csp']}
+                    error={tr(errors['cloud.csp'])}
                   >
                     <SelectWithCustom
                       id="cloud.csp"
                       value={values.cloud.csp}
                       emptyFlag={flag('cloud.csp', values.cloud.csp)}
                       error={!!errors['cloud.csp']}
-                      placeholder="선택하세요"
+                      placeholder={t('form.selectPlaceholder')}
                       options={CSP_OPTIONS}
                       onChange={(v) => {
                         setCloudField('csp', v);
@@ -682,14 +688,14 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
                 <div ref={setRef('cloud.accountId')}>
                   <Field
                     id="cloud.accountId"
-                    label="계정 ID"
+                    label={t(FIELD_LABEL_KEY['cloud.accountId'])}
                     required={showCloud}
-                    error={errors['cloud.accountId']}
+                    error={tr(errors['cloud.accountId'])}
                   >
                     <Input
                       id="cloud.accountId"
                       variant="mono"
-                      placeholder={accountIdPlaceholder(values.cloud.csp)}
+                      placeholder={accountIdPlaceholder(values.cloud.csp, t(FIELD_LABEL_KEY['cloud.accountId']))}
                       value={values.cloud.accountId}
                       emptyFlag={flag('cloud.accountId', values.cloud.accountId)}
                       error={!!errors['cloud.accountId']}
@@ -705,16 +711,16 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
                 <div ref={setRef('cloud.environment')}>
                   <Field
                     id="cloud.environment"
-                    label="환경"
+                    label={t(FIELD_LABEL_KEY['cloud.environment'])}
                     required={showCloud}
-                    error={errors['cloud.environment']}
+                    error={tr(errors['cloud.environment'])}
                   >
                     <Select
                       id="cloud.environment"
                       value={values.cloud.environment}
                       emptyFlag={flag('cloud.environment', values.cloud.environment)}
                       error={!!errors['cloud.environment']}
-                      placeholder="선택하세요"
+                      placeholder={t('form.selectPlaceholder')}
                       options={ENVIRONMENT_VALUES as readonly string[] as string[]}
                       onChange={(e) => {
                         setCloudField('environment', e.target.value);
@@ -726,15 +732,15 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
                 <div ref={setRef('cloud.dataClass')}>
                   <Field
                     id="cloud.dataClass"
-                    label="취급 데이터 등급"
-                    error={errors['cloud.dataClass']}
+                    label={t(FIELD_LABEL_KEY['cloud.dataClass'])}
+                    error={tr(errors['cloud.dataClass'])}
                   >
                     <Select
                       id="cloud.dataClass"
                       value={values.cloud.dataClass}
                       emptyFlag={flag('cloud.dataClass', values.cloud.dataClass)}
                       error={!!errors['cloud.dataClass']}
-                      placeholder="선택하세요"
+                      placeholder={t('form.selectPlaceholder')}
                       options={DATA_CLASS_VALUES as readonly string[] as string[]}
                       onChange={(e) => {
                         setCloudField('dataClass', e.target.value);
@@ -752,10 +758,10 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
       {/* 보안 옵션 */}
       <section className="relative overflow-hidden rounded-lg border border-line bg-white">
         <span aria-hidden className="absolute inset-y-0 left-0 w-[3px] bg-brand" />
-        <SectionHeader icon={ShieldCheck} title="보안 옵션" />
+        <SectionHeader icon={ShieldCheck} title={t('form.sections.security')} />
         <div className="grid grid-cols-2 gap-3 p-4">
           <div ref={setRef('internet')}>
-            <Field label="외부 접속 여부" error={errors.internet}>
+            <Field label={t(FIELD_LABEL_KEY.internet)} error={tr(errors.internet)}>
               <ToggleGroup<'yes' | 'no'>
                 name="internet"
                 value={values.internet}
@@ -765,8 +771,8 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
                   markTouched('internet');
                 }}
                 options={[
-                  { value: 'yes', label: '예' },
-                  { value: 'no', label: '아니오' },
+                  { value: 'yes', label: t('form.toggle.yes') },
+                  { value: 'no', label: t('form.toggle.no') },
                 ]}
               />
             </Field>
@@ -774,16 +780,16 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
           <div ref={setRef('security')}>
             <Field
               id="security"
-              label="보안 솔루션"
-              hint="(설치된 보안 솔루션 종류)"
-              error={errors.security}
+              label={t(FIELD_LABEL_KEY.security)}
+              hint={t('form.fields.securityHint')}
+              error={tr(errors.security)}
             >
               <Select
                 id="security"
                 value={values.security}
                 emptyFlag={flag('security', values.security)}
                 error={!!errors.security}
-                placeholder="선택하세요"
+                placeholder={t('form.selectPlaceholder')}
                 options={SECURITY_VALUES as readonly string[] as string[]}
                 onChange={(e) => {
                   setField('security', e.target.value as AssetFormValues['security']);
@@ -798,6 +804,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
   );
 });
 
-export function fieldLabel(key: FieldKey): string {
-  return FIELD_LABEL[key];
+// i18n 키만 반환. 사용처에서 useTranslation의 t()로 번역해 사용.
+export function fieldLabelKey(key: FieldKey): string {
+  return FIELD_LABEL_KEY[key];
 }

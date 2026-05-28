@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Home as HomeIcon, Info } from 'lucide-react';
 import { Shell } from '../components/layout/Shell';
 import { Panel } from '../components/layout/Panel';
@@ -33,6 +34,7 @@ type DrawerState =
 const PAGE_SIZE = 12;
 
 export default function EmployeePage() {
+  const { t } = useTranslation();
   const [mode, setMode] = useState<SearchMode>('all');
   const [query, setQuery] = useState('');
   const [isDefaultQuery, setIsDefaultQuery] = useState(false);
@@ -107,7 +109,7 @@ export default function EmployeePage() {
     setNextPage(1);
     setLoading(false);
     if (r.total === 0) {
-      show('검색 결과가 없습니다. 새 자산을 등록해 주세요.', 'info');
+      show(t('employee.toasts.noResults'), 'info');
     }
   };
 
@@ -210,7 +212,7 @@ export default function EmployeePage() {
         return;
       }
       await refreshAfterSave();
-      show('수정 사항이 저장되었습니다', 'success');
+      show(t('employee.toasts.saved', { name: values.hostname }), 'success');
       setTimeout(closeDrawer, 250);
     } finally {
       setSaving(false);
@@ -240,7 +242,7 @@ export default function EmployeePage() {
         return;
       }
       await refreshAfterSave();
-      show('신규 자산이 등록되었습니다', 'success');
+      show(t('employee.toasts.created'), 'success');
       setTimeout(closeDrawer, 250);
     } finally {
       setSaving(false);
@@ -250,7 +252,7 @@ export default function EmployeePage() {
   const handleSave = async () => {
     const values = formRef.current?.validateAndGet();
     if (!values) {
-      show('입력값을 확인해 주세요', 'error');
+      show(t('employee.toasts.validateFirst'), 'error');
       return;
     }
     if (drawer.kind === 'edit') await persistEdit(drawer.asset, values);
@@ -260,12 +262,12 @@ export default function EmployeePage() {
   return (
     <Shell>
       <PageHeader
-        eyebrow="ASSET CAMPAIGN"
-        title="IT 자산 정보를 확인해 주세요"
-        subtitle="본인이 사용 중이거나 관리하는 IT 자산을 검색해 정보를 업데이트해 주세요."
+        eyebrow={t('employee.pageHeader.eyebrow')}
+        title={t('employee.pageHeader.title')}
+        subtitle={t('employee.pageHeader.subtitle')}
       />
 
-      <Panel title="자산 검색" subtitle="5가지 모드로 빠르게 찾기" padded={false}>
+      <Panel title={t('employee.searchPanel.title')} subtitle={t('employee.searchPanel.subtitle')} padded={false}>
         <SearchTabs value={mode} onChange={setMode} />
         <div className="px-5 py-4">
           <SearchBox
@@ -307,12 +309,12 @@ export default function EmployeePage() {
         open={drawer.kind !== 'closed'}
         onClose={closeDrawer}
         width={720}
-        ariaLabel={drawer.kind === 'edit' ? '자산 편집' : '신규 자산 등록'}
+        ariaLabel={drawer.kind === 'edit' ? t('employee.drawer.editTitle') : t('employee.drawer.newTitle')}
         header={
           drawer.kind === 'edit' ? (
             <>
               <div className="font-mono text-[11px] uppercase tracking-wider text-text-3">
-                자산 편집
+                {t('employee.drawer.editTitle')}
               </div>
               <h2 className="text-base font-semibold tracking-tightish">
                 {drawer.asset.hostname}
@@ -322,7 +324,7 @@ export default function EmployeePage() {
                 {drawer.asset.id}
                 {drawer.asset.updatedAt && (
                   <>
-                    {' · 마지막 수정 '}
+                    {` · ${t('employee.drawer.lastUpdated')} `}
                     {formatDateTime(drawer.asset.updatedAt)} ({drawer.asset.updatedBy})
                   </>
                 )}
@@ -331,14 +333,14 @@ export default function EmployeePage() {
           ) : drawer.kind === 'new' ? (
             <>
               <div className="font-mono text-[11px] uppercase tracking-wider text-text-3">
-                신규 등록
+                {t('employee.drawer.newEyebrow')}
               </div>
               <h2 className="text-base font-semibold tracking-tightish">
-                자산을 새로 추가합니다
+                {t('employee.drawer.newHeadline')}
               </h2>
               <div className="mt-0.5 text-[12.5px] text-text-3">
                 <Info className="mr-1 inline h-3 w-3" />
-                노란 배경의 항목은 입력 전 상태입니다.
+                {t('employee.drawer.newHint')}
               </div>
             </>
           ) : null
@@ -347,10 +349,14 @@ export default function EmployeePage() {
           drawer.kind !== 'closed' && (
             <>
               <Button onClick={closeDrawer} disabled={saving}>
-                취소
+                {t('form.actions.cancel')}
               </Button>
               <Button variant="primary" onClick={handleSave} disabled={saving}>
-                {saving ? '저장 중…' : drawer.kind === 'edit' ? '저장' : '등록'}
+                {saving
+                  ? t('employee.drawer.saving')
+                  : drawer.kind === 'edit'
+                    ? t('form.actions.save')
+                    : t('employee.drawer.register')}
               </Button>
             </>
           )
@@ -382,7 +388,7 @@ export default function EmployeePage() {
           if (!conflict) return;
           formRef.current?.setValues(valuesFromAsset(conflict.asset, MOCK_USER));
           setConflict(null);
-          show('상대 입력을 가져왔습니다', 'info');
+          show(t('employee.toasts.loadedCounterpart'), 'info');
         }}
       />
 
@@ -411,7 +417,7 @@ export default function EmployeePage() {
 
       <button
         type="button"
-        aria-label="맨 위로"
+        aria-label={t('employee.homeButton')}
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         className={`fixed bottom-6 right-6 z-30 grid h-12 w-12 place-items-center rounded-full bg-brand text-white shadow-lg transition-all duration-200 hover:bg-brand-2 hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 ${
           showHomeBtn ? 'opacity-100 translate-y-0' : 'pointer-events-none opacity-0 translate-y-3'

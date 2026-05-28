@@ -1,0 +1,217 @@
+{
+  "topbar": {
+    "brand": "VCISO Asset Survey",
+    "subtitle": "Campaign 2026",
+    "nav": {
+      "employee": "Employee",
+      "dashboard": "Dashboard",
+      "demo": "DS"
+    },
+    "campaignBadge": "Campaign in progress · D+7",
+    "lang": {
+      "korean": "한",
+      "english": "EN",
+      "switchTo": "Switch to {{lang}}"
+    }
+  },
+  "employee": {
+    "pageHeader": {
+      "eyebrow": "ASSET CAMPAIGN",
+      "title": "Please verify your IT asset records",
+      "subtitle": "Search and update the IT assets you use or manage."
+    },
+    "searchPanel": {
+      "title": "Asset Search",
+      "subtitle": "Five quick modes to find any asset"
+    },
+    "searchTabs": {
+      "all": "All",
+      "ip": "IP",
+      "hostname": "Hostname",
+      "owner": "Owner",
+      "email": "Email"
+    },
+    "searchPlaceholder": "Search by IP, hostname, name or email",
+    "searchPlaceholderByMode": {
+      "hostname": "Search by hostname",
+      "owner": "Search by owner name",
+      "email": "Search by owner email"
+    },
+    "searchAction": "Search",
+    "searchClear": "Clear search",
+    "ipFormatError": "Invalid IP format. e.g. 10.20.30.40",
+    "emptyState": {
+      "noQuery": "Type a query and press Enter or click Search.",
+      "noResults": "No matching assets.",
+      "noResultsHint": "Couldn't find any asset for \"{{query}}\". Register a new one?"
+    },
+    "resultsTable": {
+      "newAssetShort": "Register New",
+      "ownerAssigned": "Owner assigned"
+    },
+    "resultsCount": "{{count}} results",
+    "columns": {
+      "hostname": "Hostname / Domain",
+      "ip": "IP",
+      "owner": "Owner",
+      "locationOs": "Location / OS",
+      "status": "Status",
+      "updatedAt": "Last updated"
+    },
+    "status": {
+      "mine": "My asset",
+      "assigned": "Owner assigned",
+      "unassigned": "Unassigned",
+      "neverUpdated": "Never"
+    },
+    "totals": {
+      "searchResults": "{{count}} results",
+      "loadingMore": "Loading more assets…",
+      "scrollHint": "Scroll down to load more",
+      "partial": "{{shown}} / {{total}} shown",
+      "complete": "End of list · {{total}} shown"
+    },
+    "footer": {
+      "loadingMore": "Loading more…",
+      "endOfList": "End of list · {{count}} shown",
+      "empty": "No matching assets",
+      "emptyHint": "Try different keywords or register a new asset"
+    },
+    "registerNew": "Register New Asset",
+    "homeButton": "Top",
+    "drawer": {
+      "editTitle": "Edit Asset",
+      "newTitle": "Register New Asset",
+      "newEyebrow": "New Registration",
+      "newHeadline": "Add a new asset",
+      "newHint": "Fields with a yellow background haven't been filled in yet.",
+      "lastUpdated": "Last updated",
+      "saving": "Saving…",
+      "register": "Register"
+    },
+    "toasts": {
+      "saved": "{{name}} has been saved",
+      "created": "New asset has been registered",
+      "noResults": "No matching assets. Please register a new one.",
+      "loadError": "Failed to load asset — please try again",
+      "validateFirst": "Please review the input",
+      "loadedCounterpart": "Loaded the other party's input"
+    }
+  },
+  "form": {
+    "sections": {
+      "owner": "Owner",
+      "ownerHint": "Auto-filled from SSO (editable)",
+      "asset": "Asset Information",
+      "cloud": "Cloud Asset Details",
+      "cloudHint": "Required when asset type is Cloud",
+      "security": "Security Options"
+    },
+    "fields": {
+      "ownerName": "Owner Name",
+      "ownerEmail": "Owner Email",
+      "ownerDept": "Organization / Team",
+      "assetType": "Asset Type",
+      "assetTypeHint": "(e.g. On-premise, Cloud)",
+      "hostname": "Hostname",
+      "purpose": "Purpose / Service Name",
+      "purposeHint": "(e.g. Attendance System)",
+      "ips": "IP Address",
+      "ipsHint": "(multiple allowed / IPv4)",
+      "addIp": "Add IP",
+      "ipDetail": {
+        "title": "Scope",
+        "titleValue": "VMs on Linux hosts, Docker-based Web/WAS/DBMS, etc.",
+        "note": "Note",
+        "noteValue": "If a single host has multiple IPs assigned, please enter all of them."
+      },
+      "internet": "External Access",
+      "domain": "Domain",
+      "domainHint": "(e.g. lge.com)",
+      "os": "Operating System",
+      "osVersion": "OS Version",
+      "location": "Asset Location",
+      "locationHint": "(e.g. Seoul Magok LG Science Park R&D Tower 5F #521)",
+      "security": "Security Solution",
+      "securityHint": "(Installed security tooling)",
+      "cspProvider": "Cloud Provider (CSP)",
+      "accountId": "Account ID",
+      "environment": "Environment",
+      "dataClass": "Data Classification"
+    },
+    "fillMyInfo": "Fill with my info",
+    "toggle": {
+      "yes": "Yes",
+      "no": "No"
+    },
+    "selectPlaceholder": "Select…",
+    "customInput": "Enter custom value",
+    "customOption": "Custom",
+    "unassignedShort": "Unassigned",
+    "actions": {
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "validationBanner": {
+      "title": "Please review the following",
+      "fixCount": "{{count}} item(s)"
+    }
+  },
+  "validation": {
+    "owner": {
+      "name": "Owner name is required",
+      "emailRequired": "Owner email is required",
+      "emailFormat": "Invalid email format",
+      "dept": "Organization / Team is required"
+    },
+    "hostname": {
+      "required": "Hostname is required",
+      "noSpace": "Hostname cannot contain spaces"
+    },
+    "ip": {
+      "min": "At least one IP is required",
+      "format": "Invalid IP format"
+    },
+    "domain": "Invalid domain (e.g. lge.com)",
+    "os": "Please select an OS",
+    "osVersion": "OS version is required",
+    "security": "Invalid security solution (EPP/EDR/CWPP/None)",
+    "cloud": {
+      "csp": "Please select a CSP",
+      "accountId": "Account ID is required",
+      "environment": "Please select an environment",
+      "environmentInvalid": "Invalid environment value",
+      "dataClassInvalid": "Invalid data classification value"
+    }
+  },
+  "modal": {
+    "close": "Close",
+    "ipConflict": {
+      "title": "IP already registered",
+      "body": "This IP is already assigned to another asset. Would you like to edit that asset?",
+      "existing": "Existing asset",
+      "forceCreate": "Register as new anyway",
+      "editExisting": "Edit existing asset",
+      "ownerLabel": "Owner"
+    },
+    "conflict": {
+      "title": "Concurrent edit detected",
+      "body": "Another user saved this asset first. How would you like to proceed?",
+      "recentSave": "Most recent save",
+      "adoptServer": "Adopt the other party's input",
+      "overwriteMine": "Overwrite with my input"
+    }
+  },
+  "common": {
+    "loading": "Loading…",
+    "searching": "Searching…",
+    "noResults": "No results"
+  },
+  "directory": {
+    "memberCount": "{{count}} matches",
+    "searching": "Searching…",
+    "searchingHint": "Looking up matching members in the directory.",
+    "noMatch": "No matching members.",
+    "noMatchHint": "Enter the exact name and press Enter again."
+  }
+}

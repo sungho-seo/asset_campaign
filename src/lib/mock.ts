@@ -42,6 +42,13 @@ export const MOCK_DIRECTORY: Owner[] = [
   { name: '강현우', email: 'hyunwoo.kang@lge.com', dept: '데이터분석팀' },
   { name: '오세훈', email: 'sehoon.oh@lge.com', dept: '글로벌세일즈팀' },
   { name: '문지은', email: 'jieun.moon@lge.com', dept: 'IT지원팀' },
+
+  // 영문 — 해외 법인 (한/영 혼합 운영 환경)
+  { name: 'Daniel Lee', email: 'daniel.lee@lge.com', dept: 'Cloud Platform Team' },
+  { name: 'Daniel Lee', email: 'daniel.lee.us@lge.com', dept: 'LG Electronics USA' },
+  { name: 'Jonas Becker', email: 'jonas.becker@lge.com', dept: 'Mobility Solutions EMEA' },
+  { name: 'Maria Rossi', email: 'maria.rossi@lge.com', dept: 'EMEA Service Operations' },
+  { name: 'Priya Iyer', email: 'priya.iyer@lge.com', dept: 'LG Electronics India' },
 ];
 
 // PRD v5 §5.1 — 자산 유형 [온프레미스 / 클라우드 / 직접입력].

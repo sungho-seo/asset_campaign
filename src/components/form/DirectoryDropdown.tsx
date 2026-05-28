@@ -6,6 +6,7 @@ import {
   type RefObject,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import { Loader2 } from 'lucide-react';
 import type { Owner } from '../../types/domain';
 import { cn } from '../../lib/cn';
@@ -25,6 +26,7 @@ export function DirectoryDropdown({
   onPick,
   onClose,
 }: DirectoryDropdownProps) {
+  const { t } = useTranslation();
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const [pos, setPos] = useState<{ top: number; left: number; width: number }>({
     top: 0,
@@ -107,18 +109,18 @@ export function DirectoryDropdown({
       className="z-[55] max-h-72 overflow-y-auto rounded-md border border-line bg-white shadow-lg"
     >
       <div className="sticky top-0 z-[1] border-b border-line bg-bg-soft/60 px-3 py-1.5 font-mono text-[10.5px] uppercase tracking-wider text-text-3">
-        {loading ? '검색 중…' : `구성원 ${results.length}건`}
+        {loading ? t('directory.searching') : t('directory.memberCount', { count: results.length })}
       </div>
       {loading ? (
         <div className="flex items-center gap-2 px-3 py-3 text-[12px] text-text-3">
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          디렉토리에서 일치하는 구성원을 찾는 중입니다.
+          {t('directory.searchingHint')}
         </div>
       ) : results.length === 0 ? (
         <div className="px-3 py-4 text-center text-[12px] text-text-3">
-          일치하는 구성원이 없습니다.
+          {t('directory.noMatch')}
           <div className="mt-0.5 text-[11px] text-text-4">
-            정확한 이름을 입력 후 다시 Enter를 눌러주세요.
+            {t('directory.noMatchHint')}
           </div>
         </div>
       ) : (

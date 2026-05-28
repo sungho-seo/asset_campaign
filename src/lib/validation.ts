@@ -31,10 +31,12 @@ export function isValidEmail(v: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
 }
 
+// Zod 메시지에는 i18n 키만 저장하고, UI 렌더링 시 t()로 번역.
+// 사용자가 언어 토글 시 schema를 재생성하지 않아도 메시지가 따라 바뀜.
 export const ownerSchema = z.object({
-  name: z.string().min(1, '담당자 이름 필수'),
-  email: z.string().refine(isValidEmail, '담당자 이메일 형식 확인'),
-  dept: z.string().min(1, '소속 조직/부서 필수'),
+  name: z.string().min(1, 'validation.owner.name'),
+  email: z.string().refine(isValidEmail, 'validation.owner.emailFormat'),
+  dept: z.string().min(1, 'validation.owner.dept'),
 });
 
 const toggleYesNoNullable = z.union([z.literal('yes'), z.literal('no'), z.null()]);
@@ -42,11 +44,9 @@ const toggleYesNoNullable = z.union([z.literal('yes'), z.literal('no'), z.null()
 // 보안 솔루션: PRD v5 §5.1 (EPP/EDR/CWPP/없음) + 미입력('') 허용
 const ALLOWED_SECURITY = new Set<string>([...SECURITY_VALUES, '']);
 const securitySchema = z.string().refine((v) => ALLOWED_SECURITY.has(v), {
-  message: '보안 솔루션 값 확인 (EPP/EDR/CWPP/없음)',
+  message: 'validation.security',
 });
 
-// 클라우드 추가 항목 (PRD v5 §5.2). 필드 자체는 비어 있을 수 있고,
-// assetType === '클라우드' 일 때만 superRefine으로 csp/accountId/environment 필수.
 const cloudSchema = z.object({
   csp: z.string(),
   accountId: z.string(),
@@ -57,31 +57,23 @@ const cloudSchema = z.object({
 export const assetFormSchema = z
   .object({
     owner: ownerSchema,
-
-    // 자산 정보
     assetType: z.string(),
     hostname: z
       .string()
-      .min(1, '자산명 필수')
-      .refine((v) => !/\s/.test(v), '자산명 형식 확인 (공백)'),
+      .min(1, 'validation.hostname.required')
+      .refine((v) => !/\s/.test(v), 'validation.hostname.noSpace'),
     purpose: z.string(),
     ips: z
-      .array(z.string().refine(isValidIPv4, 'IP 형식 확인'))
-      .min(1, 'IP 주소 최소 1개 입력'),
+      .array(z.string().refine(isValidIPv4, 'validation.ip.format'))
+      .min(1, 'validation.ip.min'),
     domain: z
       .string()
-      .refine((v) => !v || isValidDomain(v), '도메인 형식 확인 (예: lge.com)'),
-    os: z.string().min(1, '운영체제 선택'),
-    osVersion: z.string().min(1, '운영체제 버전 필수'),
+      .refine((v) => !v || isValidDomain(v), 'validation.domain'),
+    os: z.string().min(1, 'validation.os'),
+    osVersion: z.string().min(1, 'validation.osVersion'),
     location: z.string(),
-
-    // 외부 접속 여부 (선택)
     internet: toggleYesNoNullable,
-
-    // 보안 솔루션 (선택, antivirus + edr 통합)
     security: securitySchema,
-
-    // 클라우드 추가 항목 — assetType === '클라우드' 일 때만 superRefine에서 필수 검증
     cloud: cloudSchema,
   })
   .superRefine((data, ctx) => {
@@ -91,27 +83,27 @@ export const assetFormSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['cloud', 'csp'],
-        message: 'CSP 선택 필수',
+        message: 'validation.cloud.csp',
       });
     }
     if (!data.cloud.accountId.trim()) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['cloud', 'accountId'],
-        message: '계정 ID 필수',
+        message: 'validation.cloud.accountId',
       });
     }
     if (!data.cloud.environment) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['cloud', 'environment'],
-        message: '환경 선택 필수',
+        message: 'validation.cloud.environment',
       });
     } else if (!(ENVIRONMENT_VALUES as readonly string[]).includes(data.cloud.environment)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['cloud', 'environment'],
-        message: '환경 값 확인',
+        message: 'validation.cloud.environmentInvalid',
       });
     }
     if (
@@ -121,7 +113,7 @@ export const assetFormSchema = z
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['cloud', 'dataClass'],
-        message: '취급 데이터 등급 값 확인',
+        message: 'validation.cloud.dataClassInvalid',
       });
     }
   });

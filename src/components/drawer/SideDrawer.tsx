@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
 import { cn } from '../../lib/cn';
 
@@ -24,6 +25,7 @@ export function SideDrawer({
   footer,
   ariaLabel,
 }: SideDrawerProps) {
+  const { t } = useTranslation();
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
@@ -68,7 +70,7 @@ export function SideDrawer({
           <button
             type="button"
             onClick={onClose}
-            aria-label="닫기"
+            aria-label={t('modal.close')}
             className="grid h-8 w-8 flex-shrink-0 place-items-center rounded-md border border-line bg-white text-text-3 hover:bg-bg-soft hover:text-text"
           >
             <X className="h-4 w-4" />

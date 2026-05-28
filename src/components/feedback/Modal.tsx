@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import { AlertTriangle, AlertCircle, Info, X } from 'lucide-react';
 import { cn } from '../../lib/cn';
 
@@ -30,6 +31,7 @@ export function Modal({
   children,
   actions,
 }: ModalProps) {
+  const { t } = useTranslation();
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -64,7 +66,7 @@ export function Modal({
         <button
           type="button"
           onClick={onClose}
-          aria-label="닫기"
+          aria-label={t('modal.close')}
           className="absolute right-3 top-3 grid h-7 w-7 place-items-center rounded-md text-text-3 hover:bg-bg-soft hover:text-text"
         >
           <X className="h-3.5 w-3.5" />

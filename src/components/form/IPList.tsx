@@ -1,4 +1,5 @@
 import { Plus, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Input } from '../common/Input';
 import { Button } from '../common/Button';
 import { isValidIPv4 } from '../../lib/validation';
@@ -11,6 +12,7 @@ type IPListProps = {
 };
 
 export function IPList({ values, onChange, showErrors, inputId }: IPListProps) {
+  const { t } = useTranslation();
   const update = (i: number, v: string) => {
     const cleaned = v.replace(/[^0-9.]/g, '');
     const next = [...values];
@@ -55,7 +57,7 @@ export function IPList({ values, onChange, showErrors, inputId }: IPListProps) {
         );
       })}
       <Button type="button" size="sm" variant="ghost" onClick={add}>
-        <Plus className="h-3 w-3" /> IP 추가
+        <Plus className="h-3 w-3" /> {t('form.fields.addIp')}
       </Button>
     </div>
   );

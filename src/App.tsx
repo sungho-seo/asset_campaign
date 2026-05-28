@@ -1,7 +1,9 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { TopBar } from './components/layout/TopBar';
+import { LanguageToggle } from './components/layout/LanguageToggle';
 import { Pill } from './components/common/Pill';
 import { UserChip } from './components/common/UserChip';
 import { ToastProvider } from './components/feedback/Toast';
@@ -11,9 +13,10 @@ const DashboardPage = lazy(() => import('./routes/DashboardPage'));
 const ComponentsDemo = lazy(() => import('./routes/ComponentsDemo'));
 
 function RouteFallback() {
+  const { t } = useTranslation();
   return (
     <div className="mx-auto max-w-[1280px] px-8 py-12 text-center text-[13px] text-text-3">
-      불러오는 중…
+      {t('common.loading')}
     </div>
   );
 }
@@ -23,6 +26,7 @@ const queryClient = new QueryClient({
 });
 
 function NavLinks() {
+  const { t } = useTranslation();
   const link = (to: string, label: string) => (
     <NavLink
       key={to}
@@ -39,10 +43,22 @@ function NavLinks() {
   );
   return (
     <nav className="flex items-center gap-1">
-      {link('/', '임직원')}
-      {link('/dashboard', '대시보드')}
-      {link('/demo', 'DS')}
+      {link('/', t('topbar.nav.employee'))}
+      {link('/dashboard', t('topbar.nav.dashboard'))}
+      {link('/demo', t('topbar.nav.demo'))}
     </nav>
+  );
+}
+
+function TopBarRight() {
+  const { t } = useTranslation();
+  return (
+    <>
+      <NavLinks />
+      <Pill dot="success">{t('topbar.campaignBadge')}</Pill>
+      <UserChip name="박지훈" meta="보안운영실" />
+      <LanguageToggle />
+    </>
   );
 }
 
@@ -51,15 +67,7 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <ToastProvider>
         <BrowserRouter>
-          <TopBar
-            right={
-              <>
-                <NavLinks />
-                <Pill dot="success">캠페인 진행중 · D+7</Pill>
-                <UserChip name="박지훈" meta="보안운영실" />
-              </>
-            }
-          />
+          <TopBar right={<TopBarRight />} />
           <Suspense fallback={<RouteFallback />}>
             <Routes>
               <Route path="/" element={<EmployeePage />} />
