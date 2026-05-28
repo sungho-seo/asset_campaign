@@ -173,6 +173,11 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
   const { t } = useTranslation();
   // errors map은 i18n 키만 저장. 출력 시 t()로 번역해 언어 토글에 즉시 반응하도록.
   const tr = (k: string | undefined) => (k ? t(k) : undefined);
+  // 드롭다운 옵션 라벨 번역. 저장 값은 그대로 두고 표시 라벨만 한/영 전환.
+  // 알려지지 않은 값(직접입력 케이스 등)은 그대로 반환.
+  const optionLabel = (category: 'assetType' | 'security' | 'dataClass') =>
+    (v: string): string =>
+      v ? t(`options.${category}.${v}`, { defaultValue: v }) : v;
 
   const [values, setValues] = useState<AssetFormValues>(initial);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -369,7 +374,6 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
         <SectionHeader
           icon={UserCircle2}
           title={t('form.sections.owner')}
-          subtitle={t('form.sections.ownerHint')}
           right={
             <Button
               size="sm"
@@ -492,6 +496,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
                 error={!!errors.assetType}
                 placeholder={t('form.selectPlaceholder')}
                 options={ASSET_TYPE_OPTIONS}
+                labelFor={optionLabel('assetType')}
                 onChange={(v) => {
                   setField('assetType', v);
                   markTouched('assetType');
@@ -741,7 +746,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
                       emptyFlag={flag('cloud.dataClass', values.cloud.dataClass)}
                       error={!!errors['cloud.dataClass']}
                       placeholder={t('form.selectPlaceholder')}
-                      options={DATA_CLASS_VALUES as readonly string[] as string[]}
+                      options={DATA_CLASS_VALUES.map((v) => ({ value: v, label: optionLabel('dataClass')(v) }))}
                       onChange={(e) => {
                         setCloudField('dataClass', e.target.value);
                         markTouched('cloud.dataClass');
@@ -790,7 +795,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
                 emptyFlag={flag('security', values.security)}
                 error={!!errors.security}
                 placeholder={t('form.selectPlaceholder')}
-                options={SECURITY_VALUES as readonly string[] as string[]}
+                options={SECURITY_VALUES.map((v) => ({ value: v, label: optionLabel('security')(v) }))}
                 onChange={(e) => {
                   setField('security', e.target.value as AssetFormValues['security']);
                   markTouched('security');

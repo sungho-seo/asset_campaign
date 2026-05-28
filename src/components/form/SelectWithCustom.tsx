@@ -12,6 +12,8 @@ type SelectWithCustomProps = {
   error?: boolean;
   emptyFlag?: boolean;
   customInputPlaceholder?: string;
+  // 옵션 표시 라벨 변환 (i18n 등). 저장 값은 그대로 두고 표시만 바꿈.
+  labelFor?: (value: string) => string;
 };
 
 const CUSTOM_KEY = '__custom__';
@@ -29,6 +31,7 @@ export function SelectWithCustom({
   error,
   emptyFlag,
   customInputPlaceholder,
+  labelFor,
 }: SelectWithCustomProps) {
   const { t } = useTranslation();
   const resolvedPlaceholder = placeholder ?? t('form.selectPlaceholder');
@@ -56,7 +59,7 @@ export function SelectWithCustom({
         emptyFlag={emptyFlag}
         placeholder={resolvedPlaceholder}
         options={[
-          ...options.map((o) => ({ value: o, label: o })),
+          ...options.map((o) => ({ value: o, label: labelFor ? labelFor(o) : o })),
           { value: CUSTOM_KEY, label: t('form.customOption') },
         ]}
         onChange={(e) => {

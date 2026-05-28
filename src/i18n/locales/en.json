@@ -51,7 +51,7 @@
     },
     "resultsCount": "{{count}} results",
     "columns": {
-      "hostname": "Hostname / Domain",
+      "hostname": "Hostname / Purpose",
       "ip": "IP",
       "owner": "Owner",
       "locationOs": "Location / OS",
@@ -131,7 +131,7 @@
       "os": "Operating System",
       "osVersion": "OS Version",
       "location": "Asset Location",
-      "locationHint": "(e.g. Seoul Magok LG Science Park R&D Tower 5F #521)",
+      "locationHint": "(e.g. 1000 Sylvan Ave, Englewood Cliffs NJ, Bldg A 7F #712)",
       "security": "Security Solution",
       "securityHint": "(Installed security tooling)",
       "cspProvider": "Cloud Provider (CSP)",
@@ -206,6 +206,26 @@
     "loading": "Loading…",
     "searching": "Searching…",
     "noResults": "No results"
+  },
+  "options": {
+    "assetType": {
+      "온프레미스": "On-premise",
+      "클라우드": "Cloud"
+    },
+    "security": {
+      "EPP": "EPP",
+      "EDR": "EDR",
+      "CWPP": "CWPP",
+      "없음": "None"
+    },
+    "dataClass": {
+      "공개": "Public",
+      "내부용": "Internal",
+      "기밀": "Confidential",
+      "개인정보": "PII (Personal Data)",
+      "민감정보": "Sensitive",
+      "없음": "None"
+    }
   },
   "directory": {
     "memberCount": "{{count}} matches",

@@ -51,7 +51,7 @@
     },
     "resultsCount": "검색 결과 {{count}}건",
     "columns": {
-      "hostname": "자산명 / 도메인",
+      "hostname": "자산명 / 용도",
       "ip": "IP",
       "owner": "담당자",
       "locationOs": "위치 / OS",
@@ -206,6 +206,26 @@
     "loading": "불러오는 중…",
     "searching": "검색 중…",
     "noResults": "결과 없음"
+  },
+  "options": {
+    "assetType": {
+      "온프레미스": "온프레미스",
+      "클라우드": "클라우드"
+    },
+    "security": {
+      "EPP": "EPP",
+      "EDR": "EDR",
+      "CWPP": "CWPP",
+      "없음": "없음"
+    },
+    "dataClass": {
+      "공개": "공개",
+      "내부용": "내부용",
+      "기밀": "기밀",
+      "개인정보": "개인정보",
+      "민감정보": "민감정보",
+      "없음": "없음"
+    }
   },
   "directory": {
     "memberCount": "구성원 {{count}}건",
