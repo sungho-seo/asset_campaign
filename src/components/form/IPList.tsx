@@ -48,7 +48,7 @@ export function IPList({ values, onChange, showErrors, inputId }: IPListProps) {
             <button
               type="button"
               onClick={() => remove(i)}
-              aria-label="IP 삭제"
+              aria-label={t('form.fields.removeIp')}
               className="grid h-9 w-9 place-items-center rounded-md border border-line text-text-3 hover:bg-bg-soft hover:text-danger"
             >
               <X className="h-3.5 w-3.5" />

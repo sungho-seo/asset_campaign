@@ -1,4 +1,5 @@
 import { AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { cn } from '../../lib/cn';
 
 export type ValidationError = {
@@ -13,6 +14,7 @@ type ValidationBannerProps = {
 };
 
 export function ValidationBanner({ errors, className }: ValidationBannerProps) {
+  const { t } = useTranslation();
   if (errors.length === 0) return null;
   return (
     <div
@@ -26,7 +28,7 @@ export function ValidationBanner({ errors, className }: ValidationBannerProps) {
         <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-danger" />
         <div className="min-w-0 flex-1">
           <div className="text-[13px] font-medium text-text">
-            저장 전 확인이 필요한 항목 {errors.length}건
+            {t('form.validationBanner.title', { count: errors.length })}
           </div>
           <div className="mt-2 flex flex-wrap gap-1.5">
             {errors.map((err) => (

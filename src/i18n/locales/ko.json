@@ -119,6 +119,7 @@
       "ips": "IP 주소",
       "ipsHint": "(복수 등록 가능 / IPv4)",
       "addIp": "IP 추가",
+      "removeIp": "IP 삭제",
       "ipDetail": {
         "title": "대상",
         "titleValue": "리눅스 서버 내 VM, Docker 컨테이너 기반의 Web/WAS/DBMS 등",
@@ -153,7 +154,7 @@
       "cancel": "취소"
     },
     "validationBanner": {
-      "title": "다음 항목을 확인해 주세요",
+      "title": "저장 전 확인이 필요한 항목 {{count}}건",
       "fixCount": "{{count}}개 항목"
     }
   },

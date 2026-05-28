@@ -119,6 +119,7 @@
       "ips": "IP Address",
       "ipsHint": "(multiple allowed / IPv4)",
       "addIp": "Add IP",
+      "removeIp": "Remove IP",
       "ipDetail": {
         "title": "Scope",
         "titleValue": "VMs on Linux hosts, Docker-based Web/WAS/DBMS, etc.",
@@ -153,7 +154,7 @@
       "cancel": "Cancel"
     },
     "validationBanner": {
-      "title": "Please review the following",
+      "title": "{{count}} item(s) to review before saving",
       "fixCount": "{{count}} item(s)"
     }
   },
