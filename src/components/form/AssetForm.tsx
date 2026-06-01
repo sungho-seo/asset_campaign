@@ -52,34 +52,9 @@ type AssetFormProps = {
   className?: string;
 };
 
-// 정적으로 알려진 필드 키. 추가 담당자 필드(additionalOwners.N.*)는 런타임에 생성.
-const STATIC_FIELD_KEYS = [
-  'owner.name',
-  'owner.email',
-  'owner.dept',
-  'owner.role',
-  'assetType',
-  'hostname',
-  'purpose',
-  'ips',
-  'internet',
-  'domain',
-  'os',
-  'osVersion',
-  'location',
-  'security',
-  'cloud.csp',
-  'cloud.accountId',
-  'cloud.environment',
-  'cloud.dataClass',
-] as const;
-
-type StaticFieldKey = (typeof STATIC_FIELD_KEYS)[number];
-// 동적 키 (additionalOwners.0.name 등)도 같이 다루기 위해 string으로 확장.
-type FieldKey = StaticFieldKey | string;
-
-// 정적 필드의 i18n 라벨 키 매핑. 추가 담당자 필드는 buildAdditionalOwnerLabel()로 동적 구성.
-const FIELD_LABEL_KEY: Record<StaticFieldKey, string> = {
+// 정적 필드의 i18n 라벨 키 매핑. 추가 담당자 필드(additionalOwners.N.*)는
+// ValidationBanner 라벨 구성 시 동적으로 합성.
+const FIELD_LABEL_KEY = {
   'owner.name': 'form.fields.ownerName',
   'owner.email': 'form.fields.ownerEmail',
   'owner.dept': 'form.fields.ownerDept',
@@ -98,7 +73,11 @@ const FIELD_LABEL_KEY: Record<StaticFieldKey, string> = {
   'cloud.accountId': 'form.fields.accountId',
   'cloud.environment': 'form.fields.environment',
   'cloud.dataClass': 'form.fields.dataClass',
-};
+} as const;
+
+type StaticFieldKey = keyof typeof FIELD_LABEL_KEY;
+// 동적 키 (additionalOwners.0.name 등)도 같이 다루기 위해 string으로 확장.
+type FieldKey = StaticFieldKey | string;
 
 // "additionalOwners.0.email" → '추가 담당자 1 · 이메일'
 function parseAdditionalOwnerKey(key: string): { idx: number; field: OwnerRowField } | null {
