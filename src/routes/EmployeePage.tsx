@@ -310,7 +310,7 @@ export default function EmployeePage() {
       <SideDrawer
         open={drawer.kind !== 'closed'}
         onClose={closeDrawer}
-        width={720}
+        width={820}
         ariaLabel={drawer.kind === 'edit' ? t('employee.drawer.editTitle') : t('employee.drawer.newTitle')}
         header={
           drawer.kind === 'edit' ? (

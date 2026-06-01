@@ -1,6 +1,5 @@
 import {
   forwardRef,
-  useCallback,
   useEffect,
   useImperativeHandle,
   useMemo,
@@ -10,12 +9,13 @@ import {
 import { useTranslation } from 'react-i18next';
 import {
   Cloud,
+  Plus,
   ServerCog,
   ShieldCheck,
   UserCircle2,
   type LucideIcon,
 } from 'lucide-react';
-import type { Asset, Owner } from '../../types/domain';
+import type { Asset, AssetOwner, Owner } from '../../types/domain';
 import {
   DATA_CLASS_VALUES,
   ENVIRONMENT_VALUES,
@@ -34,10 +34,9 @@ import { Field } from './Field';
 import { IPList } from './IPList';
 import { Select } from './Select';
 import { SelectWithCustom } from './SelectWithCustom';
-import { DirectoryDropdown } from './DirectoryDropdown';
+import { OwnerRow, type OwnerRowField } from './OwnerRow';
 import { ValidationBanner, type ValidationError } from './ValidationBanner';
 import { ASSET_TYPE_OPTIONS, CSP_OPTIONS, OS_OPTIONS } from '../../lib/mock';
-import { searchDirectory } from '../../lib/api';
 import { cn } from '../../lib/cn';
 
 export type AssetFormHandle = {
@@ -53,10 +52,12 @@ type AssetFormProps = {
   className?: string;
 };
 
-const FIELD_KEYS = [
+// 정적으로 알려진 필드 키. 추가 담당자 필드(additionalOwners.N.*)는 런타임에 생성.
+const STATIC_FIELD_KEYS = [
   'owner.name',
   'owner.email',
   'owner.dept',
+  'owner.role',
   'assetType',
   'hostname',
   'purpose',
@@ -73,13 +74,16 @@ const FIELD_KEYS = [
   'cloud.dataClass',
 ] as const;
 
-type FieldKey = (typeof FIELD_KEYS)[number];
+type StaticFieldKey = (typeof STATIC_FIELD_KEYS)[number];
+// 동적 키 (additionalOwners.0.name 등)도 같이 다루기 위해 string으로 확장.
+type FieldKey = StaticFieldKey | string;
 
-// FieldKey → i18n 라벨 키 매핑
-const FIELD_LABEL_KEY: Record<FieldKey, string> = {
+// 정적 필드의 i18n 라벨 키 매핑. 추가 담당자 필드는 buildAdditionalOwnerLabel()로 동적 구성.
+const FIELD_LABEL_KEY: Record<StaticFieldKey, string> = {
   'owner.name': 'form.fields.ownerName',
   'owner.email': 'form.fields.ownerEmail',
   'owner.dept': 'form.fields.ownerDept',
+  'owner.role': 'form.fields.ownerRole',
   assetType: 'form.fields.assetType',
   hostname: 'form.fields.hostname',
   purpose: 'form.fields.purpose',
@@ -95,6 +99,13 @@ const FIELD_LABEL_KEY: Record<FieldKey, string> = {
   'cloud.environment': 'form.fields.environment',
   'cloud.dataClass': 'form.fields.dataClass',
 };
+
+// "additionalOwners.0.email" → '추가 담당자 1 · 이메일'
+function parseAdditionalOwnerKey(key: string): { idx: number; field: OwnerRowField } | null {
+  const m = /^additionalOwners\.(\d+)\.(name|email|dept|role)$/.exec(key);
+  if (!m) return null;
+  return { idx: Number(m[1]), field: m[2] as OwnerRowField };
+}
 
 // CSP별 계정 ID placeholder — CSP 이름 자체는 키가 아니라 그대로 표시 (Amazon/Azure 등 고유명사)
 const CSP_ACCOUNT_ID_PLACEHOLDER: Record<string, string> = {
@@ -184,106 +195,15 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
 
   const [values, setValues] = useState<AssetFormValues>(initial);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
-  const [errors, setErrors] = useState<Partial<Record<FieldKey, string>>>({});
-  // 담당자 자동 채움 상태 — true이면 첫 클릭 시 owner 3필드를 한꺼번에 비움
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  // 담당자 자동 채움 상태 — true이면 첫 클릭 시 owner 3필드를 한꺼번에 비움 (OwnerRow가 처리)
   const [ownerIsAutoFilled, setOwnerIsAutoFilled] = useState(ownerAutoFilled);
-
-  const handleNameFocus = () => {
-    if (ownerIsAutoFilled) {
-      setValues((s) => ({ ...s, owner: { name: '', email: '', dept: '', role: s.owner.role } }));
-      setTouched((t) => ({
-        ...t,
-        'owner.name': true,
-        'owner.email': true,
-        'owner.dept': true,
-      }));
-      setErrors((e) => {
-        const {
-          'owner.name': _a,
-          'owner.email': _b,
-          'owner.dept': _c,
-          ...rest
-        } = e;
-        return rest;
-      });
-      setOwnerIsAutoFilled(false);
-    }
-  };
   const fieldRefs = useRef<Partial<Record<FieldKey, HTMLElement | null>>>({});
-
-  // 담당자 이름 검색 (디렉토리에서 동명이인 찾기) — 타이핑 중 자동 검색
-  const nameAnchorRef = useRef<HTMLDivElement | null>(null);
-  const [dirOpen, setDirOpen] = useState(false);
-  const [dirLoading, setDirLoading] = useState(false);
-  const [dirResults, setDirResults] = useState<Owner[]>([]);
-  const dirDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const dirRequestSeq = useRef(0); // race condition 방지용 일련번호
-
-  useEffect(() => {
-    return () => {
-      if (dirDebounceRef.current) clearTimeout(dirDebounceRef.current);
-    };
-  }, []);
-
-  const runDirectorySearch = async (name: string) => {
-    const trimmed = name.trim();
-    if (!trimmed) {
-      setDirOpen(false);
-      setDirResults([]);
-      setDirLoading(false);
-      return;
-    }
-    const seq = ++dirRequestSeq.current;
-    setDirOpen(true);
-    setDirLoading(true);
-    try {
-      const r = await searchDirectory(trimmed);
-      // 늦게 도착한 응답은 무시 (사용자가 그 사이 더 타이핑)
-      if (seq !== dirRequestSeq.current) return;
-      setDirResults(r);
-    } finally {
-      if (seq === dirRequestSeq.current) setDirLoading(false);
-    }
-  };
-
-  const scheduleDirectorySearch = (name: string) => {
-    if (dirDebounceRef.current) clearTimeout(dirDebounceRef.current);
-    dirDebounceRef.current = setTimeout(() => {
-      void runDirectorySearch(name);
-    }, 200);
-  };
-
-  const pickDirectoryPerson = (p: Owner) => {
-    // 진행 중인 디바운스/응답 무효화
-    if (dirDebounceRef.current) clearTimeout(dirDebounceRef.current);
-    dirRequestSeq.current++;
-    // 디렉토리에서 가져온 사람을 owner에 바인딩. 기존 역할은 유지 (담당자만 교체).
-    setValues((s) => ({ ...s, owner: toAssetOwner(p, s.owner.role) }));
-    setTouched((t) => ({
-      ...t,
-      'owner.name': true,
-      'owner.email': true,
-      'owner.dept': true,
-    }));
-    setErrors((e) => {
-      const {
-        'owner.name': _a,
-        'owner.email': _b,
-        'owner.dept': _c,
-        ...rest
-      } = e;
-      return rest;
-    });
-    setOwnerIsAutoFilled(false);
-    setDirOpen(false);
-  };
 
   useEffect(() => {
     setValues(initial);
     setTouched({});
     setErrors({});
-    setDirOpen(false);
-    setDirResults([]);
     setOwnerIsAutoFilled(ownerAutoFilled);
   }, [initial, ownerAutoFilled]);
 
@@ -294,9 +214,9 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
         setErrors({});
         return result.data;
       }
-      const next: Partial<Record<FieldKey, string>> = {};
+      const next: Record<string, string> = {};
       for (const issue of result.error.issues) {
-        const path = issue.path.join('.') as FieldKey;
+        const path = issue.path.join('.');
         if (!next[path]) next[path] = issue.message;
       }
       setErrors(next);
@@ -315,33 +235,38 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
   };
 
   const validationErrors: ValidationError[] = useMemo(() => {
-    return (Object.keys(errors) as FieldKey[]).map((key) => ({
-      key,
-      label: t(errors[key]!),
-      onClick: () => {
-        const el = fieldRefs.current[key];
-        if (!el) return;
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        const focusable =
-          el.querySelector<HTMLElement>('input,select,button[role="radio"]') ?? el;
-        focusable.focus();
-        el.classList.add('ring-2', 'ring-danger', 'ring-offset-2');
-        window.setTimeout(() => {
-          el.classList.remove('ring-2', 'ring-danger', 'ring-offset-2');
-        }, 1200);
-      },
-    }));
-  }, [errors]);
+    return Object.keys(errors).map((key) => {
+      const additional = parseAdditionalOwnerKey(key);
+      // 추가 담당자 행 에러는 라벨에 "추가 담당자 N · 필드명" 컨텍스트 추가 (banner의 메시지만으로 어느 행인지 불분명한 문제 해소).
+      const label = additional
+        ? `${t('form.additionalOwnersTitle')} ${additional.idx + 1} · ${t(
+            FIELD_LABEL_KEY[`owner.${additional.field}` as StaticFieldKey]
+          )} — ${t(errors[key])}`
+        : t(errors[key]);
+      return {
+        key,
+        label,
+        onClick: () => {
+          const el = fieldRefs.current[key];
+          if (!el) return;
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          const focusable =
+            el.querySelector<HTMLElement>('input,select,button[role="radio"]') ?? el;
+          focusable.focus();
+          el.classList.add('ring-2', 'ring-danger', 'ring-offset-2');
+          window.setTimeout(() => {
+            el.classList.remove('ring-2', 'ring-danger', 'ring-offset-2');
+          }, 1200);
+        },
+      };
+    });
+  }, [errors, t]);
 
   const setField = <K extends keyof AssetFormValues>(
     key: K,
     v: AssetFormValues[K]
   ) => {
     setValues((s) => ({ ...s, [key]: v }));
-  };
-
-  const setOwnerField = (key: 'name' | 'email' | 'dept' | 'role', v: string) => {
-    setValues((s) => ({ ...s, owner: { ...s.owner, [key]: v } }));
   };
 
   const setCloudField = (key: keyof AssetFormValues['cloud'], v: string) => {
@@ -354,18 +279,68 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
   const flag = (key: FieldKey, v: unknown) =>
     mode === 'new' && !touched[key] && isEmpty(v);
 
-  // 담당자 이름 anchor 전용 stable ref callback.
-  // 인라인 ref `(el) => {...}` 는 매 렌더마다 새 함수 reference라
-  // React가 매 렌더마다 cleanup(null)→setup(el) 사이클을 돌게 됨.
-  // 그 사이에 자식 컴포넌트의 useLayoutEffect가 실행되면 anchor가 일시적으로 null이라 측정 실패.
-  // useCallback으로 reference를 고정해서 ref 사이클 자체를 제거.
-  const setNameAnchorRef = useCallback((el: HTMLDivElement | null) => {
-    fieldRefs.current['owner.name'] = el;
-    nameAnchorRef.current = el;
-  }, []);
-
   const setRef = (key: FieldKey) => (el: HTMLDivElement | null) => {
     fieldRefs.current[key] = el;
+  };
+
+  // OwnerRow가 4개 필드의 ref를 자체적으로 등록 → 부모는 key prefix를 합쳐 fieldRefs에 저장.
+  const ownerRowRefRegistrar =
+    (prefix: 'owner' | `additionalOwners.${number}`) =>
+    (field: OwnerRowField, el: HTMLDivElement | null) => {
+      fieldRefs.current[`${prefix}.${field}`] = el;
+    };
+
+  const ownerRowErrors = (prefix: 'owner' | `additionalOwners.${number}`) => ({
+    name: tr(errors[`${prefix}.name`]),
+    email: tr(errors[`${prefix}.email`]),
+    dept: tr(errors[`${prefix}.dept`]),
+    role: tr(errors[`${prefix}.role`]),
+  });
+
+  // OwnerRow가 통보하는 필드 변경 → touched/errors 갱신
+  const ownerRowFieldChange =
+    (prefix: 'owner' | `additionalOwners.${number}`) => (field: OwnerRowField) => {
+      markTouched(`${prefix}.${field}`);
+    };
+
+  const addAdditionalOwner = () => {
+    setValues((s) => ({
+      ...s,
+      additionalOwners: [
+        ...s.additionalOwners,
+        { name: '', email: '', dept: '', role: '' } as AssetOwner,
+      ],
+    }));
+  };
+
+  const removeAdditionalOwner = (idx: number) => {
+    setValues((s) => ({
+      ...s,
+      additionalOwners: s.additionalOwners.filter((_, i) => i !== idx),
+    }));
+    // 해당 행과 그 이후 행의 에러/touched 키도 정리 — 인덱스 변경으로 stale 데이터가 남을 수 있음.
+    setErrors((e) => {
+      const next: Record<string, string> = {};
+      for (const k of Object.keys(e)) {
+        const parsed = parseAdditionalOwnerKey(k);
+        if (!parsed) {
+          next[k] = e[k];
+          continue;
+        }
+        if (parsed.idx < idx) next[k] = e[k];
+        else if (parsed.idx > idx)
+          next[`additionalOwners.${parsed.idx - 1}.${parsed.field}`] = e[k];
+        // parsed.idx === idx → drop
+      }
+      return next;
+    });
+  };
+
+  const updateAdditionalOwner = (idx: number, next: AssetOwner) => {
+    setValues((s) => ({
+      ...s,
+      additionalOwners: s.additionalOwners.map((o, i) => (i === idx ? next : o)),
+    }));
   };
 
   return (
@@ -383,7 +358,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
               size="sm"
               variant="ghost"
               onClick={() => {
-                // 내 정보로 채우기: 사람만 교체, 역할은 보존
+                // 내 정보로 채우기: primary만 교체, 역할은 보존
                 setValues((s) => ({ ...s, owner: toAssetOwner(currentUser, s.owner.role) }));
                 setTouched((t) => ({
                   ...t,
@@ -407,80 +382,62 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
             </Button>
           }
         />
-        <div className="grid grid-cols-3 gap-3 p-4">
-          <div ref={setNameAnchorRef}>
-            <Field
-              id="owner.name"
-              label={t(FIELD_LABEL_KEY['owner.name'])}
-              required
-              error={tr(errors['owner.name'])}
-            >
-              <Input
-                id="owner.name"
-                autoComplete="off"
-                value={values.owner.name}
-                emptyFlag={flag('owner.name', values.owner.name)}
-                error={!!errors['owner.name']}
-                onFocus={handleNameFocus}
-                onClick={handleNameFocus}
-                onChange={(e) => {
-                  const next = e.target.value;
-                  setOwnerField('name', next);
-                  markTouched('owner.name');
-                  setOwnerIsAutoFilled(false);
-                  scheduleDirectorySearch(next);
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    // 폼 submit 방지 + 즉시 검색 (debounce 무시)
-                    e.preventDefault();
-                    if (dirDebounceRef.current) clearTimeout(dirDebounceRef.current);
-                    void runDirectorySearch(values.owner.name);
-                  } else if (e.key === 'Escape' && dirOpen) {
-                    e.stopPropagation();
-                    setDirOpen(false);
+        <div className="space-y-4 p-4">
+          <OwnerRow
+            rowId="owner"
+            value={values.owner}
+            onChange={(next) => setValues((s) => ({ ...s, owner: next }))}
+            required
+            autoFilled={ownerIsAutoFilled}
+            onAutoFilledConsumed={() => setOwnerIsAutoFilled(false)}
+            emptyFlag={(f) =>
+              f === 'role'
+                ? false
+                : flag(`owner.${f}`, values.owner[f])
+            }
+            registerRef={ownerRowRefRegistrar('owner')}
+            errors={ownerRowErrors('owner')}
+            onFieldChange={ownerRowFieldChange('owner')}
+          />
+
+          {values.additionalOwners.length > 0 && (
+            <div className="space-y-3 border-t border-line pt-4">
+              <div className="font-mono text-[10.5px] uppercase tracking-wider text-text-3">
+                {t('form.additionalOwnersTitle')}
+              </div>
+              {values.additionalOwners.map((o, idx) => (
+                <OwnerRow
+                  key={idx}
+                  rowId={`additionalOwners.${idx}`}
+                  value={o}
+                  onChange={(next) => updateAdditionalOwner(idx, next)}
+                  required
+                  emptyFlag={(f) =>
+                    f === 'role'
+                      ? false
+                      : flag(`additionalOwners.${idx}.${f}`, o[f])
                   }
-                }}
-              />
-            </Field>
-            {dirOpen && (
-              <DirectoryDropdown
-                anchorRef={nameAnchorRef}
-                results={dirResults}
-                loading={dirLoading}
-                onPick={pickDirectoryPerson}
-                onClose={() => setDirOpen(false)}
-              />
-            )}
-          </div>
-          <div ref={setRef('owner.email')}>
-            <Field id="owner.email" label={t(FIELD_LABEL_KEY['owner.email'])} required error={tr(errors['owner.email'])}>
-              <Input
-                id="owner.email"
-                type="email"
-                value={values.owner.email}
-                emptyFlag={flag('owner.email', values.owner.email)}
-                error={!!errors['owner.email']}
-                onChange={(e) => {
-                  setOwnerField('email', e.target.value);
-                  markTouched('owner.email');
-                }}
-              />
-            </Field>
-          </div>
-          <div ref={setRef('owner.dept')}>
-            <Field id="owner.dept" label={t(FIELD_LABEL_KEY['owner.dept'])} required error={tr(errors['owner.dept'])}>
-              <Input
-                id="owner.dept"
-                value={values.owner.dept}
-                emptyFlag={flag('owner.dept', values.owner.dept)}
-                error={!!errors['owner.dept']}
-                onChange={(e) => {
-                  setOwnerField('dept', e.target.value);
-                  markTouched('owner.dept');
-                }}
-              />
-            </Field>
+                  registerRef={ownerRowRefRegistrar(`additionalOwners.${idx}` as const)}
+                  errors={ownerRowErrors(`additionalOwners.${idx}` as const)}
+                  onFieldChange={ownerRowFieldChange(`additionalOwners.${idx}` as const)}
+                  onRemove={() => removeAdditionalOwner(idx)}
+                />
+              ))}
+            </div>
+          )}
+
+          <div className="flex">
+            <button
+              type="button"
+              onClick={addAdditionalOwner}
+              className={cn(
+                'inline-flex items-center gap-1.5 rounded-md border border-dashed border-line bg-bg-soft/30 px-3 py-1.5 text-[12px] font-medium text-text-2',
+                'hover:border-brand/40 hover:bg-brand-soft/30 hover:text-brand'
+              )}
+            >
+              <Plus className="h-3.5 w-3.5" />
+              {t('form.addOwner')}
+            </button>
           </div>
         </div>
       </section>
@@ -815,6 +772,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
 });
 
 // i18n 키만 반환. 사용처에서 useTranslation의 t()로 번역해 사용.
-export function fieldLabelKey(key: FieldKey): string {
-  return FIELD_LABEL_KEY[key];
+// 동적 키(additionalOwners.N.*)는 호출처에서 별도 처리.
+export function fieldLabelKey(key: FieldKey): string | undefined {
+  return FIELD_LABEL_KEY[key as StaticFieldKey];
 }
