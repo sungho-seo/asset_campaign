@@ -27,10 +27,15 @@ function bootstrapAssets() {
   }
 }
 
+function allOwners(a: Asset) {
+  return a.owner ? [a.owner, ...a.additionalOwners] : a.additionalOwners;
+}
+
 function matches(a: Asset, mode: SearchMode, q: string): boolean {
+  const owners = allOwners(a);
   if (!q) {
-    if (mode === 'owner') return a.owner?.name === MOCK_USER.name;
-    if (mode === 'email') return a.owner?.email === MOCK_USER.email;
+    if (mode === 'owner') return owners.some((o) => o.name === MOCK_USER.name);
+    if (mode === 'email') return owners.some((o) => o.email === MOCK_USER.email);
     return true;
   }
   const needle = q.toLowerCase();
@@ -40,16 +45,19 @@ function matches(a: Asset, mode: SearchMode, q: string): boolean {
     case 'hostname':
       return a.hostname.toLowerCase().includes(needle);
     case 'owner':
-      return a.owner?.name.toLowerCase().includes(needle) ?? false;
+      return owners.some((o) => o.name.toLowerCase().includes(needle));
     case 'email':
-      return a.owner?.email.toLowerCase().includes(needle) ?? false;
+      return owners.some((o) => o.email.toLowerCase().includes(needle));
     case 'all':
     default:
       return (
         a.hostname.toLowerCase().includes(needle) ||
         a.ips.some((ip) => ip.includes(needle)) ||
-        (a.owner?.name.toLowerCase().includes(needle) ?? false) ||
-        (a.owner?.email.toLowerCase().includes(needle) ?? false)
+        owners.some(
+          (o) =>
+            o.name.toLowerCase().includes(needle) ||
+            o.email.toLowerCase().includes(needle)
+        )
       );
   }
 }

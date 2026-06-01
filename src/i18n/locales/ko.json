@@ -54,6 +54,7 @@
       "hostname": "자산명 / 용도",
       "ip": "IP",
       "owner": "담당자",
+      "additionalOwnerCount": "추가 담당자 {{count}}명",
       "locationOs": "위치 / OS",
       "status": "상태",
       "updatedAt": "최근 수정"

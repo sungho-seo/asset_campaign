@@ -54,6 +54,7 @@
       "hostname": "Hostname / Purpose",
       "ip": "IP",
       "owner": "Owner",
+      "additionalOwnerCount": "{{count}} additional owner(s)",
       "locationOs": "Location / OS",
       "status": "Status",
       "updatedAt": "Last updated"

@@ -1,27 +1,27 @@
-id,assetType,hostname,purpose,ips,internet,domain,os,osVersion,location,owner_name,owner_email,owner_dept,security,csp,cloud_accountId,environment,dataClass,qualysDetectedAt,updatedAt,updatedBy
-ASSET-008291,온프레미스,dev-server-01,개발 서버,10.20.30.40,no,lge.com,Ubuntu,22.04.3 LTS,서울 마곡 LG사이언스파크 R&D본관 5층 521호,,,,EPP,,,,,2026-04-12T09:33:00Z,,
-ASSET-008292,온프레미스,dev-db-primary,DB Primary,10.20.30.42|10.20.30.43,no,lge.com,RHEL,9.2,서울 마곡 LG사이언스파크 R&D본관 5층 523호,박지훈,jihoon.park@lge.com,보안운영실,EDR,,,,,2026-04-10T12:18:00Z,2026-05-20T13:11:00Z,박지훈
-ASSET-008301,클라우드,app-stage-04,스테이징 앱서버,10.42.5.18,yes,lge.com,Ubuntu,20.04.6,평택 디지털파크 B동 3층 305호,정유진,yujin.jung@lge.com,클라우드플랫폼팀,CWPP,AWS,123456789012,Staging,내부용,2026-04-08T15:01:00Z,2026-05-21T11:47:00Z,정유진
-ASSET-008312,온프레미스,jenkins-master,CI/CD 마스터,172.16.8.91,no,lge.com,Ubuntu,22.04.4,서울 마곡 LG사이언스파크 R&D본관 6층 612호,,,,EDR,,,,,2026-04-15T08:22:00Z,,
-ASSET-008325,온프레미스,rd-bench-22,R&D 벤치,10.55.12.7,yes,lge.com,Windows,11 (23H2),대전 R&D센터 2동 4층 422호,이수민,sumin.lee@lge.com,단말연구소,EPP,,,,,2026-04-11T10:05:00Z,2026-05-19T15:34:00Z,이수민
-ASSET-008341,,qa-runner-01,QA 러너,10.88.4.130,no,lge.com,Windows Server,2022 21H2,구미 사업장 본관 2층 201호,,,,EPP,,,,,2026-04-09T11:48:00Z,,
-ASSET-008412,온프레미스,mac-jhpark,사용자 노트북,10.20.40.18,yes,lge.com,macOS,Sonoma 14.4.1,서울 여의도 LG트윈타워 14층 1402호,박지훈,jihoon.park@lge.com,보안운영실,EPP,,,,,2026-04-05T09:00:00Z,2026-05-18T17:02:00Z,박지훈
-ASSET-008498,온프레미스,test-bench-08,테스트 벤치,10.20.30.55,no,lge.com,Ubuntu,20.04.5,평택 디지털파크 B동 4층 410호,,,,,,,,,2026-04-13T14:22:00Z,,
-ASSET-008512,온프레미스,build-cache-02,빌드 캐시,10.20.31.12,no,lge.com,Ubuntu,22.04.3,서울 마곡 LG사이언스파크 R&D본관 5층 524호,한도윤,doyoon.han@lge.com,플랫폼인프라팀,EDR,,,,,2026-04-14T16:40:00Z,2026-05-20T09:55:00Z,한도윤
-ASSET-008534,클라우드,airflow-prod,데이터 파이프라인,10.42.8.21,no,lge.com,RHEL,8.9,평택 디지털파크 A동 5층 502호,정유진,yujin.jung@lge.com,클라우드플랫폼팀,CWPP,Azure,8c1a4d23-9f76-4a55-bc12-aa334455ee99,Production,내부용,2026-04-16T08:12:00Z,2026-05-18T11:14:00Z,정유진
-ASSET-008599,온프레미스,monitoring-01,모니터링,10.42.8.22,no,lge.com,RHEL,9.2,평택 디지털파크 A동 5층 503호,,,,EDR,,,,,2026-04-17T10:00:00Z,,
-ASSET-008601,온프레미스,db-shard-a01,DB Shard A,10.30.10.5,no,lge.com,Windows Server,2019 1809,구미 사업장 본관 2층 211호,김상우,sangwoo.kim@lge.com,보안솔루션실,EDR,,,,,2026-04-18T15:30:00Z,2026-05-21T16:20:00Z,김상우
-ASSET-008612,온프레미스,db-shard-a02,DB Shard B,10.30.10.6,no,lge.com,Windows Server,2019 1809,구미 사업장 본관 2층 211호,김상우,sangwoo.kim@lge.com,보안솔루션실,EDR,,,,,2026-04-18T15:30:00Z,2026-05-21T16:22:00Z,김상우
-ASSET-008701,,mac-kykim,사용자 노트북,10.20.40.42,yes,lge.com,macOS,Ventura 13.6.4,서울 마곡 LG사이언스파크 별관 3층 308호,,,,EPP,,,,,2026-04-19T11:11:00Z,,
-ASSET-008725,온프레미스,vpn-gateway-02,VPN 게이트웨이,10.0.0.5,yes,lge.com,Ubuntu,22.04.3,서울 마곡 LG사이언스파크 R&D본관 1층 105호,한도윤,doyoon.han@lge.com,플랫폼인프라팀,EDR,,,,,2026-04-20T09:00:00Z,2026-05-15T14:22:00Z,한도윤
-ASSET-008798,클라우드,sandbox-22,샌드박스,10.99.4.22,yes,lge.com,Ubuntu,20.04.4,대전 R&D센터 1동 2층 210호,,,,CWPP,NCP,acc-87213,Development,공개,2026-04-21T17:33:00Z,,
-ASSET-008812,온프레미스,office-desktop-3211,사무 PC,10.10.5.211,yes,lge.com,Windows,11 (23H2),서울 여의도 LG트윈타워 12층 1211호,,,,EPP,,,,,2026-04-22T08:08:00Z,,
-ASSET-008834,온프레미스,office-desktop-3215,사무 PC,10.10.5.215,yes,lge.com,Windows,11 (23H2),서울 여의도 LG트윈타워 12층 1215호,이수민,sumin.lee@lge.com,단말연구소,EPP,,,,,2026-04-22T08:09:00Z,2026-05-17T10:11:00Z,이수민
-ASSET-008902,클라우드,redis-cache-01,캐시 서버,10.42.9.11,no,lge.com,RHEL,9.3,평택 디지털파크 A동 6층 611호,정유진,yujin.jung@lge.com,클라우드플랫폼팀,CWPP,GCP,asset-campaign-prod,Production,개인정보,2026-04-23T14:18:00Z,2026-05-22T08:45:00Z,정유진
-ASSET-008912,클라우드,redis-cache-02,캐시 서버,10.42.9.12,no,lge.com,RHEL,9.3,평택 디지털파크 A동 6층 611호,,,,CWPP,GCP,asset-campaign-prod,Production,개인정보,2026-04-23T14:18:00Z,,
-ASSET-008998,온프레미스,kafka-broker-01,메시징 브로커,10.42.10.21,no,lge.com,Ubuntu,22.04.4,평택 디지털파크 A동 6층 612호,한도윤,doyoon.han@lge.com,플랫폼인프라팀,EDR,,,,,2026-04-24T11:42:00Z,2026-05-18T16:33:00Z,한도윤
-ASSET-009101,클라우드,us-prod-app-01,Customer Portal,10.111.4.21,yes,lge.com,Ubuntu,22.04.4,Santa Clara CA HQ Bldg 3,Daniel Lee,daniel.lee@lge.com,Cloud Platform Team,CWPP,AWS,210987654321,Production,개인정보,2026-05-02T12:18:00Z,2026-05-22T09:14:00Z,Daniel Lee
-ASSET-009108,온프레미스,us-edge-cache-04,CDN Edge Cache,10.111.5.22,no,lge.com,RHEL,9.3,Englewood Cliffs NJ Office 7F,Daniel Lee,daniel.lee.us@lge.com,LG Electronics USA,EDR,,,,,2026-05-03T10:01:00Z,,
-ASSET-009212,클라우드,eu-fra-dx-01,Mobility DX Workload,10.222.7.11,yes,lge.com,Ubuntu,22.04.3,Frankfurt am Main DE,Jonas Becker,jonas.becker@lge.com,Mobility Solutions EMEA,CWPP,Azure,f6d2-4e88-91ab-cd34ef567812,Production,내부용,2026-05-04T08:45:00Z,2026-05-21T14:30:00Z,Jonas Becker
-ASSET-009221,온프레미스,eu-it-helpdesk-03,Help Desk Workstation,10.222.6.34,yes,lge.com,Windows,11 (23H2),Milano IT Office 4F #412,Maria Rossi,maria.rossi@lge.com,EMEA Service Operations,EPP,,,,,2026-05-05T13:22:00Z,,
-ASSET-009304,클라우드,in-stage-svc-02,Inventory Service (staging),10.244.2.18,no,lge.com,RHEL,8.9,Noida India Office,Priya Iyer,priya.iyer@lge.com,LG Electronics India,CWPP,GCP,lg-in-stage-2026,Staging,내부용,2026-05-06T11:11:00Z,2026-05-20T16:05:00Z,Priya Iyer
+id,assetType,hostname,purpose,ips,internet,domain,os,osVersion,location,owner_name,owner_email,owner_dept,owner_role,additional_owners,security,csp,cloud_accountId,environment,dataClass,qualysDetectedAt,updatedAt,updatedBy
+ASSET-008291,온프레미스,dev-server-01,개발 서버,10.20.30.40,no,lge.com,Ubuntu,22.04.3 LTS,서울 마곡 LG사이언스파크 R&D본관 5층 521호,,,,,,EPP,,,,,2026-04-12T09:33:00Z,,
+ASSET-008292,온프레미스,dev-db-primary,DB Primary,10.20.30.42|10.20.30.43,no,lge.com,RHEL,9.2,서울 마곡 LG사이언스파크 R&D본관 5층 523호,박지훈,jihoon.park@lge.com,보안운영실,server-primary,한도윤::doyoon.han@lge.com::플랫폼인프라팀::server-backup,EDR,,,,,2026-04-10T12:18:00Z,2026-05-20T13:11:00Z,박지훈
+ASSET-008301,클라우드,app-stage-04,스테이징 앱서버,10.42.5.18,yes,lge.com,Ubuntu,20.04.6,평택 디지털파크 B동 3층 305호,정유진,yujin.jung@lge.com,클라우드플랫폼팀,service,박지훈::jihoon.park@lge.com::보안운영실::sm,CWPP,AWS,123456789012,Staging,내부용,2026-04-08T15:01:00Z,2026-05-21T11:47:00Z,정유진
+ASSET-008312,온프레미스,jenkins-master,CI/CD 마스터,172.16.8.91,no,lge.com,Ubuntu,22.04.4,서울 마곡 LG사이언스파크 R&D본관 6층 612호,,,,,,EDR,,,,,2026-04-15T08:22:00Z,,
+ASSET-008325,온프레미스,rd-bench-22,R&D 벤치,10.55.12.7,yes,lge.com,Windows,11 (23H2),대전 R&D센터 2동 4층 422호,이수민,sumin.lee@lge.com,단말연구소,service,,EPP,,,,,2026-04-11T10:05:00Z,2026-05-19T15:34:00Z,이수민
+ASSET-008341,,qa-runner-01,QA 러너,10.88.4.130,no,lge.com,Windows Server,2022 21H2,구미 사업장 본관 2층 201호,,,,,,EPP,,,,,2026-04-09T11:48:00Z,,
+ASSET-008412,온프레미스,mac-jhpark,사용자 노트북,10.20.40.18,yes,lge.com,macOS,Sonoma 14.4.1,서울 여의도 LG트윈타워 14층 1402호,박지훈,jihoon.park@lge.com,보안운영실,it,,EPP,,,,,2026-04-05T09:00:00Z,2026-05-18T17:02:00Z,박지훈
+ASSET-008498,온프레미스,test-bench-08,테스트 벤치,10.20.30.55,no,lge.com,Ubuntu,20.04.5,평택 디지털파크 B동 4층 410호,,,,,,,,,,,2026-04-13T14:22:00Z,,
+ASSET-008512,온프레미스,build-cache-02,빌드 캐시,10.20.31.12,no,lge.com,Ubuntu,22.04.3,서울 마곡 LG사이언스파크 R&D본관 5층 524호,한도윤,doyoon.han@lge.com,플랫폼인프라팀,sm,,EDR,,,,,2026-04-14T16:40:00Z,2026-05-20T09:55:00Z,한도윤
+ASSET-008534,클라우드,airflow-prod,데이터 파이프라인,10.42.8.21,no,lge.com,RHEL,8.9,평택 디지털파크 A동 5층 502호,정유진,yujin.jung@lge.com,클라우드플랫폼팀,server-primary,한도윤::doyoon.han@lge.com::플랫폼인프라팀::server-backup,CWPP,Azure,8c1a4d23-9f76-4a55-bc12-aa334455ee99,Production,내부용,2026-04-16T08:12:00Z,2026-05-18T11:14:00Z,정유진
+ASSET-008599,온프레미스,monitoring-01,모니터링,10.42.8.22,no,lge.com,RHEL,9.2,평택 디지털파크 A동 5층 503호,,,,,,EDR,,,,,2026-04-17T10:00:00Z,,
+ASSET-008601,온프레미스,db-shard-a01,DB Shard A,10.30.10.5,no,lge.com,Windows Server,2019 1809,구미 사업장 본관 2층 211호,김상우,sangwoo.kim@lge.com,보안솔루션실,server-primary,김상우::sangwoo.kim.dr@lge.com::단말연구소::server-backup,EDR,,,,,2026-04-18T15:30:00Z,2026-05-21T16:20:00Z,김상우
+ASSET-008612,온프레미스,db-shard-a02,DB Shard B,10.30.10.6,no,lge.com,Windows Server,2019 1809,구미 사업장 본관 2층 211호,김상우,sangwoo.kim@lge.com,보안솔루션실,server-primary,김상우::sangwoo.kim.dr@lge.com::단말연구소::server-backup,EDR,,,,,2026-04-18T15:30:00Z,2026-05-21T16:22:00Z,김상우
+ASSET-008701,,mac-kykim,사용자 노트북,10.20.40.42,yes,lge.com,macOS,Ventura 13.6.4,서울 마곡 LG사이언스파크 별관 3층 308호,,,,,,EPP,,,,,2026-04-19T11:11:00Z,,
+ASSET-008725,온프레미스,vpn-gateway-02,VPN 게이트웨이,10.0.0.5,yes,lge.com,Ubuntu,22.04.3,서울 마곡 LG사이언스파크 R&D본관 1층 105호,한도윤,doyoon.han@lge.com,플랫폼인프라팀,server-primary,김민준::minjun.kim@lge.com::SW아키텍처팀::server-backup,EDR,,,,,2026-04-20T09:00:00Z,2026-05-15T14:22:00Z,한도윤
+ASSET-008798,클라우드,sandbox-22,샌드박스,10.99.4.22,yes,lge.com,Ubuntu,20.04.4,대전 R&D센터 1동 2층 210호,,,,,,CWPP,NCP,acc-87213,Development,공개,2026-04-21T17:33:00Z,,
+ASSET-008812,온프레미스,office-desktop-3211,사무 PC,10.10.5.211,yes,lge.com,Windows,11 (23H2),서울 여의도 LG트윈타워 12층 1211호,,,,,,EPP,,,,,2026-04-22T08:08:00Z,,
+ASSET-008834,온프레미스,office-desktop-3215,사무 PC,10.10.5.215,yes,lge.com,Windows,11 (23H2),서울 여의도 LG트윈타워 12층 1215호,이수민,sumin.lee@lge.com,단말연구소,it,,EPP,,,,,2026-04-22T08:09:00Z,2026-05-17T10:11:00Z,이수민
+ASSET-008902,클라우드,redis-cache-01,캐시 서버,10.42.9.11,no,lge.com,RHEL,9.3,평택 디지털파크 A동 6층 611호,정유진,yujin.jung@lge.com,클라우드플랫폼팀,server-primary,한도윤::doyoon.han@lge.com::플랫폼인프라팀::server-backup|박지훈::jihoon.park@lge.com::보안운영실::sm,CWPP,GCP,asset-campaign-prod,Production,개인정보,2026-04-23T14:18:00Z,2026-05-22T08:45:00Z,정유진
+ASSET-008912,클라우드,redis-cache-02,캐시 서버,10.42.9.12,no,lge.com,RHEL,9.3,평택 디지털파크 A동 6층 611호,,,,,한도윤::doyoon.han@lge.com::플랫폼인프라팀::server-backup,CWPP,GCP,asset-campaign-prod,Production,개인정보,2026-04-23T14:18:00Z,,
+ASSET-008998,온프레미스,kafka-broker-01,메시징 브로커,10.42.10.21,no,lge.com,Ubuntu,22.04.4,평택 디지털파크 A동 6층 612호,한도윤,doyoon.han@lge.com,플랫폼인프라팀,server-primary,김민준::minjun.kim@lge.com::SW아키텍처팀::server-backup,EDR,,,,,2026-04-24T11:42:00Z,2026-05-18T16:33:00Z,한도윤
+ASSET-009101,클라우드,us-prod-app-01,Customer Portal,10.111.4.21,yes,lge.com,Ubuntu,22.04.4,Santa Clara CA HQ Bldg 3,Daniel Lee,daniel.lee@lge.com,Cloud Platform Team,service,Maria Rossi::maria.rossi@lge.com::EMEA Service Operations::sm,CWPP,AWS,210987654321,Production,개인정보,2026-05-02T12:18:00Z,2026-05-22T09:14:00Z,Daniel Lee
+ASSET-009108,온프레미스,us-edge-cache-04,CDN Edge Cache,10.111.5.22,no,lge.com,RHEL,9.3,Englewood Cliffs NJ Office 7F,Daniel Lee,daniel.lee.us@lge.com,LG Electronics USA,server-primary,,EDR,,,,,2026-05-03T10:01:00Z,,
+ASSET-009212,클라우드,eu-fra-dx-01,Mobility DX Workload,10.222.7.11,yes,lge.com,Ubuntu,22.04.3,Frankfurt am Main DE,Jonas Becker,jonas.becker@lge.com,Mobility Solutions EMEA,service,Daniel Lee::daniel.lee@lge.com::Cloud Platform Team::it,CWPP,Azure,f6d2-4e88-91ab-cd34ef567812,Production,내부용,2026-05-04T08:45:00Z,2026-05-21T14:30:00Z,Jonas Becker
+ASSET-009221,온프레미스,eu-it-helpdesk-03,Help Desk Workstation,10.222.6.34,yes,lge.com,Windows,11 (23H2),Milano IT Office 4F #412,Maria Rossi,maria.rossi@lge.com,EMEA Service Operations,it,,EPP,,,,,2026-05-05T13:22:00Z,,
+ASSET-009304,클라우드,in-stage-svc-02,Inventory Service (staging),10.244.2.18,no,lge.com,RHEL,8.9,Noida India Office,Priya Iyer,priya.iyer@lge.com,LG Electronics India,service,,CWPP,GCP,lg-in-stage-2026,Staging,내부용,2026-05-06T11:11:00Z,2026-05-20T16:05:00Z,Priya Iyer

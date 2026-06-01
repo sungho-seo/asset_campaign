@@ -3,10 +3,17 @@ import type { Asset, Owner, SearchMode, SearchResult } from '../types/domain';
 import { MOCK_DIRECTORY, MOCK_USER } from '../lib/mock';
 import * as store from './store';
 
+// 자산의 모든 담당자 (primary + 추가) 순회용 헬퍼.
+function allOwners(a: Asset) {
+  return a.owner ? [a.owner, ...a.additionalOwners] : a.additionalOwners;
+}
+
 function matches(a: Asset, mode: SearchMode, q: string): boolean {
+  const owners = allOwners(a);
   if (!q) {
-    if (mode === 'owner') return a.owner?.name === MOCK_USER.name;
-    if (mode === 'email') return a.owner?.email === MOCK_USER.email;
+    // "내 자산" 필터링은 primary뿐 아니라 내가 추가 담당자로 등록된 자산도 포함.
+    if (mode === 'owner') return owners.some((o) => o.name === MOCK_USER.name);
+    if (mode === 'email') return owners.some((o) => o.email === MOCK_USER.email);
     return true;
   }
   const needle = q.toLowerCase();
@@ -16,16 +23,19 @@ function matches(a: Asset, mode: SearchMode, q: string): boolean {
     case 'hostname':
       return a.hostname.toLowerCase().includes(needle);
     case 'owner':
-      return a.owner?.name.toLowerCase().includes(needle) ?? false;
+      return owners.some((o) => o.name.toLowerCase().includes(needle));
     case 'email':
-      return a.owner?.email.toLowerCase().includes(needle) ?? false;
+      return owners.some((o) => o.email.toLowerCase().includes(needle));
     case 'all':
     default:
       return (
         a.hostname.toLowerCase().includes(needle) ||
         a.ips.some((ip) => ip.includes(needle)) ||
-        (a.owner?.name.toLowerCase().includes(needle) ?? false) ||
-        (a.owner?.email.toLowerCase().includes(needle) ?? false)
+        owners.some(
+          (o) =>
+            o.name.toLowerCase().includes(needle) ||
+            o.email.toLowerCase().includes(needle)
+        )
       );
   }
 }

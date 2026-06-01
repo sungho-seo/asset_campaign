@@ -96,7 +96,11 @@ export function ResultsList({
         </thead>
         <tbody>
           {items.map((a) => {
-            const mine = a.owner?.name === currentUserName;
+            // "내 자산"은 primary + 추가 담당자 어디에든 내 이름이 있으면 해당.
+            const mine =
+              a.owner?.name === currentUserName ||
+              a.additionalOwners.some((o) => o.name === currentUserName);
+            const additionalCount = a.additionalOwners.length;
             return (
               <tr
                 key={a.id}
@@ -125,8 +129,40 @@ export function ResultsList({
                 <td className="px-4 py-3 align-top">
                   {a.owner ? (
                     <>
-                      <div className="text-[12.5px] text-text">{a.owner.name}</div>
+                      <div className="flex items-center gap-1.5 text-[12.5px] text-text">
+                        {a.owner.name}
+                        {additionalCount > 0 && (
+                          <span
+                            title={t('employee.columns.additionalOwnerCount', {
+                              count: additionalCount,
+                            })}
+                            className="inline-flex items-center rounded bg-bg-soft px-1.5 py-0.5 font-mono text-[10px] font-medium text-text-3"
+                          >
+                            +{additionalCount}
+                          </span>
+                        )}
+                      </div>
                       <div className="text-[11px] text-text-3">{a.owner.dept}</div>
+                    </>
+                  ) : additionalCount > 0 ? (
+                    // primary는 없지만 추가 담당자만 있는 경우 — 첫 추가 담당자를 대표 노출.
+                    <>
+                      <div className="flex items-center gap-1.5 text-[12.5px] text-text">
+                        {a.additionalOwners[0].name}
+                        {additionalCount > 1 && (
+                          <span
+                            title={t('employee.columns.additionalOwnerCount', {
+                              count: additionalCount - 1,
+                            })}
+                            className="inline-flex items-center rounded bg-bg-soft px-1.5 py-0.5 font-mono text-[10px] font-medium text-text-3"
+                          >
+                            +{additionalCount - 1}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-[11px] text-text-3">
+                        {a.additionalOwners[0].dept}
+                      </div>
                     </>
                   ) : (
                     <span className="font-mono text-[11px] text-text-4">—</span>
@@ -139,7 +175,7 @@ export function ResultsList({
                 <td className="px-4 py-3 align-top">
                   {mine ? (
                     <Badge variant="mine">{t('employee.status.mine')}</Badge>
-                  ) : a.owner ? (
+                  ) : a.owner || additionalCount > 0 ? (
                     <Badge variant="assigned">{t('employee.status.assigned')}</Badge>
                   ) : (
                     <Badge variant="unassigned">{t('employee.status.unassigned')}</Badge>
