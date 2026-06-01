@@ -81,7 +81,8 @@ describe('isValidEmail', () => {
 
 describe('assetFormSchema', () => {
   const valid = {
-    owner: { name: '박지훈', email: 'jihoon.park@lge.com', dept: '보안운영실' },
+    owner: { name: '박지훈', email: 'jihoon.park@lge.com', dept: '보안운영실', role: '' },
+    additionalOwners: [],
     assetType: '온프레미스',
     hostname: 'dev-server-01',
     purpose: '개발 서버',
@@ -226,5 +227,60 @@ describe('assetFormSchema', () => {
         owner: { ...valid.owner, dept: '' },
       }).success
     ).toBe(false);
+  });
+
+  describe('담당자 역할 + 추가 담당자', () => {
+    it('통과 - 역할 빈 문자열', () => {
+      expect(
+        assetFormSchema.safeParse({ ...valid, owner: { ...valid.owner, role: '' } })
+          .success
+      ).toBe(true);
+    });
+
+    it('통과 - 정해진 역할 코드', () => {
+      for (const role of ['service', 'it', 'sm', 'server-primary', 'server-backup', 'other']) {
+        const r = assetFormSchema.safeParse({
+          ...valid,
+          owner: { ...valid.owner, role },
+        });
+        expect(r.success, `role=${role}`).toBe(true);
+      }
+    });
+
+    it('실패 - 알 수 없는 역할 코드', () => {
+      expect(
+        assetFormSchema.safeParse({
+          ...valid,
+          owner: { ...valid.owner, role: 'unknown-role' },
+        }).success
+      ).toBe(false);
+    });
+
+    it('통과 - 추가 담당자 0건', () => {
+      expect(
+        assetFormSchema.safeParse({ ...valid, additionalOwners: [] }).success
+      ).toBe(true);
+    });
+
+    it('통과 - 추가 담당자 다건', () => {
+      const r = assetFormSchema.safeParse({
+        ...valid,
+        additionalOwners: [
+          { name: '정유진', email: 'yujin.jung@lge.com', dept: '클라우드플랫폼팀', role: 'sm' },
+          { name: '한도윤', email: 'doyoon.han@lge.com', dept: '플랫폼인프라팀', role: 'server-backup' },
+        ],
+      });
+      expect(r.success).toBe(true);
+    });
+
+    it('실패 - 추가 담당자 이메일 형식 오류', () => {
+      const r = assetFormSchema.safeParse({
+        ...valid,
+        additionalOwners: [
+          { name: '정유진', email: 'invalid', dept: '클라우드플랫폼팀', role: '' },
+        ],
+      });
+      expect(r.success).toBe(false);
+    });
   });
 });

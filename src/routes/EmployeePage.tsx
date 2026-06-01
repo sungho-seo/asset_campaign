@@ -193,6 +193,7 @@ export default function EmployeePage() {
     try {
       const result = await updateAsset(asset.id, {
         owner: values.owner,
+        additionalOwners: values.additionalOwners,
         assetType: values.assetType,
         hostname: values.hostname,
         purpose: values.purpose,
@@ -235,6 +236,7 @@ export default function EmployeePage() {
         security: values.security,
         cloud: values.assetType === '클라우드' ? values.cloud : null,
         owner: values.owner,
+        additionalOwners: values.additionalOwners,
         forceOverwrite,
       });
       if (result.type === 'ip-conflict') {

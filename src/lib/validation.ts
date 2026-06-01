@@ -3,6 +3,7 @@ import {
   ASSET_TYPE_VALUES,
   DATA_CLASS_VALUES,
   ENVIRONMENT_VALUES,
+  OWNER_ROLE_VALUES,
   SECURITY_VALUES,
 } from '../types/domain';
 
@@ -33,10 +34,17 @@ export function isValidEmail(v: string): boolean {
 
 // Zod 메시지에는 i18n 키만 저장하고, UI 렌더링 시 t()로 번역.
 // 사용자가 언어 토글 시 schema를 재생성하지 않아도 메시지가 따라 바뀜.
+// 역할은 선택 입력 — 빈 문자열은 허용, 값이 있으면 정해진 코드 목록에서만 허용.
+const ALLOWED_OWNER_ROLE = new Set<string>([...OWNER_ROLE_VALUES, '']);
+const ownerRoleSchema = z.string().refine((v) => ALLOWED_OWNER_ROLE.has(v), {
+  message: 'validation.owner.role',
+});
+
 export const ownerSchema = z.object({
   name: z.string().min(1, 'validation.owner.name'),
   email: z.string().refine(isValidEmail, 'validation.owner.emailFormat'),
   dept: z.string().min(1, 'validation.owner.dept'),
+  role: ownerRoleSchema,
 });
 
 const toggleYesNoNullable = z.union([z.literal('yes'), z.literal('no'), z.null()]);
@@ -57,6 +65,7 @@ const cloudSchema = z.object({
 export const assetFormSchema = z
   .object({
     owner: ownerSchema,
+    additionalOwners: z.array(ownerSchema),
     assetType: z.string(),
     hostname: z
       .string()

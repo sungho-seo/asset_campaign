@@ -90,6 +90,7 @@ export const MOCK_ASSETS: Asset[] = [
     security: 'EPP',
     cloud: null,
     owner: null,
+    additionalOwners: [],
     qualysDetectedAt: '2026-04-12T09:33:00Z',
     updatedAt: null,
     updatedBy: null,

@@ -36,7 +36,40 @@ describe('parseAssetsCSV', () => {
       name: '박지훈',
       email: 'jihoon.park@lge.com',
       dept: '보안운영실',
+      role: '',
     });
+  });
+
+  it('owner_role / additional_owners 컬럼 파싱', () => {
+    const csv = `id,assetType,hostname,purpose,ips,internet,domain,os,osVersion,location,owner_name,owner_email,owner_dept,owner_role,additional_owners,security,csp,cloud_accountId,environment,dataClass,qualysDetectedAt,updatedAt,updatedBy
+ASSET-R,온프레미스,h,p,10.0.0.1,no,lge.com,Ubuntu,22,loc,박지훈,jihoon.park@lge.com,보안운영실,server-primary,정유진::yujin.jung@lge.com::클라우드플랫폼팀::sm|한도윤::doyoon.han@lge.com::플랫폼인프라팀::server-backup,EDR,,,,,2026-04-01T00:00:00Z,,`;
+    const [r] = parseAssetsCSV(csv);
+    expect(r.owner).toEqual({
+      name: '박지훈',
+      email: 'jihoon.park@lge.com',
+      dept: '보안운영실',
+      role: 'server-primary',
+    });
+    expect(r.additionalOwners).toHaveLength(2);
+    expect(r.additionalOwners[0]).toEqual({
+      name: '정유진',
+      email: 'yujin.jung@lge.com',
+      dept: '클라우드플랫폼팀',
+      role: 'sm',
+    });
+    expect(r.additionalOwners[1].role).toBe('server-backup');
+  });
+
+  it('알 수 없는 owner_role은 빈 문자열로 강등', () => {
+    const csv = `id,assetType,hostname,purpose,ips,internet,domain,os,osVersion,location,owner_name,owner_email,owner_dept,owner_role,additional_owners,security,csp,cloud_accountId,environment,dataClass,qualysDetectedAt,updatedAt,updatedBy
+ASSET-X,,h,p,10.0.0.1,no,lge.com,Ubuntu,22,loc,박지훈,jihoon.park@lge.com,보안운영실,bogus,,EPP,,,,,2026-04-01T00:00:00Z,,`;
+    const [r] = parseAssetsCSV(csv);
+    expect(r.owner?.role).toBe('');
+  });
+
+  it('additional_owners 컬럼이 없거나 비어 있으면 빈 배열', () => {
+    const [a] = parseAssetsCSV(CSV);
+    expect(a.additionalOwners).toEqual([]);
   });
 
   it('security 컬럼이 EPP/EDR/CWPP/없음으로 파싱', () => {

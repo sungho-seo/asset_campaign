@@ -111,6 +111,8 @@
       "ownerName": "담당자 이름",
       "ownerEmail": "담당자 이메일",
       "ownerDept": "소속 조직 / 부서",
+      "ownerRole": "역할",
+      "ownerRoleHint": "(선택)",
       "assetType": "자산 유형",
       "assetTypeHint": "(예: 온프레미스, 클라우드)",
       "hostname": "자산명 (Hostname)",
@@ -141,6 +143,10 @@
       "dataClass": "취급 데이터 등급"
     },
     "fillMyInfo": "내 정보로 채우기",
+    "addOwner": "담당자 추가",
+    "removeOwner": "담당자 삭제",
+    "additionalOwnersTitle": "추가 담당자",
+    "primaryOwnerBadge": "주 담당자",
     "toggle": {
       "yes": "예",
       "no": "아니오"
@@ -163,7 +169,8 @@
       "name": "담당자 이름 필수",
       "emailRequired": "담당자 이메일 필수",
       "emailFormat": "이메일 형식 확인",
-      "dept": "소속 조직/부서 필수"
+      "dept": "소속 조직/부서 필수",
+      "role": "역할 값 확인"
     },
     "hostname": {
       "required": "자산명 필수",
@@ -226,6 +233,14 @@
       "개인정보": "개인정보",
       "민감정보": "민감정보",
       "없음": "없음"
+    },
+    "ownerRole": {
+      "service": "서비스",
+      "it": "IT",
+      "sm": "SM",
+      "server-primary": "서버 (정)",
+      "server-backup": "서버 (부)",
+      "other": "기타"
     }
   },
   "directory": {

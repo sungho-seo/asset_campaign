@@ -20,6 +20,7 @@ import {
   DATA_CLASS_VALUES,
   ENVIRONMENT_VALUES,
   SECURITY_VALUES,
+  toAssetOwner,
 } from '../../types/domain';
 import {
   assetFormSchema,
@@ -134,7 +135,8 @@ function SectionHeader({ icon: Icon, title, subtitle, right }: SectionHeaderProp
 
 export function emptyValues(currentUser: Owner): AssetFormValues {
   return {
-    owner: { ...currentUser },
+    owner: toAssetOwner(currentUser),
+    additionalOwners: [],
     assetType: '',
     hostname: '',
     purpose: '',
@@ -151,7 +153,8 @@ export function emptyValues(currentUser: Owner): AssetFormValues {
 
 export function valuesFromAsset(asset: Asset, currentUser: Owner): AssetFormValues {
   return {
-    owner: asset.owner ?? { ...currentUser },
+    owner: asset.owner ?? toAssetOwner(currentUser),
+    additionalOwners: asset.additionalOwners.map((o) => ({ ...o })),
     assetType: asset.assetType,
     hostname: asset.hostname,
     purpose: asset.purpose,
@@ -187,7 +190,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
 
   const handleNameFocus = () => {
     if (ownerIsAutoFilled) {
-      setValues((s) => ({ ...s, owner: { name: '', email: '', dept: '' } }));
+      setValues((s) => ({ ...s, owner: { name: '', email: '', dept: '', role: s.owner.role } }));
       setTouched((t) => ({
         ...t,
         'owner.name': true,
@@ -254,7 +257,8 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
     // 진행 중인 디바운스/응답 무효화
     if (dirDebounceRef.current) clearTimeout(dirDebounceRef.current);
     dirRequestSeq.current++;
-    setValues((s) => ({ ...s, owner: { ...p } }));
+    // 디렉토리에서 가져온 사람을 owner에 바인딩. 기존 역할은 유지 (담당자만 교체).
+    setValues((s) => ({ ...s, owner: toAssetOwner(p, s.owner.role) }));
     setTouched((t) => ({
       ...t,
       'owner.name': true,
@@ -336,7 +340,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
     setValues((s) => ({ ...s, [key]: v }));
   };
 
-  const setOwnerField = (key: keyof Owner, v: string) => {
+  const setOwnerField = (key: 'name' | 'email' | 'dept' | 'role', v: string) => {
     setValues((s) => ({ ...s, owner: { ...s.owner, [key]: v } }));
   };
 
@@ -379,7 +383,8 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
               size="sm"
               variant="ghost"
               onClick={() => {
-                setValues((s) => ({ ...s, owner: { ...currentUser } }));
+                // 내 정보로 채우기: 사람만 교체, 역할은 보존
+                setValues((s) => ({ ...s, owner: toAssetOwner(currentUser, s.owner.role) }));
                 setTouched((t) => ({
                   ...t,
                   'owner.name': true,
