@@ -65,7 +65,8 @@ const cloudSchema = z.object({
 export const assetFormSchema = z
   .object({
     owner: ownerSchema,
-    additionalOwners: z.array(ownerSchema),
+    // 추가 담당자 최대 4명 — primary 포함 5명 한도. 역할 5종과 1:1 매칭.
+    additionalOwners: z.array(ownerSchema).max(4, 'validation.owner.maxOwners'),
     assetType: z.string(),
     hostname: z
       .string()

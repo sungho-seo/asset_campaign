@@ -312,6 +312,39 @@ describe('assetFormSchema', () => {
       expect(r.success).toBe(false);
     });
 
+    it('통과 - 추가 담당자 정확히 4명 (한도)', () => {
+      const r = assetFormSchema.safeParse({
+        ...valid,
+        owner: { ...valid.owner, role: 'service' },
+        additionalOwners: [
+          { name: 'A', email: 'a@x.com', dept: 'D', role: 'it' },
+          { name: 'B', email: 'b@x.com', dept: 'D', role: 'sm' },
+          { name: 'C', email: 'c@x.com', dept: 'D', role: 'server-primary' },
+          { name: 'D', email: 'd@x.com', dept: 'D', role: 'server-backup' },
+        ],
+      });
+      expect(r.success).toBe(true);
+    });
+
+    it('실패 - 추가 담당자 5명 (한도 초과)', () => {
+      const r = assetFormSchema.safeParse({
+        ...valid,
+        additionalOwners: Array.from({ length: 5 }, (_, i) => ({
+          name: `P${i}`,
+          email: `p${i}@x.com`,
+          dept: 'D',
+          role: '',
+        })),
+      });
+      expect(r.success).toBe(false);
+      if (!r.success) {
+        const issue = r.error.issues.find(
+          (i) => i.path.join('.') === 'additionalOwners'
+        );
+        expect(issue?.message).toBe('validation.owner.maxOwners');
+      }
+    });
+
     it('통과 - 빈 역할은 중복 검사 대상 아님', () => {
       const r = assetFormSchema.safeParse({
         ...valid,

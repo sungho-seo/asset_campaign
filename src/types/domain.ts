@@ -6,6 +6,11 @@ export type Owner = {
   dept: string;
 };
 
+// 자산당 담당자 한도 — primary 1명 + 추가 4명 = 5명.
+// 역할이 5종이므로 역할 1:1 매칭과 정합.
+export const MAX_OWNERS_PER_ASSET = 5;
+export const MAX_ADDITIONAL_OWNERS = MAX_OWNERS_PER_ASSET - 1;
+
 // PRD §6 — 자산-담당자 역할 분류 (자산별 컨텍스트, 선택 입력).
 // 자산당 역할별 최대 1명 (Zod superRefine에서 중복 검증).
 export const OWNER_ROLE_VALUES = [

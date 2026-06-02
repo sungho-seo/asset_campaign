@@ -19,6 +19,8 @@ import type { Asset, AssetOwner, Owner } from '../../types/domain';
 import {
   DATA_CLASS_VALUES,
   ENVIRONMENT_VALUES,
+  MAX_ADDITIONAL_OWNERS,
+  MAX_OWNERS_PER_ASSET,
   SECURITY_VALUES,
   toAssetOwner,
 } from '../../types/domain';
@@ -293,13 +295,17 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
     };
 
   const addAdditionalOwner = () => {
-    setValues((s) => ({
-      ...s,
-      additionalOwners: [
-        ...s.additionalOwners,
-        { name: '', email: '', dept: '', role: '' } as AssetOwner,
-      ],
-    }));
+    setValues((s) => {
+      // 한도 초과 시 no-op (UI에서 버튼이 disabled되지만 키보드/엣지 케이스 방어).
+      if (s.additionalOwners.length >= MAX_ADDITIONAL_OWNERS) return s;
+      return {
+        ...s,
+        additionalOwners: [
+          ...s.additionalOwners,
+          { name: '', email: '', dept: '', role: '' } as AssetOwner,
+        ],
+      };
+    });
   };
 
   const removeAdditionalOwner = (idx: number) => {
@@ -417,18 +423,26 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
             </div>
           )}
 
-          <div className="flex">
+          <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={addAdditionalOwner}
+              disabled={values.additionalOwners.length >= MAX_ADDITIONAL_OWNERS}
               className={cn(
                 'inline-flex items-center gap-1.5 rounded-md border border-dashed border-line bg-bg-soft/30 px-3 py-1.5 text-[12px] font-medium text-text-2',
-                'hover:border-brand/40 hover:bg-brand-soft/30 hover:text-brand'
+                'hover:border-brand/40 hover:bg-brand-soft/30 hover:text-brand',
+                'disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-line disabled:hover:bg-bg-soft/30 disabled:hover:text-text-2'
               )}
             >
               <Plus className="h-3.5 w-3.5" />
               {t('form.addOwner')}
             </button>
+            <span className="font-mono text-[11px] text-text-3">
+              {t('form.addOwnerLimit', {
+                count: values.additionalOwners.length + 1,
+                max: MAX_OWNERS_PER_ASSET,
+              })}
+            </span>
           </div>
         </div>
       </section>

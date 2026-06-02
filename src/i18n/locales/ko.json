@@ -146,6 +146,7 @@
     },
     "fillMyInfo": "내 정보로 채우기",
     "addOwner": "담당자 추가",
+    "addOwnerLimit": "최대 {{max}}명 등록 ({{count}}/{{max}})",
     "removeOwner": "담당자 삭제",
     "additionalOwnersTitle": "추가 담당자",
     "primaryOwnerBadge": "주 담당자",
@@ -173,7 +174,8 @@
       "emailFormat": "이메일 형식 확인",
       "dept": "소속 조직/부서 필수",
       "role": "역할 값 확인",
-      "roleDuplicate": "역할 중복 — 자산당 역할별 1명만 할당 가능"
+      "roleDuplicate": "역할 중복 — 자산당 역할별 1명만 할당 가능",
+      "maxOwners": "담당자는 최대 5명까지 등록 가능"
     },
     "hostname": {
       "required": "자산명 필수",

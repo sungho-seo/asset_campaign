@@ -146,6 +146,7 @@
     },
     "fillMyInfo": "Fill with my info",
     "addOwner": "Add owner",
+    "addOwnerLimit": "Up to {{max}} ({{count}}/{{max}})",
     "removeOwner": "Remove owner",
     "additionalOwnersTitle": "Additional owners",
     "primaryOwnerBadge": "Primary",
@@ -173,7 +174,8 @@
       "emailFormat": "Invalid email format",
       "dept": "Organization / Team is required",
       "role": "Invalid role value",
-      "roleDuplicate": "Duplicate role — only one owner per role is allowed"
+      "roleDuplicate": "Duplicate role — only one owner per role is allowed",
+      "maxOwners": "Up to 5 owners per asset"
     },
     "hostname": {
       "required": "Hostname is required",
