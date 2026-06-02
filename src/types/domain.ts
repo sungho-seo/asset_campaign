@@ -6,14 +6,14 @@ export type Owner = {
   dept: string;
 };
 
-// PRD §6 — 자산-담당자 역할 분류 (자산별 컨텍스트, 선택 입력)
+// PRD §6 — 자산-담당자 역할 분류 (자산별 컨텍스트, 선택 입력).
+// 자산당 역할별 최대 1명 (Zod superRefine에서 중복 검증).
 export const OWNER_ROLE_VALUES = [
   'service',
   'it',
   'sm',
   'server-primary',
   'server-backup',
-  'other',
 ] as const;
 export type OwnerRole = (typeof OWNER_ROLE_VALUES)[number];
 

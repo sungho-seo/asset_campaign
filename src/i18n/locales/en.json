@@ -121,6 +121,7 @@
       "purposeHint": "(e.g. Attendance System)",
       "ips": "IP Address",
       "ipsHint": "(multiple allowed / IPv4)",
+      "ipsHintSingle": "(single IPv4 — multiple allowed only for Cloud assets)",
       "addIp": "Add IP",
       "removeIp": "Remove IP",
       "ipDetail": {
@@ -171,7 +172,8 @@
       "emailRequired": "Owner email is required",
       "emailFormat": "Invalid email format",
       "dept": "Organization / Team is required",
-      "role": "Invalid role value"
+      "role": "Invalid role value",
+      "roleDuplicate": "Duplicate role — only one owner per role is allowed"
     },
     "hostname": {
       "required": "Hostname is required",
@@ -179,7 +181,8 @@
     },
     "ip": {
       "min": "At least one IP is required",
-      "format": "Invalid IP format"
+      "format": "Invalid IP format",
+      "singleOnly": "This asset type allows only one IP"
     },
     "domain": "Invalid domain (e.g. lge.com)",
     "os": "Please select an OS",
@@ -240,8 +243,7 @@
       "it": "IT",
       "sm": "SM",
       "server-primary": "Server (Primary)",
-      "server-backup": "Server (Backup)",
-      "other": "Other"
+      "server-backup": "Server (Backup)"
     }
   },
   "directory": {

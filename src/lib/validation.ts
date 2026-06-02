@@ -86,6 +86,33 @@ export const assetFormSchema = z
     cloud: cloudSchema,
   })
   .superRefine((data, ctx) => {
+    // 자산 단위 역할 unique 검증 — primary + 추가 담당자 전부 모아서 같은 역할 중복 방지.
+    // 빈 role(미선택)은 검사 대상에서 제외.
+    const seen = new Map<string, number>(); // role → 처음 사용된 (-1=primary, idx=추가)
+    if (data.owner.role) seen.set(data.owner.role, -1);
+    data.additionalOwners.forEach((o, i) => {
+      if (!o.role) return;
+      if (seen.has(o.role)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['additionalOwners', i, 'role'],
+          message: 'validation.owner.roleDuplicate',
+        });
+      } else {
+        seen.set(o.role, i);
+      }
+    });
+
+    // 비클라우드 자산은 IP 1개만 허용. UI에서도 입력란을 1개로 제한하지만,
+    // 외부 페이로드 방어용으로 schema에도 검사 추가.
+    if (data.assetType !== '클라우드' && data.ips.length > 1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['ips'],
+        message: 'validation.ip.singleOnly',
+      });
+    }
+
     if (data.assetType !== '클라우드') return;
 
     if (!data.cloud.csp.trim()) {

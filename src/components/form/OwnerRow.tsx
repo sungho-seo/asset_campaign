@@ -31,6 +31,9 @@ type OwnerRowProps = {
   onFieldChange?: (field: OwnerRowField) => void;
   // 추가 담당자 행에서만 표시되는 X 버튼.
   onRemove?: () => void;
+  // 자산 내 다른 행이 이미 사용 중인 역할 코드 — 본인 역할은 제외하고 부모가 계산해서 전달.
+  // 해당 옵션은 드롭다운에서 disabled 처리되어 같은 역할 중복 할당 방지.
+  takenRoles?: ReadonlySet<string>;
 };
 
 // 4-컬럼 그리드: 이름/이메일/부서/역할. 마지막 컬럼은 폭 고정.
@@ -50,6 +53,7 @@ export function OwnerRow({
   errors = {},
   onFieldChange,
   onRemove,
+  takenRoles,
 }: OwnerRowProps) {
   const { t } = useTranslation();
 
@@ -138,11 +142,14 @@ export function OwnerRow({
   const idFor = (field: OwnerRowField) => `${rowId}.${field}`;
   const isFlag = (field: OwnerRowField) => emptyFlag?.(field) ?? false;
 
+  // 가이드 옵션('선택하세요')은 value=''로 두어 한 번 선택했더라도 다시 비울 수 있게 함.
+  // takenRoles에 있는 옵션은 disabled — 단, 본인이 현재 그 역할을 가지고 있다면 disabled 해제 (자기 자신은 충돌 아님).
   const roleOptions = [
-    { value: '', label: '—' },
+    { value: '', label: t('form.selectPlaceholder'), disabled: false },
     ...OWNER_ROLE_VALUES.map((v) => ({
       value: v,
       label: t(`options.ownerRole.${v}`),
+      disabled: !!takenRoles?.has(v) && value.role !== v,
     })),
   ];
 

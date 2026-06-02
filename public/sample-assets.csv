@@ -1,6 +1,6 @@
 id,assetType,hostname,purpose,ips,internet,domain,os,osVersion,location,owner_name,owner_email,owner_dept,owner_role,additional_owners,security,csp,cloud_accountId,environment,dataClass,qualysDetectedAt,updatedAt,updatedBy
 ASSET-008291,온프레미스,dev-server-01,개발 서버,10.20.30.40,no,lge.com,Ubuntu,22.04.3 LTS,서울 마곡 LG사이언스파크 R&D본관 5층 521호,,,,,,EPP,,,,,2026-04-12T09:33:00Z,,
-ASSET-008292,온프레미스,dev-db-primary,DB Primary,10.20.30.42|10.20.30.43,no,lge.com,RHEL,9.2,서울 마곡 LG사이언스파크 R&D본관 5층 523호,박지훈,jihoon.park@lge.com,보안운영실,server-primary,한도윤::doyoon.han@lge.com::플랫폼인프라팀::server-backup,EDR,,,,,2026-04-10T12:18:00Z,2026-05-20T13:11:00Z,박지훈
+ASSET-008292,온프레미스,dev-db-primary,DB Primary,10.20.30.42,no,lge.com,RHEL,9.2,서울 마곡 LG사이언스파크 R&D본관 5층 523호,박지훈,jihoon.park@lge.com,보안운영실,server-primary,한도윤::doyoon.han@lge.com::플랫폼인프라팀::server-backup,EDR,,,,,2026-04-10T12:18:00Z,2026-05-20T13:11:00Z,박지훈
 ASSET-008301,클라우드,app-stage-04,스테이징 앱서버,10.42.5.18,yes,lge.com,Ubuntu,20.04.6,평택 디지털파크 B동 3층 305호,정유진,yujin.jung@lge.com,클라우드플랫폼팀,service,박지훈::jihoon.park@lge.com::보안운영실::sm,CWPP,AWS,123456789012,Staging,내부용,2026-04-08T15:01:00Z,2026-05-21T11:47:00Z,정유진
 ASSET-008312,온프레미스,jenkins-master,CI/CD 마스터,172.16.8.91,no,lge.com,Ubuntu,22.04.4,서울 마곡 LG사이언스파크 R&D본관 6층 612호,,,,,,EDR,,,,,2026-04-15T08:22:00Z,,
 ASSET-008325,온프레미스,rd-bench-22,R&D 벤치,10.55.12.7,yes,lge.com,Windows,11 (23H2),대전 R&D센터 2동 4층 422호,이수민,sumin.lee@lge.com,단말연구소,service,,EPP,,,,,2026-04-11T10:05:00Z,2026-05-19T15:34:00Z,이수민

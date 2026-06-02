@@ -199,6 +199,34 @@ describe('assetFormSchema', () => {
     );
   });
 
+  it('실패 - 비클라우드 자산인데 IP 여러 개', () => {
+    const r = assetFormSchema.safeParse({
+      ...valid,
+      assetType: '온프레미스',
+      ips: ['10.0.0.1', '10.0.0.2'],
+    });
+    expect(r.success).toBe(false);
+    if (!r.success) {
+      const issue = r.error.issues.find((i) => i.path.join('.') === 'ips');
+      expect(issue?.message).toBe('validation.ip.singleOnly');
+    }
+  });
+
+  it('통과 - 클라우드 자산은 IP 여러 개 허용', () => {
+    const r = assetFormSchema.safeParse({
+      ...valid,
+      assetType: '클라우드',
+      ips: ['10.0.0.1', '10.0.0.2', '10.0.0.3'],
+      cloud: {
+        csp: 'AWS',
+        accountId: '123456789012',
+        environment: 'Production',
+        dataClass: '내부용',
+      },
+    });
+    expect(r.success).toBe(true);
+  });
+
   it('실패 - 도메인 형식 오류 (값이 있을 때만)', () => {
     expect(assetFormSchema.safeParse({ ...valid, domain: 'lge' }).success).toBe(false);
   });
@@ -238,13 +266,62 @@ describe('assetFormSchema', () => {
     });
 
     it('통과 - 정해진 역할 코드', () => {
-      for (const role of ['service', 'it', 'sm', 'server-primary', 'server-backup', 'other']) {
+      for (const role of ['service', 'it', 'sm', 'server-primary', 'server-backup']) {
         const r = assetFormSchema.safeParse({
           ...valid,
           owner: { ...valid.owner, role },
         });
         expect(r.success, `role=${role}`).toBe(true);
       }
+    });
+
+    it('실패 - 제거된 역할(other)', () => {
+      const r = assetFormSchema.safeParse({
+        ...valid,
+        owner: { ...valid.owner, role: 'other' },
+      });
+      expect(r.success).toBe(false);
+    });
+
+    it('실패 - 자산 내 같은 역할 중복 (primary + 추가)', () => {
+      const r = assetFormSchema.safeParse({
+        ...valid,
+        owner: { ...valid.owner, role: 'sm' },
+        additionalOwners: [
+          { name: '정유진', email: 'yujin.jung@lge.com', dept: '클라우드플랫폼팀', role: 'sm' },
+        ],
+      });
+      expect(r.success).toBe(false);
+      if (!r.success) {
+        const issue = r.error.issues.find(
+          (i) => i.path.join('.') === 'additionalOwners.0.role'
+        );
+        expect(issue?.message).toBe('validation.owner.roleDuplicate');
+      }
+    });
+
+    it('실패 - 추가 담당자끼리 같은 역할 중복', () => {
+      const r = assetFormSchema.safeParse({
+        ...valid,
+        owner: { ...valid.owner, role: '' },
+        additionalOwners: [
+          { name: '정유진', email: 'yujin.jung@lge.com', dept: '클라우드플랫폼팀', role: 'it' },
+          { name: '한도윤', email: 'doyoon.han@lge.com', dept: '플랫폼인프라팀', role: 'it' },
+        ],
+      });
+      expect(r.success).toBe(false);
+    });
+
+    it('통과 - 빈 역할은 중복 검사 대상 아님', () => {
+      const r = assetFormSchema.safeParse({
+        ...valid,
+        owner: { ...valid.owner, role: '' },
+        additionalOwners: [
+          { name: '정유진', email: 'yujin.jung@lge.com', dept: '클라우드플랫폼팀', role: '' },
+          { name: '한도윤', email: 'doyoon.han@lge.com', dept: '플랫폼인프라팀', role: '' },
+        ],
+      });
+      expect(r.success).toBe(true);
     });
 
     it('실패 - 알 수 없는 역할 코드', () => {

@@ -121,6 +121,7 @@
       "purposeHint": "(예: 근태입력시스템)",
       "ips": "IP 주소",
       "ipsHint": "(복수 등록 가능 / IPv4)",
+      "ipsHintSingle": "(IPv4 1개 — 클라우드 자산만 복수 등록 가능)",
       "addIp": "IP 추가",
       "removeIp": "IP 삭제",
       "ipDetail": {
@@ -171,7 +172,8 @@
       "emailRequired": "담당자 이메일 필수",
       "emailFormat": "이메일 형식 확인",
       "dept": "소속 조직/부서 필수",
-      "role": "역할 값 확인"
+      "role": "역할 값 확인",
+      "roleDuplicate": "역할 중복 — 자산당 역할별 1명만 할당 가능"
     },
     "hostname": {
       "required": "자산명 필수",
@@ -179,7 +181,8 @@
     },
     "ip": {
       "min": "IP 주소 최소 1개 입력",
-      "format": "IP 형식 확인"
+      "format": "IP 형식 확인",
+      "singleOnly": "이 자산 유형은 IP 1개만 등록 가능"
     },
     "domain": "도메인 형식 확인 (예: lge.com)",
     "os": "운영체제 선택",
@@ -240,8 +243,7 @@
       "it": "IT",
       "sm": "SM",
       "server-primary": "서버 (정)",
-      "server-backup": "서버 (부)",
-      "other": "기타"
+      "server-backup": "서버 (부)"
     }
   },
   "directory": {

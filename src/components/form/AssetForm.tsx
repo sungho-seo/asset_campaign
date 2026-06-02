@@ -253,6 +253,16 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
   };
 
   const showCloud = values.assetType === '클라우드';
+  const allowMultipleIPs = showCloud;
+
+  // 자산 내 모든 행에서 현재 사용 중인 역할 코드 집합 — 한 행에서 takenRoles로 사용.
+  // 본인 역할은 OwnerRow에서 별도로 disabled 해제 처리.
+  const usedRoles = useMemo(() => {
+    const s = new Set<string>();
+    if (values.owner.role) s.add(values.owner.role);
+    for (const o of values.additionalOwners) if (o.role) s.add(o.role);
+    return s;
+  }, [values.owner.role, values.additionalOwners]);
 
   const isEmpty = (v: unknown) => v === '' || v === null || v === undefined;
   const flag = (key: FieldKey, v: unknown) =>
@@ -377,6 +387,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
             registerRef={ownerRowRefRegistrar('owner')}
             errors={ownerRowErrors('owner')}
             onFieldChange={ownerRowFieldChange('owner')}
+            takenRoles={usedRoles}
           />
 
           {values.additionalOwners.length > 0 && (
@@ -400,6 +411,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
                   errors={ownerRowErrors(`additionalOwners.${idx}` as const)}
                   onFieldChange={ownerRowFieldChange(`additionalOwners.${idx}` as const)}
                   onRemove={() => removeAdditionalOwner(idx)}
+                  takenRoles={usedRoles}
                 />
               ))}
             </div>
@@ -439,7 +451,15 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
                 options={ASSET_TYPE_OPTIONS}
                 labelFor={optionLabel('assetType')}
                 onChange={(v) => {
-                  setField('assetType', v);
+                  // 비클라우드로 전환 시 IP를 1개로 정리. 비어 있던 추가 행이라도 깔끔히 제거.
+                  setValues((s) => {
+                    const becomesSingleIp = v !== '클라우드' && s.ips.length > 1;
+                    return {
+                      ...s,
+                      assetType: v,
+                      ips: becomesSingleIp ? [s.ips[0] ?? ''] : s.ips,
+                    };
+                  });
                   markTouched('assetType');
                 }}
               />
@@ -487,13 +507,14 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
             id="ips-0"
             label={t(FIELD_LABEL_KEY.ips)}
             required
-            hint={t('form.fields.ipsHint')}
+            hint={t(allowMultipleIPs ? 'form.fields.ipsHint' : 'form.fields.ipsHintSingle')}
             error={tr(errors.ips)}
           >
             <IPList
               inputId="ips-0"
               values={values.ips}
               showErrors={!!errors.ips || touched.ips === true}
+              allowMultiple={allowMultipleIPs}
               onChange={(v) => {
                 setField('ips', v);
                 markTouched('ips');
