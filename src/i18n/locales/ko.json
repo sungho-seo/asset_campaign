@@ -121,7 +121,7 @@
       "purposeHint": "(예: 근태입력시스템)",
       "ips": "IP 주소",
       "ipsHint": "(복수 등록 가능 / IPv4)",
-      "ipsHintSingle": "(IPv4 1개 — 클라우드 자산만 복수 등록 가능)",
+      "ipsHintSingle": "(IPv4)",
       "addIp": "IP 추가",
       "removeIp": "IP 삭제",
       "ipDetail": {

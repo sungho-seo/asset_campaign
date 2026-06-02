@@ -121,7 +121,7 @@
       "purposeHint": "(e.g. Attendance System)",
       "ips": "IP Address",
       "ipsHint": "(multiple allowed / IPv4)",
-      "ipsHintSingle": "(single IPv4 — multiple allowed only for Cloud assets)",
+      "ipsHintSingle": "(IPv4)",
       "addIp": "Add IP",
       "removeIp": "Remove IP",
       "ipDetail": {
