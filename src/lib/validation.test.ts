@@ -81,7 +81,7 @@ describe('isValidEmail', () => {
 
 describe('assetFormSchema', () => {
   const valid = {
-    owner: { name: '박지훈', email: 'jihoon.park@lge.com', dept: '보안운영실', role: '' },
+    owner: { name: '박지훈', email: 'jihoon.park@lge.com', dept: '보안운영실' },
     additionalOwners: [],
     assetType: '온프레미스',
     hostname: 'dev-server-01',
@@ -257,70 +257,15 @@ describe('assetFormSchema', () => {
     ).toBe(false);
   });
 
-  describe('담당자 역할 + 추가 담당자', () => {
-    it('통과 - 역할 빈 문자열', () => {
-      expect(
-        assetFormSchema.safeParse({ ...valid, owner: { ...valid.owner, role: '' } })
-          .success
-      ).toBe(true);
-    });
-
-    it('통과 - 정해진 역할 코드', () => {
-      for (const role of ['service', 'it', 'sm', 'server-primary', 'server-backup']) {
-        const r = assetFormSchema.safeParse({
-          ...valid,
-          owner: { ...valid.owner, role },
-        });
-        expect(r.success, `role=${role}`).toBe(true);
-      }
-    });
-
-    it('실패 - 제거된 역할(other)', () => {
-      const r = assetFormSchema.safeParse({
-        ...valid,
-        owner: { ...valid.owner, role: 'other' },
-      });
-      expect(r.success).toBe(false);
-    });
-
-    it('실패 - 자산 내 같은 역할 중복 (primary + 추가)', () => {
-      const r = assetFormSchema.safeParse({
-        ...valid,
-        owner: { ...valid.owner, role: 'sm' },
-        additionalOwners: [
-          { name: '정유진', email: 'yujin.jung@lge.com', dept: '클라우드플랫폼팀', role: 'sm' },
-        ],
-      });
-      expect(r.success).toBe(false);
-      if (!r.success) {
-        const issue = r.error.issues.find(
-          (i) => i.path.join('.') === 'additionalOwners.0.role'
-        );
-        expect(issue?.message).toBe('validation.owner.roleDuplicate');
-      }
-    });
-
-    it('실패 - 추가 담당자끼리 같은 역할 중복', () => {
-      const r = assetFormSchema.safeParse({
-        ...valid,
-        owner: { ...valid.owner, role: '' },
-        additionalOwners: [
-          { name: '정유진', email: 'yujin.jung@lge.com', dept: '클라우드플랫폼팀', role: 'it' },
-          { name: '한도윤', email: 'doyoon.han@lge.com', dept: '플랫폼인프라팀', role: 'it' },
-        ],
-      });
-      expect(r.success).toBe(false);
-    });
-
+  describe('추가 담당자', () => {
     it('통과 - 추가 담당자 정확히 4명 (한도)', () => {
       const r = assetFormSchema.safeParse({
         ...valid,
-        owner: { ...valid.owner, role: 'service' },
         additionalOwners: [
-          { name: 'A', email: 'a@x.com', dept: 'D', role: 'it' },
-          { name: 'B', email: 'b@x.com', dept: 'D', role: 'sm' },
-          { name: 'C', email: 'c@x.com', dept: 'D', role: 'server-primary' },
-          { name: 'D', email: 'd@x.com', dept: 'D', role: 'server-backup' },
+          { name: 'A', email: 'a@x.com', dept: 'D' },
+          { name: 'B', email: 'b@x.com', dept: 'D' },
+          { name: 'C', email: 'c@x.com', dept: 'D' },
+          { name: 'D', email: 'd@x.com', dept: 'D' },
         ],
       });
       expect(r.success).toBe(true);
@@ -333,7 +278,6 @@ describe('assetFormSchema', () => {
           name: `P${i}`,
           email: `p${i}@x.com`,
           dept: 'D',
-          role: '',
         })),
       });
       expect(r.success).toBe(false);
@@ -343,27 +287,6 @@ describe('assetFormSchema', () => {
         );
         expect(issue?.message).toBe('validation.owner.maxOwners');
       }
-    });
-
-    it('통과 - 빈 역할은 중복 검사 대상 아님', () => {
-      const r = assetFormSchema.safeParse({
-        ...valid,
-        owner: { ...valid.owner, role: '' },
-        additionalOwners: [
-          { name: '정유진', email: 'yujin.jung@lge.com', dept: '클라우드플랫폼팀', role: '' },
-          { name: '한도윤', email: 'doyoon.han@lge.com', dept: '플랫폼인프라팀', role: '' },
-        ],
-      });
-      expect(r.success).toBe(true);
-    });
-
-    it('실패 - 알 수 없는 역할 코드', () => {
-      expect(
-        assetFormSchema.safeParse({
-          ...valid,
-          owner: { ...valid.owner, role: 'unknown-role' },
-        }).success
-      ).toBe(false);
     });
 
     it('통과 - 추가 담당자 0건', () => {
@@ -376,8 +299,8 @@ describe('assetFormSchema', () => {
       const r = assetFormSchema.safeParse({
         ...valid,
         additionalOwners: [
-          { name: '정유진', email: 'yujin.jung@lge.com', dept: '클라우드플랫폼팀', role: 'sm' },
-          { name: '한도윤', email: 'doyoon.han@lge.com', dept: '플랫폼인프라팀', role: 'server-backup' },
+          { name: '정유진', email: 'yujin.jung@lge.com', dept: '클라우드플랫폼팀' },
+          { name: '한도윤', email: 'doyoon.han@lge.com', dept: '플랫폼인프라팀' },
         ],
       });
       expect(r.success).toBe(true);
@@ -387,7 +310,7 @@ describe('assetFormSchema', () => {
       const r = assetFormSchema.safeParse({
         ...valid,
         additionalOwners: [
-          { name: '정유진', email: 'invalid', dept: '클라우드플랫폼팀', role: '' },
+          { name: '정유진', email: 'invalid', dept: '클라우드플랫폼팀' },
         ],
       });
       expect(r.success).toBe(false);

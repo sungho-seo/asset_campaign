@@ -36,35 +36,31 @@ describe('parseAssetsCSV', () => {
       name: '박지훈',
       email: 'jihoon.park@lge.com',
       dept: '보안운영실',
-      role: '',
     });
   });
 
-  it('owner_role / additional_owners 컬럼 파싱', () => {
-    const csv = `id,assetType,hostname,purpose,ips,internet,domain,os,osVersion,location,owner_name,owner_email,owner_dept,owner_role,additional_owners,security,csp,cloud_accountId,environment,dataClass,qualysDetectedAt,updatedAt,updatedBy
-ASSET-R,온프레미스,h,p,10.0.0.1,no,lge.com,Ubuntu,22,loc,박지훈,jihoon.park@lge.com,보안운영실,server-primary,정유진::yujin.jung@lge.com::클라우드플랫폼팀::sm|한도윤::doyoon.han@lge.com::플랫폼인프라팀::server-backup,EDR,,,,,2026-04-01T00:00:00Z,,`;
+  it('additional_owners 컬럼 파싱', () => {
+    const csv = `id,assetType,hostname,purpose,ips,internet,domain,os,osVersion,location,owner_name,owner_email,owner_dept,additional_owners,security,csp,cloud_accountId,environment,dataClass,qualysDetectedAt,updatedAt,updatedBy
+ASSET-R,온프레미스,h,p,10.0.0.1,no,lge.com,Ubuntu,22,loc,박지훈,jihoon.park@lge.com,보안운영실,정유진::yujin.jung@lge.com::클라우드플랫폼팀|한도윤::doyoon.han@lge.com::플랫폼인프라팀,EDR,,,,,2026-04-01T00:00:00Z,,`;
     const [r] = parseAssetsCSV(csv);
-    expect(r.owner).toEqual({
-      name: '박지훈',
-      email: 'jihoon.park@lge.com',
-      dept: '보안운영실',
-      role: 'server-primary',
-    });
     expect(r.additionalOwners).toHaveLength(2);
     expect(r.additionalOwners[0]).toEqual({
       name: '정유진',
       email: 'yujin.jung@lge.com',
       dept: '클라우드플랫폼팀',
-      role: 'sm',
     });
-    expect(r.additionalOwners[1].role).toBe('server-backup');
+    expect(r.additionalOwners[1].name).toBe('한도윤');
   });
 
-  it('알 수 없는 owner_role은 빈 문자열로 강등', () => {
-    const csv = `id,assetType,hostname,purpose,ips,internet,domain,os,osVersion,location,owner_name,owner_email,owner_dept,owner_role,additional_owners,security,csp,cloud_accountId,environment,dataClass,qualysDetectedAt,updatedAt,updatedBy
-ASSET-X,,h,p,10.0.0.1,no,lge.com,Ubuntu,22,loc,박지훈,jihoon.park@lge.com,보안운영실,bogus,,EPP,,,,,2026-04-01T00:00:00Z,,`;
+  it('과거 4번째 role 토큰은 무시 (역호환)', () => {
+    const csv = `id,assetType,hostname,purpose,ips,internet,domain,os,osVersion,location,owner_name,owner_email,owner_dept,additional_owners,security,csp,cloud_accountId,environment,dataClass,qualysDetectedAt,updatedAt,updatedBy
+ASSET-LEGACY,온프레미스,h,p,10.0.0.1,no,lge.com,Ubuntu,22,loc,박지훈,jihoon.park@lge.com,보안운영실,정유진::yujin.jung@lge.com::클라우드플랫폼팀::server-primary,EDR,,,,,2026-04-01T00:00:00Z,,`;
     const [r] = parseAssetsCSV(csv);
-    expect(r.owner?.role).toBe('');
+    expect(r.additionalOwners[0]).toEqual({
+      name: '정유진',
+      email: 'yujin.jung@lge.com',
+      dept: '클라우드플랫폼팀',
+    });
   });
 
   it('additional_owners 컬럼이 없거나 비어 있으면 빈 배열', () => {

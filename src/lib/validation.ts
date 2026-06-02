@@ -3,7 +3,6 @@ import {
   ASSET_TYPE_VALUES,
   DATA_CLASS_VALUES,
   ENVIRONMENT_VALUES,
-  OWNER_ROLE_VALUES,
   SECURITY_VALUES,
 } from '../types/domain';
 
@@ -34,17 +33,10 @@ export function isValidEmail(v: string): boolean {
 
 // Zod 메시지에는 i18n 키만 저장하고, UI 렌더링 시 t()로 번역.
 // 사용자가 언어 토글 시 schema를 재생성하지 않아도 메시지가 따라 바뀜.
-// 역할은 선택 입력 — 빈 문자열은 허용, 값이 있으면 정해진 코드 목록에서만 허용.
-const ALLOWED_OWNER_ROLE = new Set<string>([...OWNER_ROLE_VALUES, '']);
-const ownerRoleSchema = z.string().refine((v) => ALLOWED_OWNER_ROLE.has(v), {
-  message: 'validation.owner.role',
-});
-
 export const ownerSchema = z.object({
   name: z.string().min(1, 'validation.owner.name'),
   email: z.string().refine(isValidEmail, 'validation.owner.emailFormat'),
   dept: z.string().min(1, 'validation.owner.dept'),
-  role: ownerRoleSchema,
 });
 
 const toggleYesNoNullable = z.union([z.literal('yes'), z.literal('no'), z.null()]);
@@ -87,23 +79,6 @@ export const assetFormSchema = z
     cloud: cloudSchema,
   })
   .superRefine((data, ctx) => {
-    // 자산 단위 역할 unique 검증 — primary + 추가 담당자 전부 모아서 같은 역할 중복 방지.
-    // 빈 role(미선택)은 검사 대상에서 제외.
-    const seen = new Map<string, number>(); // role → 처음 사용된 (-1=primary, idx=추가)
-    if (data.owner.role) seen.set(data.owner.role, -1);
-    data.additionalOwners.forEach((o, i) => {
-      if (!o.role) return;
-      if (seen.has(o.role)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['additionalOwners', i, 'role'],
-          message: 'validation.owner.roleDuplicate',
-        });
-      } else {
-        seen.set(o.role, i);
-      }
-    });
-
     // 비클라우드 자산은 IP 1개만 허용. UI에서도 입력란을 1개로 제한하지만,
     // 외부 페이로드 방어용으로 schema에도 검사 추가.
     if (data.assetType !== '클라우드' && data.ips.length > 1) {

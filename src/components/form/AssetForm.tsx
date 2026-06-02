@@ -15,14 +15,13 @@ import {
   UserCircle2,
   type LucideIcon,
 } from 'lucide-react';
-import type { Asset, AssetOwner, Owner } from '../../types/domain';
+import type { Asset, Owner } from '../../types/domain';
 import {
   DATA_CLASS_VALUES,
   ENVIRONMENT_VALUES,
   MAX_ADDITIONAL_OWNERS,
   MAX_OWNERS_PER_ASSET,
   SECURITY_VALUES,
-  toAssetOwner,
 } from '../../types/domain';
 import {
   assetFormSchema,
@@ -60,7 +59,6 @@ const FIELD_LABEL_KEY = {
   'owner.name': 'form.fields.ownerName',
   'owner.email': 'form.fields.ownerEmail',
   'owner.dept': 'form.fields.ownerDept',
-  'owner.role': 'form.fields.ownerRole',
   assetType: 'form.fields.assetType',
   hostname: 'form.fields.hostname',
   purpose: 'form.fields.purpose',
@@ -83,7 +81,7 @@ type FieldKey = StaticFieldKey | string;
 
 // "additionalOwners.0.email" → '추가 담당자 1 · 이메일'
 function parseAdditionalOwnerKey(key: string): { idx: number; field: OwnerRowField } | null {
-  const m = /^additionalOwners\.(\d+)\.(name|email|dept|role)$/.exec(key);
+  const m = /^additionalOwners\.(\d+)\.(name|email|dept)$/.exec(key);
   if (!m) return null;
   return { idx: Number(m[1]), field: m[2] as OwnerRowField };
 }
@@ -127,7 +125,7 @@ function SectionHeader({ icon: Icon, title, subtitle, right }: SectionHeaderProp
 
 export function emptyValues(currentUser: Owner): AssetFormValues {
   return {
-    owner: toAssetOwner(currentUser),
+    owner: { ...currentUser },
     additionalOwners: [],
     assetType: '',
     hostname: '',
@@ -145,7 +143,7 @@ export function emptyValues(currentUser: Owner): AssetFormValues {
 
 export function valuesFromAsset(asset: Asset, currentUser: Owner): AssetFormValues {
   return {
-    owner: asset.owner ?? toAssetOwner(currentUser),
+    owner: asset.owner ?? { ...currentUser },
     additionalOwners: asset.additionalOwners.map((o) => ({ ...o })),
     assetType: asset.assetType,
     hostname: asset.hostname,
@@ -257,15 +255,6 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
   const showCloud = values.assetType === '클라우드';
   const allowMultipleIPs = showCloud;
 
-  // 자산 내 모든 행에서 현재 사용 중인 역할 코드 집합 — 한 행에서 takenRoles로 사용.
-  // 본인 역할은 OwnerRow에서 별도로 disabled 해제 처리.
-  const usedRoles = useMemo(() => {
-    const s = new Set<string>();
-    if (values.owner.role) s.add(values.owner.role);
-    for (const o of values.additionalOwners) if (o.role) s.add(o.role);
-    return s;
-  }, [values.owner.role, values.additionalOwners]);
-
   const isEmpty = (v: unknown) => v === '' || v === null || v === undefined;
   const flag = (key: FieldKey, v: unknown) =>
     mode === 'new' && !touched[key] && isEmpty(v);
@@ -285,7 +274,6 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
     name: tr(errors[`${prefix}.name`]),
     email: tr(errors[`${prefix}.email`]),
     dept: tr(errors[`${prefix}.dept`]),
-    role: tr(errors[`${prefix}.role`]),
   });
 
   // OwnerRow가 통보하는 필드 변경 → touched/errors 갱신
@@ -302,7 +290,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
         ...s,
         additionalOwners: [
           ...s.additionalOwners,
-          { name: '', email: '', dept: '', role: '' } as AssetOwner,
+          { name: '', email: '', dept: '' } as Owner,
         ],
       };
     });
@@ -331,7 +319,7 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
     });
   };
 
-  const updateAdditionalOwner = (idx: number, next: AssetOwner) => {
+  const updateAdditionalOwner = (idx: number, next: Owner) => {
     setValues((s) => ({
       ...s,
       additionalOwners: s.additionalOwners.map((o, i) => (i === idx ? next : o)),
@@ -348,13 +336,14 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
         <SectionHeader
           icon={UserCircle2}
           title={t('form.sections.owner')}
+          subtitle={t('form.sections.ownerHint')}
           right={
             <Button
               size="sm"
               variant="ghost"
               onClick={() => {
-                // 내 정보로 채우기: primary만 교체, 역할은 보존
-                setValues((s) => ({ ...s, owner: toAssetOwner(currentUser, s.owner.role) }));
+                // 내 정보로 채우기: primary 교체
+                setValues((s) => ({ ...s, owner: { ...currentUser } }));
                 setTouched((t) => ({
                   ...t,
                   'owner.name': true,
@@ -385,15 +374,10 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
             required
             autoFilled={ownerIsAutoFilled}
             onAutoFilledConsumed={() => setOwnerIsAutoFilled(false)}
-            emptyFlag={(f) =>
-              f === 'role'
-                ? false
-                : flag(`owner.${f}`, values.owner[f])
-            }
+            emptyFlag={(f) => flag(`owner.${f}`, values.owner[f])}
             registerRef={ownerRowRefRegistrar('owner')}
             errors={ownerRowErrors('owner')}
             onFieldChange={ownerRowFieldChange('owner')}
-            takenRoles={usedRoles}
           />
 
           {values.additionalOwners.length > 0 && (
@@ -408,16 +392,11 @@ export const AssetForm = forwardRef<AssetFormHandle, AssetFormProps>(function As
                   value={o}
                   onChange={(next) => updateAdditionalOwner(idx, next)}
                   required
-                  emptyFlag={(f) =>
-                    f === 'role'
-                      ? false
-                      : flag(`additionalOwners.${idx}.${f}`, o[f])
-                  }
+                  emptyFlag={(f) => flag(`additionalOwners.${idx}.${f}`, o[f])}
                   registerRef={ownerRowRefRegistrar(`additionalOwners.${idx}` as const)}
                   errors={ownerRowErrors(`additionalOwners.${idx}` as const)}
                   onFieldChange={ownerRowFieldChange(`additionalOwners.${idx}` as const)}
                   onRemove={() => removeAdditionalOwner(idx)}
-                  takenRoles={usedRoles}
                 />
               ))}
             </div>

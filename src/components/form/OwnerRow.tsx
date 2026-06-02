@@ -1,29 +1,27 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Trash2 } from 'lucide-react';
-import type { AssetOwner, Owner } from '../../types/domain';
-import { OWNER_ROLE_VALUES, toAssetOwner } from '../../types/domain';
+import type { Owner } from '../../types/domain';
 import { searchDirectory } from '../../lib/api';
 import { Input } from '../common/Input';
 import { Field } from './Field';
-import { Select } from './Select';
 import { DirectoryDropdown } from './DirectoryDropdown';
 import { cn } from '../../lib/cn';
 
-export type OwnerRowField = 'name' | 'email' | 'dept' | 'role';
+export type OwnerRowField = 'name' | 'email' | 'dept';
 
 type OwnerRowProps = {
   // 폼 내 식별자. 입력 id 및 ref 등록 시 prefix로 사용 (예: 'owner', 'additionalOwners.0').
   rowId: string;
-  value: AssetOwner;
-  onChange: (next: AssetOwner) => void;
+  value: Owner;
+  onChange: (next: Owner) => void;
   required?: boolean;
   // 자동 채움 상태 (primary 전용): 첫 클릭/포커스 시 사용자가 명시적으로 다른 사람을 검색할 수 있도록 비움.
   autoFilled?: boolean;
   onAutoFilledConsumed?: () => void;
   // 빈 값 시각 단서 (mode === 'new' 전용)
   emptyFlag?: (field: OwnerRowField) => boolean;
-  // ValidationBanner의 점프 타깃이 되는 ref 등록. errors prop과 결합해 사용.
+  // ValidationBanner의 점프 타깃이 되는 ref 등록.
   registerRef?: (field: OwnerRowField, el: HTMLDivElement | null) => void;
   // 필드별 에러 메시지 (이미 t()로 번역된 문자열). 미입력 시 undefined.
   errors?: Partial<Record<OwnerRowField, string | undefined>>;
@@ -31,15 +29,11 @@ type OwnerRowProps = {
   onFieldChange?: (field: OwnerRowField) => void;
   // 추가 담당자 행에서만 표시되는 X 버튼.
   onRemove?: () => void;
-  // 자산 내 다른 행이 이미 사용 중인 역할 코드 — 본인 역할은 제외하고 부모가 계산해서 전달.
-  // 해당 옵션은 드롭다운에서 disabled 처리되어 같은 역할 중복 할당 방지.
-  takenRoles?: ReadonlySet<string>;
 };
 
-// 4-컬럼 그리드: 이름/이메일/부서/역할. 마지막 컬럼은 폭 고정.
-// 추가 담당자 행은 X 버튼이 추가되어 [auto] 컬럼이 우측에 붙음.
-const COL_TEMPLATE_PRIMARY = 'minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 150px';
-const COL_TEMPLATE_REMOVABLE = 'minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 150px 36px';
+// 3-컬럼 그리드: 이름/이메일/부서. 추가 담당자 행은 X 버튼이 추가되어 [auto] 컬럼이 우측에 붙음.
+const COL_TEMPLATE_PRIMARY = 'minmax(0,1fr) minmax(0,1fr) minmax(0,1fr)';
+const COL_TEMPLATE_REMOVABLE = 'minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 36px';
 
 export function OwnerRow({
   rowId,
@@ -53,7 +47,6 @@ export function OwnerRow({
   errors = {},
   onFieldChange,
   onRemove,
-  takenRoles,
 }: OwnerRowProps) {
   const { t } = useTranslation();
 
@@ -106,8 +99,7 @@ export function OwnerRow({
   const pickDirectoryPerson = (p: Owner) => {
     if (dirDebounceRef.current) clearTimeout(dirDebounceRef.current);
     dirRequestSeq.current++;
-    // 사람만 교체하고 역할은 보존 (역할은 자산-담당자 컨텍스트라 디렉토리에 없음).
-    onChange(toAssetOwner(p, value.role));
+    onChange({ ...p });
     onFieldChange?.('name');
     onFieldChange?.('email');
     onFieldChange?.('dept');
@@ -116,8 +108,8 @@ export function OwnerRow({
 
   const handleNameFocus = () => {
     if (autoFilled) {
-      // 자동 채움 상태 첫 클릭: 사용자가 검색할 수 있도록 3필드 비움. 역할은 유지.
-      onChange({ name: '', email: '', dept: '', role: value.role });
+      // 자동 채움 상태 첫 클릭: 사용자가 검색할 수 있도록 3필드 비움.
+      onChange({ name: '', email: '', dept: '' });
       onFieldChange?.('name');
       onFieldChange?.('email');
       onFieldChange?.('dept');
@@ -142,28 +134,10 @@ export function OwnerRow({
   const idFor = (field: OwnerRowField) => `${rowId}.${field}`;
   const isFlag = (field: OwnerRowField) => emptyFlag?.(field) ?? false;
 
-  // 가이드 옵션('선택하세요')은 value=''로 두어 한 번 선택했더라도 다시 비울 수 있게 함.
-  // takenRoles에 있는 옵션은 disabled — 단, 본인이 현재 그 역할을 가지고 있다면 disabled 해제 (자기 자신은 충돌 아님).
-  const roleOptions = [
-    { value: '', label: t('form.selectPlaceholder'), disabled: false },
-    ...OWNER_ROLE_VALUES.map((v) => ({
-      value: v,
-      label: t(`options.ownerRole.${v}`),
-      disabled: !!takenRoles?.has(v) && value.role !== v,
-    })),
-  ];
-
   const gridTemplate = onRemove ? COL_TEMPLATE_REMOVABLE : COL_TEMPLATE_PRIMARY;
 
   return (
-    <div
-      className={cn(
-        'relative grid gap-3',
-        // 그리드 컬럼은 inline style로 — Tailwind arbitrary values는 동적 값 지원이 약함.
-        // 항목 수가 고정이므로 두 패턴 중 하나만 사용됨.
-      )}
-      style={{ gridTemplateColumns: gridTemplate }}
-    >
+    <div className="relative grid gap-3" style={{ gridTemplateColumns: gridTemplate }}>
       <div ref={setNameAnchorRef}>
         <Field
           id={idFor('name')}
@@ -182,7 +156,6 @@ export function OwnerRow({
             onChange={(e) => {
               const next = e.target.value;
               updateField('name', next);
-              // 사용자가 직접 타이핑 시작했다면 자동 채움 상태도 해제
               if (autoFilled) onAutoFilledConsumed?.();
               scheduleDirectorySearch(next);
             }}
@@ -240,23 +213,6 @@ export function OwnerRow({
             emptyFlag={isFlag('dept')}
             error={!!errors.dept}
             onChange={(e) => updateField('dept', e.target.value)}
-          />
-        </Field>
-      </div>
-
-      <div ref={setFieldRef('role')}>
-        <Field
-          id={idFor('role')}
-          label={t('form.fields.ownerRole')}
-          hint={t('form.fields.ownerRoleHint')}
-          error={errors.role}
-        >
-          <Select
-            id={idFor('role')}
-            value={value.role}
-            error={!!errors.role}
-            options={roleOptions}
-            onChange={(e) => updateField('role', e.target.value)}
           />
         </Field>
       </div>

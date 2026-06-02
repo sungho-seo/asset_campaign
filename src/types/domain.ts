@@ -7,30 +7,8 @@ export type Owner = {
 };
 
 // 자산당 담당자 한도 — primary 1명 + 추가 4명 = 5명.
-// 역할이 5종이므로 역할 1:1 매칭과 정합.
 export const MAX_OWNERS_PER_ASSET = 5;
 export const MAX_ADDITIONAL_OWNERS = MAX_OWNERS_PER_ASSET - 1;
-
-// PRD §6 — 자산-담당자 역할 분류 (자산별 컨텍스트, 선택 입력).
-// 자산당 역할별 최대 1명 (Zod superRefine에서 중복 검증).
-export const OWNER_ROLE_VALUES = [
-  'service',
-  'it',
-  'sm',
-  'server-primary',
-  'server-backup',
-] as const;
-export type OwnerRole = (typeof OWNER_ROLE_VALUES)[number];
-
-// 자산에 바인딩된 담당자. 역할은 자산-담당자 관계에서만 의미 있음.
-// 디렉토리(Owner)는 사람 자체이므로 role을 갖지 않는다.
-export type AssetOwner = Owner & { role: string };
-
-// 디렉토리에서 가져온 사람(Owner)을 자산에 바인딩할 때 사용.
-// role은 자산-담당자 컨텍스트에서 부여되므로 기본값 빈 문자열.
-export function toAssetOwner(o: Owner, role = ''): AssetOwner {
-  return { name: o.name, email: o.email, dept: o.dept, role };
-}
 
 // PRD v5 §5.1 — 자산 유형
 export const ASSET_TYPE_VALUES = ['온프레미스', '클라우드', '직접입력'] as const;
@@ -76,8 +54,8 @@ export type Asset = {
   location: string;                    // 자산 위치 (선택)
   security: string;                    // 보안 솔루션 (EPP/EDR/CWPP/없음/'')
   cloud: CloudInfo | null;             // 클라우드 자산 한정 (assetType !== '클라우드'면 null)
-  owner: AssetOwner | null;            // primary 담당자 (UI에서 1명 필수)
-  additionalOwners: AssetOwner[];      // 추가 담당자 0+
+  owner: Owner | null;                 // primary 담당자 (UI에서 1명 필수)
+  additionalOwners: Owner[];           // 추가 담당자 0+
   qualysDetectedAt: string;
   updatedAt: string | null;
   updatedBy: string | null;

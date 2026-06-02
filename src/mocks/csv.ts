@@ -1,5 +1,5 @@
-import type { Asset, AssetOwner, CloudInfo, SecurityValue, ToggleYesNo } from '../types/domain';
-import { OWNER_ROLE_VALUES, SECURITY_VALUES } from '../types/domain';
+import type { Asset, CloudInfo, Owner, SecurityValue, ToggleYesNo } from '../types/domain';
+import { SECURITY_VALUES } from '../types/domain';
 
 // 단순 CSV 파서: 따옴표 미사용 가정. 우리 샘플 데이터는 콤마/따옴표를 필드 내에 포함하지 않음.
 // 다중 IP는 '|'로 구분.
@@ -15,25 +15,18 @@ function parseSecurity(v: string): SecurityValue | '' {
   return (SECURITY_VALUES as readonly string[]).includes(s) ? (s as SecurityValue) : '';
 }
 
-// 역할 코드는 미리 정의된 목록에서만 허용. 알 수 없는 값은 빈 문자열로 강등.
-const ROLE_SET = new Set<string>(OWNER_ROLE_VALUES);
-function parseRole(v: string): string {
-  const s = (v || '').trim();
-  return ROLE_SET.has(s) ? s : '';
-}
-
 // additional_owners 컬럼 인코딩:
-//   "name::email::dept::role|name::email::dept::role"
-// 필드 4개 미만이면 무시 (관대한 파싱: 손으로 편집한 데이터 사고 흡수).
-function parseAdditionalOwners(raw: string): AssetOwner[] {
+//   "name::email::dept|name::email::dept"
+// 4번째 토큰(과거 role 필드)은 역호환을 위해 받아들이되 무시.
+function parseAdditionalOwners(raw: string): Owner[] {
   if (!raw) return [];
-  const out: AssetOwner[] = [];
+  const out: Owner[] = [];
   for (const chunk of raw.split('|')) {
     const parts = chunk.split('::').map((s) => s.trim());
     if (parts.length < 3) continue;
-    const [name, email, dept, role = ''] = parts;
+    const [name, email, dept] = parts;
     if (!name || !email || !dept) continue;
-    out.push({ name, email, dept, role: parseRole(role) });
+    out.push({ name, email, dept });
   }
   return out;
 }
@@ -91,7 +84,6 @@ export function parseAssetsCSV(text: string): Asset[] {
             name: r.owner_name,
             email: r.owner_email,
             dept: r.owner_dept,
-            role: parseRole(r.owner_role || ''),
           }
         : null,
       additionalOwners: parseAdditionalOwners(r.additional_owners || ''),

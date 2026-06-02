@@ -102,7 +102,7 @@
   "form": {
     "sections": {
       "owner": "Owner",
-      "ownerHint": "Auto-filled from SSO (editable)",
+      "ownerHint": "(Business Owner)",
       "asset": "Asset Information",
       "cloud": "Cloud Asset Details",
       "cloudHint": "Required when asset type is Cloud",
@@ -112,8 +112,6 @@
       "ownerName": "Owner Name",
       "ownerEmail": "Owner Email",
       "ownerDept": "Organization / Team",
-      "ownerRole": "Role",
-      "ownerRoleHint": "(optional)",
       "assetType": "Asset Type",
       "assetTypeHint": "(e.g. On-premise, Cloud)",
       "hostname": "Hostname",
@@ -173,8 +171,6 @@
       "emailRequired": "Owner email is required",
       "emailFormat": "Invalid email format",
       "dept": "Organization / Team is required",
-      "role": "Invalid role value",
-      "roleDuplicate": "Duplicate role — only one owner per role is allowed",
       "maxOwners": "Up to 5 owners per asset"
     },
     "hostname": {
@@ -239,13 +235,6 @@
       "개인정보": "PII (Personal Data)",
       "민감정보": "Sensitive",
       "없음": "None"
-    },
-    "ownerRole": {
-      "service": "Service",
-      "it": "IT",
-      "sm": "SM",
-      "server-primary": "Server (Primary)",
-      "server-backup": "Server (Backup)"
     }
   },
   "directory": {
