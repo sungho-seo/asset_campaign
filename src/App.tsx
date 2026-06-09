@@ -7,7 +7,10 @@ import { LanguageToggle } from './components/layout/LanguageToggle';
 import { Pill } from './components/common/Pill';
 import { UserChip } from './components/common/UserChip';
 import { ToastProvider } from './components/feedback/Toast';
+import { RequireNoticeResponse } from './components/RequireNoticeResponse';
 import EmployeePage from './routes/EmployeePage';
+import NoticePage from './routes/NoticePage';
+import NoticeDonePage from './routes/NoticeDonePage';
 
 const DashboardPage = lazy(() => import('./routes/DashboardPage'));
 const ComponentsDemo = lazy(() => import('./routes/ComponentsDemo'));
@@ -43,6 +46,7 @@ function NavLinks() {
   );
   return (
     <nav className="flex items-center gap-1">
+      {link('/notice', t('topbar.nav.notice'))}
       {link('/', t('topbar.nav.employee'))}
       {link('/dashboard', t('topbar.nav.dashboard'))}
       {link('/demo', t('topbar.nav.demo'))}
@@ -70,7 +74,14 @@ export default function App() {
           <TopBar right={<TopBarRight />} />
           <Suspense fallback={<RouteFallback />}>
             <Routes>
-              <Route path="/" element={<EmployeePage />} />
+              {/* 권고 안내 — 가드 미적용. 모든 사용자 진입 가능 (F-NOTICE-6,7). */}
+              <Route path="/notice" element={<NoticePage />} />
+              <Route path="/notice/done" element={<NoticeDonePage />} />
+              {/* 자산 등록 — 권고 응답 가드 적용 (F-NOTICE-8). */}
+              <Route element={<RequireNoticeResponse />}>
+                <Route path="/" element={<EmployeePage />} />
+              </Route>
+              {/* 운영자/디자인 시스템 — 가드 미적용 (사용자 결정). */}
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/demo" element={<ComponentsDemo />} />
             </Routes>

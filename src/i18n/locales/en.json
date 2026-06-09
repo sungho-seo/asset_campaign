@@ -3,6 +3,7 @@
     "brand": "IT Asset Registration",
     "subtitle": "IT 자산 등록",
     "nav": {
+      "notice": "Notice",
       "employee": "Register",
       "dashboard": "Dashboard",
       "demo": "DS"
@@ -13,6 +14,42 @@
       "english": "EN",
       "switchTo": "Switch to {{lang}}"
     }
+  },
+  "notice": {
+    "eyebrow": "NOTICE",
+    "title": "IT Asset Registration Notice",
+    "subtitle": "Please review this notice before registering your assets",
+    "bodyParagraphs": [
+      "To strengthen internal security, all employees are encouraged to register the IT assets (servers, cloud resources, etc.) they own or use.",
+      "This page serves as a security policy notice and an acknowledgment record. Your responses (acknowledgment and ownership status) are used as security operations data.",
+      "If you currently do not own or manage any assets, please still respond. You can update your response anytime via the 'Notice' tab when your situation changes."
+    ],
+    "acknowledgeLabel": "I have read and understood this notice",
+    "acknowledgeHint": "Check the box, then select whether you own any assets",
+    "ownershipLegend": "Do you own or manage any IT assets?",
+    "ownership": {
+      "has": "I have assets",
+      "none": "I have none"
+    },
+    "submit": "Confirm",
+    "submitDisabledHint": "Please acknowledge the notice first",
+    "previous": {
+      "title": "Most recent response",
+      "summary": "{{date}} · {{ownership}}",
+      "hint": "Updating your response appends a new row; previous responses are preserved"
+    },
+    "dev": {
+      "title": "Dev tools (DEV)",
+      "seedSamples": "Seed sample history",
+      "reset": "Reset responses"
+    }
+  },
+  "noticeDone": {
+    "eyebrow": "RESPONSE COMPLETE",
+    "title": "Thank you for your response",
+    "body": "If you acquire assets in the future, you can update your response anytime from the 'Notice' tab.",
+    "backToNotice": "Back to Notice",
+    "goToSearch": "Search assets"
   },
   "employee": {
     "pageHeader": {
