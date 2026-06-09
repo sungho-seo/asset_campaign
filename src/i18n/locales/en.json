@@ -1,13 +1,13 @@
 {
   "topbar": {
-    "brand": "VCISO Asset Survey",
-    "subtitle": "Campaign 2026",
+    "brand": "IT Asset Registration",
+    "subtitle": "IT 자산 등록",
     "nav": {
-      "employee": "Employee",
+      "employee": "Register",
       "dashboard": "Dashboard",
       "demo": "DS"
     },
-    "campaignBadge": "Campaign in progress · D+7",
+    "campaignBadge": "Registration in progress · D+7",
     "lang": {
       "korean": "한",
       "english": "EN",
@@ -16,8 +16,8 @@
   },
   "employee": {
     "pageHeader": {
-      "eyebrow": "ASSET CAMPAIGN",
-      "title": "Please verify your IT asset records",
+      "eyebrow": "IT ASSET REGISTRATION",
+      "title": "Register your IT asset information",
       "subtitle": "Search and update the IT assets you use or manage."
     },
     "searchPanel": {

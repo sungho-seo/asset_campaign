@@ -97,7 +97,7 @@ export default function ComponentsDemo() {
             <Badge variant="success">완료</Badge>
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <Pill dot="success">캠페인 진행중 · D+7</Pill>
+            <Pill dot="success">등록 진행중 · D+7</Pill>
             <Pill dot="warn">D-3 남음</Pill>
           </div>
           <div className="mt-3 flex items-center gap-2">

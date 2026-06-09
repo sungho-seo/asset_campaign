@@ -1,13 +1,13 @@
 {
   "topbar": {
-    "brand": "VCISO 자산조사",
-    "subtitle": "캠페인 2026",
+    "brand": "IT 자산 등록",
+    "subtitle": "IT Asset Registration",
     "nav": {
-      "employee": "임직원",
+      "employee": "자산 등록",
       "dashboard": "대시보드",
       "demo": "DS"
     },
-    "campaignBadge": "캠페인 진행중 · D+7",
+    "campaignBadge": "등록 진행중 · D+7",
     "lang": {
       "korean": "한",
       "english": "EN",
@@ -16,8 +16,8 @@
   },
   "employee": {
     "pageHeader": {
-      "eyebrow": "ASSET CAMPAIGN",
-      "title": "IT 자산 정보를 확인해 주세요",
+      "eyebrow": "IT ASSET REGISTRATION",
+      "title": "사내 IT 자산 정보를 등록해 주세요",
       "subtitle": "본인이 사용 중이거나 관리하는 IT 자산을 검색해 정보를 갱신해 주세요."
     },
     "searchPanel": {

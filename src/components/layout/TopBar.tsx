@@ -13,8 +13,8 @@ export function TopBar({ right, subtitle }: TopBarProps) {
     <header className="sticky top-0 z-20 border-b border-line bg-bg/85 backdrop-blur supports-[backdrop-filter]:bg-bg/70">
       <div className="mx-auto flex max-w-[1280px] items-center justify-between px-8 py-3.5">
         <Link to="/" className="flex items-center gap-3">
-          <div className="grid h-7 w-7 place-items-center rounded-md bg-brand font-mono text-[13px] font-semibold tracking-tighter2 text-white">
-            V
+          <div className="grid h-7 w-7 place-items-center rounded-md bg-brand font-mono text-[11px] font-semibold tracking-tighter2 text-white">
+            IT
           </div>
           <div className="text-sm font-semibold tracking-tightish">
             {t('topbar.brand')}

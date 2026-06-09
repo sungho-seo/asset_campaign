@@ -1,5 +1,5 @@
 [Unit]
-Description=VCISO 자산조사 캠페인 워킹 샘플 (Node + Express)
+Description=IT 자산 등록 (IT Asset Registration) 워킹 샘플 (Node + Express)
 Documentation=https://github.com/sungho-seo/asset_campaign
 After=network-online.target
 Wants=network-online.target

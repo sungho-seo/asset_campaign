@@ -43,7 +43,7 @@ export default function DashboardPage() {
     <Shell>
       <PageHeader
         eyebrow="DASHBOARD"
-        title="캠페인 진행 현황"
+        title="IT 자산 등록 현황"
         subtitle={`전체 자산 ${MOCK_KPI.totalAssets.toLocaleString()}건 기준 · 마지막 업데이트 14:42 (5분 주기)`}
         right={
           <Button>
@@ -100,7 +100,7 @@ export default function DashboardPage() {
       >
         <Panel
           title="진척률 추이"
-          subtitle="캠페인 시작일 기준 · 일자별 누적 식별율"
+          subtitle="등록 시작일 기준 · 일자별 누적 식별율"
           headerRight={
             <span className="flex items-center gap-1.5 font-mono text-[11px] text-text-3">
               <span className="inline-block h-0.5 w-2.5 rounded-full bg-brand" />
@@ -151,7 +151,7 @@ export default function DashboardPage() {
 
         <Panel
           title="이상 징후 / 충돌"
-          subtitle="캠페인 시작 이후 누적 · 클릭하여 상세 보기"
+          subtitle="등록 시작 이후 누적 · 클릭하여 상세 보기"
           padded={false}
         >
           <MetricRow
