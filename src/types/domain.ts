@@ -10,6 +10,20 @@ export type Owner = {
 export const MAX_OWNERS_PER_ASSET = 5;
 export const MAX_ADDITIONAL_OWNERS = MAX_OWNERS_PER_ASSET - 1;
 
+// PRD §4.2 — 권고 안내 응답.
+// 한 사용자의 응답 이력을 누적 보관. 가장 최근 항목이 '현재 상태'로 사용된다.
+// F-NOTICE-4: 응답은 새 행으로 추가되며 덮어쓰지 않는다.
+export type NoticeOwnership = 'has' | 'none';
+
+export type NoticeResponse = {
+  responseId: string;          // 시스템 발급 식별자 (crypto.randomUUID)
+  empName: string;             // 응답자 이름 (MOCK_USER.name)
+  dept: string | null;         // 응답자 소속
+  acknowledged: true;          // 항상 true — 체크박스 미체크 시 submit 자체가 불가
+  ownership: NoticeOwnership;  // 보유 자산 유무
+  respondedAt: string;         // ISO 8601 timestamp
+};
+
 // PRD v5 §5.1 — 자산 유형
 export const ASSET_TYPE_VALUES = ['온프레미스', '클라우드', '직접입력'] as const;
 

@@ -1,10 +1,33 @@
-import type { Asset, Owner } from '../types/domain';
+import type { Asset, NoticeResponse, Owner } from '../types/domain';
 
 export const MOCK_USER: Owner = {
   name: '박지훈',
   email: 'jihoon.park@lge.com',
   dept: '보안운영실',
 };
+
+// 시연용 권고 응답 이력 시드.
+// 기본 store는 빈 배열로 시작 — 첫 진입 시 권고 페이지 자동 노출 동작을 보여주기 위해서.
+// 개발 모드 디버그 패널에서 '샘플 이력으로 채우기'를 누르면 이 데이터가 store에 주입된다.
+// 시나리오 R(권고 응답 재확인/수정): '보유 없음' → '보유 있음'으로 변경한 이력 패턴.
+export const MOCK_NOTICE_HISTORY: NoticeResponse[] = [
+  {
+    responseId: 'NTC-SEED-001',
+    empName: MOCK_USER.name,
+    dept: MOCK_USER.dept,
+    acknowledged: true,
+    ownership: 'none',
+    respondedAt: '2026-04-02T09:14:00Z',
+  },
+  {
+    responseId: 'NTC-SEED-002',
+    empName: MOCK_USER.name,
+    dept: MOCK_USER.dept,
+    acknowledged: true,
+    ownership: 'has',
+    respondedAt: '2026-05-18T15:42:00Z',
+  },
+];
 
 // 동명이인 패턴이 포함된 사내 구성원 샘플 디렉토리.
 // 담당자 이름 input에서 Enter → /api/directory/search 가 이 목록을 검색.
