@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Check, History, Sparkles } from 'lucide-react';
+import { Check, History, ListChecks, Sparkles } from 'lucide-react';
 import { Shell } from '../components/layout/Shell';
 import { Button } from '../components/common/Button';
 import { ToggleGroup } from '../components/common/ToggleGroup';
@@ -30,6 +30,9 @@ export default function NoticePage() {
 
   const canSubmit = ownership !== null;
 
+  // 캠페인 대상 자산 목록 — i18n에서 string[]로 받아온다.
+  const scopeItems = t('notice.scope.items', { returnObjects: true }) as string[];
+
   const handleSubmit = () => {
     if (!ownership) return;
     submitResponse(ownership);
@@ -53,6 +56,27 @@ export default function NoticePage() {
         </h1>
         <p className="mt-1 text-[13px] text-text-3">{t('notice.subtitle')}</p>
       </header>
+
+      {/* 캠페인 대상 자산 안내 — 응답에 영향을 주는 핵심 정보라 응답 카드 위에 둠 */}
+      <section className="mb-4 overflow-hidden rounded-lg border border-line bg-white shadow-sm">
+        <div className="flex items-center gap-2 border-b border-line bg-bg-soft/40 px-5 py-2.5">
+          <ListChecks className="h-4 w-4 text-brand" />
+          <h2 className="text-[12.5px] font-semibold tracking-tightish text-text">
+            {t('notice.scope.title')}
+          </h2>
+        </div>
+        <ul className="space-y-2 px-5 py-4 text-[13px] leading-relaxed text-text-2">
+          {scopeItems.map((item, i) => (
+            <li key={i} className="flex gap-2">
+              <span aria-hidden className="mt-2 h-1 w-1 flex-shrink-0 rounded-full bg-brand" />
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+        <div className="border-t border-line bg-warn-soft/30 px-5 py-2.5 text-[11.5px] text-text-2">
+          {t('notice.scope.exclude')}
+        </div>
+      </section>
 
       {/* 이전 응답 요약 (재진입 시) */}
       {latest && (

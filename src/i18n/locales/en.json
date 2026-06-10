@@ -19,6 +19,16 @@
     "eyebrow": "NOTICE",
     "title": "IT Asset Registration",
     "subtitle": "Please let us know whether you own or manage any IT assets",
+    "scope": {
+      "title": "Assets in scope",
+      "items": [
+        "Cloud servers (e.g., AWS, Azure, GCP, NCP)",
+        "Physical servers (on-premise)",
+        "Virtual machines (e.g., VMware, KVM, Hyper-V) and containers (e.g., Docker, Kubernetes)",
+        "Development workstations (desktops, laptops, etc.)"
+      ],
+      "exclude": "※ Excludes personal lease PCs and personal mobile devices (e.g., phones, tablets, Surface)"
+    },
     "ownershipLegend": "Do you own or manage any IT assets?",
     "ownership": {
       "has": "I have assets",

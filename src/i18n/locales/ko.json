@@ -19,6 +19,16 @@
     "eyebrow": "안내",
     "title": "IT 자산 등록 안내",
     "subtitle": "본인이 사용·관리하고 계신 IT 자산이 있는지 알려 주세요",
+    "scope": {
+      "title": "캠페인 대상 자산",
+      "items": [
+        "클라우드 서버 (ex. AWS, Azure, GCP, NCP 등)",
+        "물리 서버 (온프레미스)",
+        "가상머신 (ex. VMWare, KVM, Hyper-V 등), 컨테이너 (ex. Docker, Kubernetes 등)",
+        "개발용 자산 (데스크탑, Labtop, workstation 등)"
+      ],
+      "exclude": "※ 개인 업무용 리스 PC 및 개인용 휴대자산(ex. 휴대폰, 태블릿, 서피스 등) 제외"
+    },
     "ownershipLegend": "본인이 사용·관리하는 자산 보유 여부",
     "ownership": {
       "has": "보유 있음",
