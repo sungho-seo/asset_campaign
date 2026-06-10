@@ -20,14 +20,17 @@
     "title": "IT Asset Registration",
     "subtitle": "Please let us know whether you own or manage any IT assets",
     "scope": {
-      "title": "Assets in scope",
-      "items": [
-        "Cloud servers (e.g., AWS, Azure, GCP, NCP)",
-        "Physical servers (on-premise)",
-        "Virtual machines (e.g., VMware, KVM, Hyper-V) and containers (e.g., Docker, Kubernetes)",
-        "Development workstations (desktops, laptops, etc.)"
-      ],
-      "exclude": "※ Excludes personal lease PCs and personal mobile devices (e.g., phones, tablets, Surface)"
+      "title": "Eligible IT Assets",
+      "cards": {
+        "cloud": { "name": "Cloud", "sub": "AWS · Azure\nGCP · NCP" },
+        "server": { "name": "Servers", "sub": "Physical servers\nRack equipment" },
+        "desktop": { "name": "Desktop PC", "sub": "Development use" },
+        "laptop": { "name": "Laptop", "sub": "Development use\nLeased laptops" }
+      },
+      "vmTitle": "VMs running on the above assets are also included",
+      "vmBody": "Virtual machines such as VMware, KVM, Hyper-V are all eligible for registration",
+      "excludeTitle": "Excluded",
+      "excludeBody": "Personal lease PCs are managed separately and excluded from this registration."
     },
     "ownershipLegend": "Do you own or manage any IT assets?",
     "ownership": {
