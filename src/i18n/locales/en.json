@@ -17,22 +17,15 @@
   },
   "notice": {
     "eyebrow": "NOTICE",
-    "title": "IT Asset Registration Notice",
-    "subtitle": "Please review this notice before registering your assets",
-    "bodyParagraphs": [
-      "To strengthen internal security, all employees are encouraged to register the IT assets (servers, cloud resources, etc.) they own or use.",
-      "This page serves as a security policy notice and an acknowledgment record. Your responses (acknowledgment and ownership status) are used as security operations data.",
-      "If you currently do not own or manage any assets, please still respond. You can update your response anytime via the 'Notice' tab when your situation changes."
-    ],
-    "acknowledgeLabel": "I have read and understood this notice",
-    "acknowledgeHint": "Check the box, then select whether you own any assets",
+    "title": "IT Asset Registration",
+    "subtitle": "Please let us know whether you own or manage any IT assets",
     "ownershipLegend": "Do you own or manage any IT assets?",
     "ownership": {
       "has": "I have assets",
       "none": "I have none"
     },
     "submit": "Confirm",
-    "submitDisabledHint": "Please acknowledge the notice first",
+    "submitDisabledHint": "Please select an option",
     "previous": {
       "title": "Most recent response",
       "summary": "{{date}} · {{ownership}}",

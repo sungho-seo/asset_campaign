@@ -3,7 +3,7 @@
     "brand": "IT 자산 등록",
     "subtitle": "IT Asset Registration",
     "nav": {
-      "notice": "권고 안내",
+      "notice": "안내",
       "employee": "자산 등록",
       "dashboard": "대시보드",
       "demo": "DS"
@@ -16,23 +16,16 @@
     }
   },
   "notice": {
-    "eyebrow": "권고 안내",
-    "title": "IT 자산 등록 권고",
-    "subtitle": "임직원 자산 등록 캠페인에 앞서 본 권고 내용을 확인해 주세요",
-    "bodyParagraphs": [
-      "사내 보안 강화를 위해, 임직원이 보유·사용하고 있는 서버 및 클라우드 자산의 정보 등록을 권고합니다.",
-      "본 페이지는 사내 보안 정책 안내 및 확인 기록 차원에서 운영되며, 응답 내용(권고 확인 여부 및 보유 여부)은 보안 운영 자료로 활용됩니다.",
-      "본인이 사용·관리하는 자산이 없는 경우에도 응답을 부탁드리며, 이후 자산을 보유하게 되면 언제든 본 페이지의 '권고 안내' 탭에서 응답을 갱신해 주시기 바랍니다."
-    ],
-    "acknowledgeLabel": "권고 내용을 확인하였습니다",
-    "acknowledgeHint": "체크 후 보유 자산 여부를 선택해 주세요",
+    "eyebrow": "안내",
+    "title": "IT 자산 등록 안내",
+    "subtitle": "본인이 사용·관리하고 계신 IT 자산이 있는지 알려 주세요",
     "ownershipLegend": "본인이 사용·관리하는 자산 보유 여부",
     "ownership": {
       "has": "보유 있음",
       "none": "보유 없음"
     },
     "submit": "확인 완료",
-    "submitDisabledHint": "권고 내용을 확인하셨다고 체크해 주세요",
+    "submitDisabledHint": "보유 여부를 선택해 주세요",
     "previous": {
       "title": "최근 응답 기록",
       "summary": "{{date}} · {{ownership}}",
@@ -47,8 +40,8 @@
   "noticeDone": {
     "eyebrow": "응답 완료",
     "title": "확인해 주셔서 감사합니다",
-    "body": "추후 자산이 생기면 언제든 '권고 안내' 탭에서 응답을 갱신해 주세요.",
-    "backToNotice": "권고 안내로 돌아가기",
+    "body": "추후 자산이 생기면 언제든 '안내' 탭에서 응답을 갱신해 주세요.",
+    "backToNotice": "안내로 돌아가기",
     "goToSearch": "자산 검색하기"
   },
   "employee": {
