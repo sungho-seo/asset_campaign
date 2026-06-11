@@ -27,8 +27,8 @@
         "desktop": { "name": "Desktop / Workstation", "sub": "Development use" },
         "laptop": { "name": "Laptop", "sub": "Development use" }
       },
-      "vmTitle": "VMs running on the above assets are also included",
-      "vmBody": "Virtual machines such as VMware, KVM, Hyper-V are all eligible for registration",
+      "vmTitle": "Virtual machines (VMs) running on the above assets are also eligible",
+      "vmBody": "e.g., VMware · KVM · Hyper-V",
       "excludeTitle": "Excluded",
       "excludeItems": [
         "Personal lease PCs",

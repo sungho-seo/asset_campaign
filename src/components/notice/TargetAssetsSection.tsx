@@ -79,9 +79,9 @@ export function TargetAssetsSection() {
 
   return (
     <section className="mb-4 rounded-lg border border-line bg-white p-5 shadow-sm">
-      {/* 섹션 헤더 */}
-      <p className="mb-3 flex items-center gap-1 font-mono text-[11px] font-semibold uppercase tracking-wider text-text-3">
-        <Target className="h-3.5 w-3.5" aria-hidden="true" />
+      {/* 섹션 헤더 — 패널 내 위계의 정점이므로 강한 톤 */}
+      <p className="mb-4 flex items-center gap-1.5 text-[14px] font-semibold tracking-tightish text-text">
+        <Target className="h-4 w-4 text-brand" aria-hidden="true" />
         {t('notice.scope.title')}
       </p>
 
@@ -105,12 +105,12 @@ export function TargetAssetsSection() {
         <InclusionDivider />
       </div>
 
-      {/* Layer 2: VM 안내 — 박스 없이 텍스트만 (컨테이너는 이번 캠페인 제외) */}
+      {/* Layer 2: VM 안내 — 보조 가이드 톤. 카드 위계를 뛰어넘지 않도록 약하게 */}
       <div className="mt-2 text-center">
-        <p className="text-[13px] font-medium text-text">
+        <p className="text-[12px] text-text-3">
           {t('notice.scope.vmTitle')}
         </p>
-        <p className="mt-0.5 text-xs leading-relaxed text-text-3">
+        <p className="mt-0.5 text-[11px] leading-relaxed text-text-4">
           {t('notice.scope.vmBody')}
         </p>
       </div>
