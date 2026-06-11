@@ -73,6 +73,9 @@ const CARD_DEFS = [
 
 export function TargetAssetsSection() {
   const { t } = useTranslation();
+  const excludeItems = t('notice.scope.excludeItems', {
+    returnObjects: true,
+  }) as string[];
 
   return (
     <section className="mb-4 rounded-lg border border-line bg-white p-5 shadow-sm">
@@ -116,12 +119,17 @@ export function TargetAssetsSection() {
       <div className="mt-4 flex items-start gap-2.5 rounded-md border border-amber-200 bg-warn-soft p-3 px-3.5">
         <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-warn" aria-hidden="true" />
         <div className="flex-1">
-          <p className="mb-0.5 text-[13px] font-medium text-warn">
+          <p className="mb-1 text-[13px] font-medium text-warn">
             {t('notice.scope.excludeTitle')}
           </p>
-          <p className="text-xs leading-relaxed text-warn/85">
-            {t('notice.scope.excludeBody')}
-          </p>
+          <ul className="space-y-0.5 text-xs leading-relaxed text-warn/85">
+            {excludeItems.map((item, i) => (
+              <li key={i} className="flex gap-1.5">
+                <span aria-hidden className="mt-1.5 h-1 w-1 flex-shrink-0 rounded-full bg-warn/60" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </section>

@@ -22,15 +22,19 @@
     "scope": {
       "title": "등록 대상 IT 자산",
       "cards": {
-        "cloud": { "name": "클라우드", "sub": "AWS · Azure\nGCP · NCP" },
-        "server": { "name": "서버", "sub": "물리 서버\n랙 장비" },
+        "cloud": { "name": "클라우드", "sub": "AWS · Azure\nGCP · NCP 등" },
+        "server": { "name": "서버", "sub": "물리 서버" },
         "desktop": { "name": "데스크탑 PC", "sub": "개발용" },
-        "laptop": { "name": "노트북", "sub": "개발용\n리스 노트북" }
+        "laptop": { "name": "노트북", "sub": "개발용" }
       },
       "vmTitle": "위 자산에 설치된 가상머신(VM)도 포함",
       "vmBody": "VMware · KVM · Hyper-V 등 가상머신 모두 등록 대상입니다",
       "excludeTitle": "제외 대상",
-      "excludeBody": "업무용 리스 PC는 별도 관리되므로 본 캠페인 등록 대상에서 제외됩니다."
+      "excludeItems": [
+        "개인 업무용 리스 PC",
+        "개인용 휴대자산 (ex. 휴대폰, 태블릿, 서피스 등)",
+        "컨테이너 (ex. Docker, Kubernetes 등)"
+      ]
     },
     "ownershipLegend": "본인이 사용·관리하는 자산 보유 여부",
     "ownership": {

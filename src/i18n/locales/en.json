@@ -22,15 +22,19 @@
     "scope": {
       "title": "Eligible IT Assets",
       "cards": {
-        "cloud": { "name": "Cloud", "sub": "AWS · Azure\nGCP · NCP" },
-        "server": { "name": "Servers", "sub": "Physical servers\nRack equipment" },
+        "cloud": { "name": "Cloud", "sub": "AWS · Azure\nGCP · NCP, etc." },
+        "server": { "name": "Servers", "sub": "Physical servers" },
         "desktop": { "name": "Desktop PC", "sub": "Development use" },
-        "laptop": { "name": "Laptop", "sub": "Development use\nLeased laptops" }
+        "laptop": { "name": "Laptop", "sub": "Development use" }
       },
       "vmTitle": "VMs running on the above assets are also included",
       "vmBody": "Virtual machines such as VMware, KVM, Hyper-V are all eligible for registration",
       "excludeTitle": "Excluded",
-      "excludeBody": "Personal lease PCs are managed separately and excluded from this registration."
+      "excludeItems": [
+        "Personal lease PCs",
+        "Personal mobile devices (e.g., phones, tablets, Surface)",
+        "Containers (e.g., Docker, Kubernetes)"
+      ]
     },
     "ownershipLegend": "Do you own or manage any IT assets?",
     "ownership": {
