@@ -24,7 +24,7 @@
       "cards": {
         "cloud": { "name": "클라우드", "sub": "AWS · Azure\nGCP · NCP 등" },
         "server": { "name": "서버", "sub": "물리 서버" },
-        "desktop": { "name": "데스크탑 PC", "sub": "개발용" },
+        "desktop": { "name": "데스크탑 PC / 워크스테이션", "sub": "개발용" },
         "laptop": { "name": "노트북", "sub": "개발용" }
       },
       "vmTitle": "위 자산에 설치된 가상머신(VM)도 포함",

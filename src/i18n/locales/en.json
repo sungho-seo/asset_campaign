@@ -24,7 +24,7 @@
       "cards": {
         "cloud": { "name": "Cloud", "sub": "AWS · Azure\nGCP · NCP, etc." },
         "server": { "name": "Servers", "sub": "Physical servers" },
-        "desktop": { "name": "Desktop PC", "sub": "Development use" },
+        "desktop": { "name": "Desktop / Workstation", "sub": "Development use" },
         "laptop": { "name": "Laptop", "sub": "Development use" }
       },
       "vmTitle": "VMs running on the above assets are also included",

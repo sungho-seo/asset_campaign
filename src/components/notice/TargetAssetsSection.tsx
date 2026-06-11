@@ -90,7 +90,7 @@ export function TargetAssetsSection() {
         {CARD_DEFS.map(({ id, Icon }) => (
           <div key={id} className="rounded-md bg-bg-soft px-2 py-3.5 text-center">
             <Icon />
-            <p className="mb-0.5 text-xs font-medium">
+            <p className="mb-0.5 break-keep text-[11.5px] font-medium leading-tight">
               {t(`notice.scope.cards.${id}.name`)}
             </p>
             <p className="whitespace-pre-line text-[10.5px] leading-tight text-text-4">
