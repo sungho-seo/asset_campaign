@@ -46,8 +46,7 @@
     "submitDisabledHint": "Please select an option",
     "previous": {
       "title": "Most recent response",
-      "summary": "{{date}} · {{ownership}}",
-      "hint": "Updating your response appends a new row; previous responses are preserved"
+      "summary": "{{date}} · {{ownership}}"
     },
     "dev": {
       "title": "Dev tools (DEV)",

@@ -72,9 +72,6 @@ export default function NoticePage() {
                 ownership: t(`notice.ownership.${latest.ownership}`),
               })}
             </div>
-            <div className="mt-1 text-[11px] text-text-3">
-              {t('notice.previous.hint')}
-            </div>
           </div>
         </div>
       )}

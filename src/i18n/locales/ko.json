@@ -46,8 +46,7 @@
     "submitDisabledHint": "보유 여부를 선택해 주세요",
     "previous": {
       "title": "최근 응답 기록",
-      "summary": "{{date}} · {{ownership}}",
-      "hint": "응답을 변경하면 새 행이 추가 기록되며 이전 응답은 보존됩니다"
+      "summary": "{{date}} · {{ownership}}"
     },
     "dev": {
       "title": "개발 도구 (DEV)",
