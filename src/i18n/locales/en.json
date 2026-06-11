@@ -33,7 +33,8 @@
       "excludeItems": [
         "Personal lease PCs",
         "Personal mobile devices (e.g., phones, tablets, Surface)",
-        "Containers (e.g., Docker, Kubernetes)"
+        "Containers (e.g., Docker, Kubernetes)",
+        "Manufacturing / OT assets (e.g., control PCs, PLCs, HMIs)"
       ]
     },
     "ownershipLegend": "Do you own or manage any IT assets?",
