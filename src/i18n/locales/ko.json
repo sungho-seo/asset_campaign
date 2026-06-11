@@ -32,7 +32,7 @@
       "excludeTitle": "제외 대상",
       "excludeItems": [
         "개인 업무용 리스 PC",
-        "개인용 휴대자산 (ex. 휴대폰, 태블릿, 서피스 등)",
+        "개인/회사지급 모바일 디바이스",
         "컨테이너 (ex. Docker, Kubernetes 등)",
         "제조 · 공정 자산"
       ]

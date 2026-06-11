@@ -32,7 +32,7 @@
       "excludeTitle": "Excluded",
       "excludeItems": [
         "Personal lease PCs",
-        "Personal mobile devices (e.g., phones, tablets, Surface)",
+        "Personal / company-issued mobile devices",
         "Containers (e.g., Docker, Kubernetes)",
         "Manufacturing / OT assets"
       ]

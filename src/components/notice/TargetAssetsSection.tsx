@@ -87,17 +87,28 @@ export function TargetAssetsSection() {
 
       {/* Layer 1: 인프라 4종 — 패널 안에서 대비를 위해 bg-soft 유지 */}
       <div className="grid grid-cols-4 gap-2">
-        {CARD_DEFS.map(({ id, Icon }) => (
-          <div key={id} className="rounded-md bg-bg-soft px-2 py-3.5 text-center">
-            <Icon />
-            <p className="mb-0.5 break-keep text-[11.5px] font-medium leading-tight">
-              {t(`notice.scope.cards.${id}.name`)}
-            </p>
-            <p className="whitespace-pre-line text-[10.5px] leading-tight text-text-4">
-              {t(`notice.scope.cards.${id}.sub`)}
-            </p>
-          </div>
-        ))}
+        {CARD_DEFS.map(({ id, Icon }) => {
+          // desktop/laptop은 sub('개발용')를 카테고리 라벨처럼 이름 위에 노출
+          const subOnTop = id === 'desktop' || id === 'laptop';
+          return (
+            <div key={id} className="rounded-md bg-bg-soft px-2 py-3.5 text-center">
+              <Icon />
+              {subOnTop && (
+                <p className="mb-0.5 text-[10.5px] leading-tight text-text-4">
+                  {t(`notice.scope.cards.${id}.sub`)}
+                </p>
+              )}
+              <p className="mb-0.5 break-keep text-[11.5px] font-medium leading-tight">
+                {t(`notice.scope.cards.${id}.name`)}
+              </p>
+              {!subOnTop && (
+                <p className="whitespace-pre-line text-[10.5px] leading-tight text-text-4">
+                  {t(`notice.scope.cards.${id}.sub`)}
+                </p>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* 포함 관계 구분 — '---' 톤의 절제된 분리선 */}
