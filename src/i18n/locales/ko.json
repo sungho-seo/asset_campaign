@@ -39,8 +39,8 @@
     },
     "ownershipLegend": "본인이 사용·관리하는 자산 보유 여부",
     "ownership": {
-      "has": "보유 있음",
-      "none": "보유 없음"
+      "has": "자산 있음",
+      "none": "자산 없음"
     },
     "submit": "확인 완료",
     "submitDisabledHint": "보유 여부를 선택해 주세요",
