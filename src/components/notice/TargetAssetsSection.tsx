@@ -49,34 +49,6 @@ const LaptopIcon = () => (
   </svg>
 );
 
-const VirtualizationIcon = () => (
-  <svg viewBox="0 0 48 48" className="h-10 w-10 flex-shrink-0" role="img" aria-label="Virtualization">
-    <path
-      d="M24 6 L42 14 L24 22 L6 14 Z"
-      fill="#B5D4F4"
-      stroke="#185FA5"
-      strokeWidth="1.2"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M6 22 L24 30 L42 22"
-      fill="none"
-      stroke="#185FA5"
-      strokeWidth="1.2"
-      strokeLinejoin="round"
-      strokeLinecap="round"
-    />
-    <path
-      d="M6 30 L24 38 L42 30"
-      fill="none"
-      stroke="#185FA5"
-      strokeWidth="1.2"
-      strokeLinejoin="round"
-      strokeLinecap="round"
-    />
-  </svg>
-);
-
 const DownArrow = () => (
   <svg width="20" height="14" viewBox="0 0 20 14" role="img" aria-label="포함 관계">
     <path
@@ -103,15 +75,15 @@ export function TargetAssetsSection() {
   const { t } = useTranslation();
 
   return (
-    <section className="mb-4">
+    <section className="mb-4 rounded-lg border border-line bg-white p-5 shadow-sm">
       {/* 섹션 헤더 */}
       <p className="mb-3 flex items-center gap-1 font-mono text-[11px] font-semibold uppercase tracking-wider text-text-3">
         <Target className="h-3.5 w-3.5" aria-hidden="true" />
         {t('notice.scope.title')}
       </p>
 
-      {/* Layer 1: 인프라 4종 */}
-      <div className="mb-3 grid grid-cols-4 gap-2">
+      {/* Layer 1: 인프라 4종 — 패널 안에서 대비를 위해 bg-soft 유지 */}
+      <div className="grid grid-cols-4 gap-2">
         {CARD_DEFS.map(({ id, Icon }) => (
           <div key={id} className="rounded-md bg-bg-soft px-2 py-3.5 text-center">
             <Icon />
@@ -126,25 +98,22 @@ export function TargetAssetsSection() {
       </div>
 
       {/* 포함 관계 화살표 */}
-      <div className="mb-2 flex justify-center text-text-4">
+      <div className="mt-3 flex justify-center text-text-4">
         <DownArrow />
       </div>
 
-      {/* Layer 2: VM (위 자산에 설치) — 컨테이너는 이번 캠페인 제외 */}
-      <div className="flex items-center gap-4 rounded-md border border-blue-200 bg-focus-soft p-3.5">
-        <VirtualizationIcon />
-        <div className="min-w-0 flex-1">
-          <p className="mb-0.5 text-[13px] font-medium text-focus">
-            {t('notice.scope.vmTitle')}
-          </p>
-          <p className="text-xs leading-relaxed text-focus/85">
-            {t('notice.scope.vmBody')}
-          </p>
-        </div>
+      {/* Layer 2: VM 안내 — 박스 없이 텍스트만 (컨테이너는 이번 캠페인 제외) */}
+      <div className="mt-2 text-center">
+        <p className="text-[13px] font-medium text-text">
+          {t('notice.scope.vmTitle')}
+        </p>
+        <p className="mt-0.5 text-xs leading-relaxed text-text-3">
+          {t('notice.scope.vmBody')}
+        </p>
       </div>
 
-      {/* 제외 대상 안내 */}
-      <div className="mt-3 flex items-start gap-2.5 rounded-md border border-amber-200 bg-warn-soft p-3 px-3.5">
+      {/* 제외 대상 안내 — 시각적 분리 위해 패널 안에서도 warn 톤 유지 */}
+      <div className="mt-4 flex items-start gap-2.5 rounded-md border border-amber-200 bg-warn-soft p-3 px-3.5">
         <Info className="mt-0.5 h-4 w-4 flex-shrink-0 text-warn" aria-hidden="true" />
         <div className="flex-1">
           <p className="mb-0.5 text-[13px] font-medium text-warn">
