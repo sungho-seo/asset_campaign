@@ -49,17 +49,17 @@ const LaptopIcon = () => (
   </svg>
 );
 
-const DownArrow = () => (
-  <svg width="20" height="14" viewBox="0 0 20 14" role="img" aria-label="포함 관계">
-    <path
-      d="M10 0 L10 10 M5 7 L10 12 L15 7"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
+// 4-카드 그리드와 VM 안내 사이를 연결하는 절제된 구분 표시.
+// 방향성(↓ 화살표) 대신 '이어진다'는 시각만 유지.
+const InclusionDivider = () => (
+  <div
+    className="flex items-center justify-center gap-1 text-text-4"
+    aria-hidden="true"
+  >
+    <span className="block h-[2px] w-2 rounded-sm bg-current" />
+    <span className="block h-[2px] w-2 rounded-sm bg-current" />
+    <span className="block h-[2px] w-2 rounded-sm bg-current" />
+  </div>
 );
 
 // 카드 정의 — 아이콘 매핑은 코드에, 라벨/부제는 i18n에.
@@ -97,9 +97,9 @@ export function TargetAssetsSection() {
         ))}
       </div>
 
-      {/* 포함 관계 화살표 */}
-      <div className="mt-3 flex justify-center text-text-4">
-        <DownArrow />
+      {/* 포함 관계 구분 — '---' 톤의 절제된 분리선 */}
+      <div className="mt-3">
+        <InclusionDivider />
       </div>
 
       {/* Layer 2: VM 안내 — 박스 없이 텍스트만 (컨테이너는 이번 캠페인 제외) */}
