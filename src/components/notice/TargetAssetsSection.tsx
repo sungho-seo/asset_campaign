@@ -53,12 +53,10 @@ const LaptopIcon = () => (
 // 방향성(↓ 화살표) 대신 '이어진다'는 시각만 유지.
 const InclusionDivider = () => (
   <div
-    className="flex items-center justify-center gap-1 text-text-4"
     aria-hidden="true"
+    className="select-none text-center text-[14px] leading-none text-text-4"
   >
-    <span className="block h-[2px] w-2 rounded-sm bg-current" />
-    <span className="block h-[2px] w-2 rounded-sm bg-current" />
-    <span className="block h-[2px] w-2 rounded-sm bg-current" />
+    · · ·
   </div>
 );
 
