@@ -49,6 +49,14 @@ function NavLinks() {
       {link('/notice', t('topbar.nav.notice'))}
       {link('/', t('topbar.nav.employee'))}
       {link('/dashboard', t('topbar.nav.dashboard'))}
+      <a
+        href="http://10.188.152.16:8082/dashboard"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="rounded px-2.5 py-1 font-mono text-[11px] text-text-3 transition-colors hover:text-text"
+      >
+        {t('topbar.nav.dashboardV2')}
+      </a>
       {link('/demo', t('topbar.nav.demo'))}
     </nav>
   );
